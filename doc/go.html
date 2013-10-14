@@ -1,0 +1,650 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<style>
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: "Helvetica Neue", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #737373;
+    background-color: white;
+    margin: 10px 13px 10px 13px;
+}
+table {
+	margin: 10px 0 15px 0;
+	border-collapse: collapse;
+}
+td,th {	
+	border: 1px solid #ddd;
+	padding: 3px 10px;
+}
+th {
+	padding: 5px 10px;	
+}
+
+a {
+    color: #0069d6;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+p {
+    margin-bottom: 9px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #404040;
+    line-height: 36px;
+}
+h1 {
+    margin-bottom: 18px;
+    font-size: 30px;
+}
+h2 {
+    font-size: 24px;
+}
+h3 {
+    font-size: 18px;
+}
+h4 {
+    font-size: 16px;
+}
+h5 {
+    font-size: 14px;
+}
+h6 {
+    font-size: 13px;
+}
+hr {
+    margin: 0 0 19px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+}
+blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:40px;
+    margin-left:-10px;
+    font-family:georgia,serif;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+code {
+    background-color: #fee9cc;
+    color: rgba(0, 0, 0, 0.75);
+    padding: 1px 3px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 14px;
+    margin: 0 0 18px;
+    line-height: 16px;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+pre code {
+    background-color: #fff;
+    color:#737373;
+    font-size: 11px;
+    padding: 0;
+}
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:10px auto;
+    }
+}
+@media print {
+	body,code,pre code,h1,h2,h3,h4,h5,h6 {
+		color: black;
+	}
+	table, pre {
+		page-break-inside: avoid;
+	}
+}
+</style>
+<title>学习go语言</title>
+
+</head>
+<body>
+<h4>学习go语言</h4>
+
+<p>先从变量、基础类型、关键字和控制流开始</p>
+
+<p><strong>变量</strong></p>
+
+<ul>
+<li>变量的类型写在名称之后</li>
+<li>变量的声明和定义是两个过程，但同样有写做一起的写法 <code>:=</code>，这种就是叫做<code>短声明</code></li>
+<li><p>const和iota，iota从零开始</p>
+
+<pre><code>  const (
+      a = iota
+      b = // implicitly auto
+  )
+</code></pre></li>
+</ul>
+
+
+<p><strong>基础类型</strong></p>
+
+<ul>
+<li><p>go中的<code>string</code>类型较为奇葩，当你给一个字符串变量赋值，那么它就不能改变。如下，将是非法</p>
+
+<pre><code>  var s string := "hello"
+  s[0] = 'c'
+</code></pre>
+
+<p>  这种情况类似于C++的 const 变量，如果你需要完成上述功能，可用数组解决这个问题</p>
+
+<pre><code>  s:="hello"
+  c:= []rune(s)  //rune 是一个关键字，同样是字符串的意思，但和string用法有差别。实际上是int32的别名，常见于遍历字符串（文档中写明支持utf8）
+  c[0] = 'c'
+  s2 := string( c ) // 由这可见，[]rune 和 string 相互转换的过程
+  fmt.Printf("%s\n", s2)
+</code></pre></li>
+</ul>
+
+
+<p><strong>关键字</strong> <br>
+关键字的部分和C类似，同样略过。</p>
+
+<p><strong>控制结构</strong> <br>
+控制结构部分中，go拥有for，switch，if还有select。</p>
+
+<ul>
+<li><p>if</p>
+
+<pre><code>  if x &gt; 0 {     // 此中格式是固定的
+      return y
+  } else {
+      return x
+  }
+  //if 中还有一个特点，它接受初始化语句，就想for那样，举例：
+  if err := Chmod(0664); err != nil {
+      fmt.Printf(err)
+      return err
+  }
+</code></pre></li>
+<li><p><code>for</code> 循环有三种形式，简单写做下</p>
+
+<pre><code>  // 1
+  for init; condition; post {
+      //...
+  }
+  // 2
+  for condition {
+      //...
+  }
+  // 3
+  for {
+       //...
+  }
+</code></pre></li>
+<li><p><code>break</code> 和 <code>continue</code> <br>
+break有了一个很棒的新用法，示例如下：</p>
+
+<pre><code>  I: for i := 0; i &lt; 10; i++ {    
+      for j := 0; j &lt; 10; j++{
+          if j &gt; 5 {
+             break I     // 这种情况下能够从双层中跳出来，不过需要的是标签好I才行
+          }
+      }
+  }
+</code></pre></li>
+<li><p><code>switch</code> <br>
+首先是，fallthrough 关键字，换句话就是switch 不会自动向下尝试，例子如下：</p>
+
+<pre><code>  switch i {
+      case 0:     //空的case
+      // 当i == 0时，它不会调用到f(), 但在 case 0: 后面添加 fallthrough 那么就可以
+      case 1:
+          f()
+  }
+</code></pre>
+
+<p>switch 如果没有填条件，那么它就默认是true，这时可以当作一种优雅的if else if else，例子如下：</p>
+
+<pre><code>  switch {
+      case c == 1:
+          //…
+      case c == 2:
+          //…
+  }
+</code></pre></li>
+</ul>
+
+
+<p><strong>一些内置函数</strong> <br></p>
+
+<ul>
+<li><p><code>len/cap</code> 它通常使用在array slices 和 map 上面，这个概念再stl中同样有，就是长度什么的</p></li>
+<li><p>new 用于内存分配，delete，是用于map中删除一个实例</p></li>
+<li><p>同delete一样，有很多关键字将会只是作用再array slices 和 map上：make，copy，append</p></li>
+<li><p>close 用于关闭channel</p></li>
+</ul>
+
+
+<p><strong>array</strong>
+<br>array由 [n]<type> 定义：</p>
+
+<pre><code>var arr [10]int
+arr[0] = 42
+fmt.Printf("The first element is %d\n", are[0])
+</code></pre>
+
+<p>还可以通过复合声明</p>
+
+<pre><code>arr := [3]int{1,2,3} 
+//或者是自动录入数组大小 
+arr := […]int{1,2,3}
+</code></pre>
+
+<p><strong>slice</strong>
+<br>slice 它与 array 接近，但可以自动添加长度，据说slice是一个指向array的指针，它也是一个引用类型，也就是当赋值某个slice到另一个变量，两个引用指向的是同一个array。slice通过make创建，如下：</p>
+
+<pre><code>sl := make([]int, 10)
+</code></pre>
+
+<p>因为它只是一个指针，所以必须和array成对出现，所以也可以如下写：</p>
+
+<pre><code>var array[m] int
+slice := array[0:n]
+len(slice) == n
+cap(slice) == m
+len(array)==cap(array)==m
+</code></pre>
+
+<p>上面出现了slice 的新的复合声明，</p>
+
+<pre><code>slice := a[i:j] //这里面的a 不仅仅可以是数组，也可以是另一个slice
+</code></pre>
+
+<p>slice有两个扩展函数，<code>append</code> 和 <code>copy</code></p>
+
+<ul>
+<li><p>append 往slice的后面追加值，当其超过原有array的长度的时候，会新建array，slice指向也就变了</p>
+
+<pre><code>  s0 := []int {0, 0}
+  s1 := append(s0, 2)
+  s2 := append(s1, 3, 5, 7)
+  s3 := append(s2, s0…)
+</code></pre></li>
+<li><p>copy 则是复制，从一个slice 到 目标dst，其可以是array，也可以是slice</p>
+
+<pre><code>  var a=[...]int{0,1,2,3,4,5,6,7}
+  var s = make([]int, 6)
+  n1 := copy(s, a[0:])
+  n2 := copy(s, s[2:])
+</code></pre></li>
+</ul>
+
+
+<p><strong>map</strong>
+<br>举例：</p>
+
+<pre><code>ourname := map[string]int{"zero": 0, "one": 1,}
+// 它的声明同样是通过make
+ourname := make(mao[string]int)
+fmt.print("%d\n", ourname["zero"])
+
+// 如此增加 
+ourname["two"] = 2
+
+// 如此检查是否存在，在go中更习惯使用ok这种用法
+var value int
+var ok bool
+value, ok := ourname["three"]
+
+// 移除元素
+delete(ourname, "two")
+</code></pre>
+
+<h4>函数</h4>
+
+<p><br>多返回值，甚至返回值也可以有命名，这很方便</p>
+
+<p><strong>defer延迟代码</strong></p>
+
+<pre><code>func ReadWrite() bool {
+    file.open("file")
+    defer file.close() // 将代码 file.close() 加入到defer列表中
+
+    if failureX {
+      return false // 返回，defer列表中的代码将会被自动执行
+    }
+}
+</code></pre>
+
+<p>defer列表中的代码将会按照『后进先出』的原则进行执行，defer还有一个特性就是它可以修改返回值，这里就不做示例</p>
+
+<h4>包</h4>
+
+<p><strong>package</strong>
+<br>包是函数和数据的集合，用 package 关键字定义一个包。文件名不需要与包名一致，包名的约定是使用小写字符。Go 包可以由多个文件组成,但是使用相同的 package &lt; name> 这一行。</p>
+
+<ul>
+<li><p>包中的公有函数的名字以大写字母开头，而私有函数的名字则是以小写字母开头。</p></li>
+<li><p>导入包的写法有两种</p>
+
+<pre><code>  import fmt "fmt"
+  import even "even"
+
+  import(
+      "fmt"
+      "even"
+  )
+  //前一种更为灵活，可以重新命名，比如说 import newname "fmt"
+  //那么就将如下使用：
+  newname.print()
+</code></pre></li>
+<li><p>测试包，在 Go 中为包编写单元测试应当是一种习惯。编写测试需要包含 testing 包和程序 go test。两者都有良好的文档。</p>
+
+<p>  go test 程序调用了所有的测试函数，测试函数拥有这样的格式</p>
+
+<pre><code>  func TestXxx(t *testing.T)
+</code></pre>
+
+<p>  在函数中，可以调用几个标记函数</p>
+
+<pre><code>  func (t *T) Fail()              // 失败时调用，直接退出
+  func (t *T) FailNow()           // 失败时调用，但继续执行
+  func (t *T) Log()               // 类似于print
+  func (t *T) Fatal()         // Log + FailNow
+</code></pre>
+
+<p>  一段完整的包测试</p>
+
+<pre><code>  package even
+  import "testing"
+
+  func TestEven(t *testing.T){
+      if !Even(2) {
+          t.Log("2 should be even!")
+          t.Fail()
+      }
+  }
+</code></pre></li>
+</ul>
+
+
+<h4>new &amp; make 的区别</h4>
+
+<p>make仅适用在map, slice 和 channel上，并且返回不是指针。另外，new只负责了分配内存，而make具有初始化的功效。</p>
+
+<h4>自定义类型</h4>
+
+<ul>
+<li><p>type可以实现自定义类型</p>
+
+<pre><code>  type NameAge struct {
+      name string
+      age     int     // 小写只能在包内使用，不导出
+  }
+  func main() {
+      a := new(NameAge)
+      a.name = "Peter"
+      a.age = 42
+      fmt.Printf("%v\n", a)   // 将会输出 ｛Peter, 42} 这真让人泪流满面
+  }
+</code></pre></li>
+<li><p>下一段代码就完成了为NameAge这个结构体提供dosomething方法（这里，方法和函数不是一个概念，方法为有接受者的函数）的任务。</p>
+
+<pre><code>  func （n1 *NameAge) doSomething(n2 int)
+</code></pre></li>
+<li><p>自定义类型中，可以存在匿名字段，往往是通过它来完成『继承』这个概念，代码如下</p>
+
+<pre><code>  type Mutex struct { /* Mutex 字段 */ }
+  func (m *Mutex) Lock() { /* Lock 实现 */ }
+  func (m *Mutex) Unlock() { /* Unlock 实现 */ }
+  type PrintableMutex struct {Mutex } //这样 PrintableMutex 也有了Lock 和 Unlocl两个方法
+</code></pre></li>
+</ul>
+
+
+<h4>接口</h4>
+
+<p>下面用一段代码来展示<code>interface</code></p>
+
+<pre><code>type S struct {i int}
+func (p *S) Get() int {return p.i}
+func (p *S) Put(v int) {p.i = v}
+
+// 接着定义接口
+type I interface {
+    Get() int
+    Put(int)
+}
+
+// 下面是一个使用接口的示例
+func f(p I){
+    fmt.Println(p.Get())
+    p.Put(1)
+}
+
+var s S; f(&amp;s)  // 此时，直接使用了s这个S对象的实例
+
+// 这种非入侵式的接口当然很酷，但也有些情况需要处理
+type R struct {i int}
+func (p *R) Get() int {return p.i}
+func (p *R) Put(v int) {p.i = v}
+
+// 当有两个类型都实现了接口I，但在func f2 中需要区分出类型，需要如下
+func f2(p I) {
+    switch t := p.(type) {  // type只能在此处使用
+        case *S:    //
+        case *P:    //指针和引用都可以使用 . 操作符
+        case S:     
+        case P:
+        default:            
+    }
+}
+
+//type只能在switch中使用，还有另外一个办法——『comma, ok』
+if t, ok := p.(I); ok {
+    // 实现了接口I 的t
+}
+</code></pre>
+
+<h4>并发——并发是关于程序设计，并行是关于性能</h4>
+
+<p>在Go中使用<code>channel</code>和<code>goroutine</code>开发并行程序，goroutine是Go并发能力的核心要素。</p>
+
+<ul>
+<li><p>goroutine 是一个普通的函数调用，只是需要使用关键字go作为开头。它有简单的模型：它与其他goroutine并行执行，有着相同的地址空间的函数。它是轻量的，仅比分配栈空间多一点消耗。用一段代码来展示<code>goroutine</code></p>
+
+<pre><code>  func ready(w string, sec int) {
+      time.sleep(time.Duration(sec) * time.Second)
+      fmt.Println(w, "is ready!")
+  }
+
+  func main(){
+      go ready("coffee", 1)
+      go ready("tea", 2)
+      fmt.Println("waiting for time")
+      time.sleep(5 * time.Second)     // 5秒后才让程序结束，否则程序结束，goroutine也都kill掉了
+  }
+</code></pre></li>
+<li><p>在上述代码中使用了time.sleep()来完成等待，实际上，我们可以使用channel来做到同样的事情，高端的是，这是阻塞等待，脱离了时间这个参数</p>
+
+<pre><code>  var c chan int      // 声明全局通道，并且为接受int类型，全局是为了让 goroutine 能够访问它
+
+  func ready(w string, sec int){
+      time.sleep(time.Duration(sec) * time.Second)
+      fmt.Println(w, "is ready!")
+      c &lt;- 1  // 向通道发送整数1
+  }
+
+  func main(){
+      c = make(chan int)      // channel 必须使用 make 来初始化
+      go ready("coffee", 1)
+      go ready("tea", 2)
+      fmt.Println("waiting for time")
+      i := &lt;-c    // 从通道中接受整数，并保存到i中
+      i := &lt;-c    // 因为有两个 goroutine，所以接收两次
+  }
+</code></pre></li>
+<li><p>channel从概念模型上来说，很接近网络编程，而网络编程中有个好用的select函数，channel可以实现类似的功能，代码如下：</p>
+
+<pre><code>  L: for {
+      select {
+      case &lt;- c:
+          i++
+          if i &gt; 1 {
+              break L
+          }
+      }
+  }   // 此段L for循环可替代上面的两次 &lt;-c
+</code></pre></li>
+<li><p>使用了goroutine并不等于就使用了并行，如果不设置<code>runtime.GOMAXPROCE(n)</code>，那么同一个时刻就只有一个goroutine在运行。</p></li>
+<li><p><code>ch := make(chan bool)</code> 启示这是一个特别的channel，叫做无缓冲channel，后面的type是可以随意的。关于这个channel的读写操作都会被阻塞住。那么， <code>ch := make(chan bool, 5)</code> 这就是一个缓冲channel，当写入第六个元素的时候（ch &lt;- 6），代码会被阻塞住，直到有人读取数据(value := &lt;-ch)</p></li>
+<li><p><code>x, ok = &lt;- ch</code> 这用来检查channel是否被关闭</p></li>
+</ul>
+
+
+<h4>通讯</h4>
+
+<p>所谓通讯是指Go与外部通讯的模块，比如说：文件目录的读写，网络通讯，运行其他程序。</p>
+
+<ul>
+<li><p>文件读取，其核心为两个接口<code>io.Reader 以及 io.Writer</code> 看两个代码块，前者为无缓冲模式，后者有缓冲</p>
+
+<pre><code>  // 无缓冲
+  import "os"
+
+  func main(){
+      buf := make([]byte, 1024)
+      f, _ := os.Open("/etc/passwd")
+      defer f.Close()
+
+      for {
+          n, _ := f.Read(buf)
+          if n == 0 { break }     // 读到文件尾
+          os.Stdout.Write(buf[:n])
+      }
+  }
+
+  // 缓冲
+  import ("os"; "bufio")
+
+  func main(){
+      buf := make([]byte, 1024)
+      f, _ := os.Open("/etc/passwd")
+      defer f.Close()
+
+      r := bufio.NewReader(f)     // NewReader()需要一个io.Reader，而 os.file 实例 f 实现了接口Read()，所以它就是一个io.Reader
+      w := bufio.NewWriter(os.Stdout)     // NewWirter() 和 io.Writer，以及 os.Stdout 的关系同上
+      defer w.Flush()
+      for {
+          n, _ := r.Read(buf)
+          if n == 0 { break }
+          w.write(buf[0:n])
+      }
+  }
+</code></pre></li>
+<li><p>运行其他程序主要是通过执行命令完成，在os/exec包中</p>
+
+<pre><code>  import "exec"
+
+  cmd := exec.Command("/bin/ls", "-l")
+  buf,err := cmd.Output()     // 此时buf中就包含了ls 的输出
+</code></pre></li>
+<li><p>命令行参数，其数据都保持在slice os.Args 中，go提供了flag包来帮助写出更简洁的命令行提示等，代码如下：</p>
+
+<pre><code>  // 一个DNS查询工具
+  // 程序接受两个命令行参数，将会赋值给dnssec 和 port，它们都是指针类型
+  // flag.Type 将会定义命令行参数的名称，默认值，以及提示
+  dnssec := flag.Bool("dnssec", false, "Request DNSSEC records")
+  port := flag.String("port", "53", "Set the query port")
+  // 重定义一下 usage 这个函数
+  flag.Usage = func() {
+      fmt.Fprintf(os.Stderr, "Usage: %s [options] [name …]\n", os.Args[0])
+      flag.PrintDefaults()
+  }
+  flag.Parse()    // 解析参数，并且填充到上面的 dnssec port 中
+
+  if *dnssec {    // 参数正确
+      // do something
+  }
+</code></pre></li>
+<li><p>网络，毫无疑问这是最重要的。所有网络相关的类型和函数都在net包中，其中最重要的函数是<code>Dial</code>，它抽象了网络层和传输层，TCP，UDP，IPV4，IPV6都共用这一个接口，返回Conn接口类型</p>
+
+<pre><code>  conn, e := Dial("tcp", "192.0.32.10:80")
+  conn, e := Dial("udp", "192.0.32.10:80")
+  conn, e := Dial("tcp", "[2620:0:2d0:200::10]:80")
+
+  // 如果e变量正确(我猜应该是为空)，那么此时就可以使用conn
+  buf := make([]byte, 1024)
+  conn.Read(buf)
+</code></pre>
+
+<p>  比起上述，http包是更高层级的，例子如下：</p>
+
+<pre><code>  import ("io/ioutil"; "net/http"; "fmt")
+  func main() {
+      r, err := http.Get("http://www.google.com/robots.txt")
+      if err == nil {
+          fmt.Printf("err: %s \n", err.string)
+          return
+      }
+
+      b, err := ioutil.ReadAll(r.Body)    // 这里和http包有具体关系了，觉得应该是会很有趣的
+      r.Body.Close()
+      if err == nil {
+          fmt.Printf("body: %s \n", string(b))
+      }
+  }
+</code></pre></li>
+</ul>
+
+</body>
+</html>
