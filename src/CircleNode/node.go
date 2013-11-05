@@ -4,6 +4,43 @@ import (
     "fmt"
 )
 
+type CircleModuler struct{
+
+}
+
+func (cm *CircleModuler) Init() {
+    fmt.Print("CircleModuler.Init()\n")
+}
+
+func (cm *CircleModuler) Breath(){
+    fmt.Print("CircleModuler.Breath()\n")
+}
+
+func (cm *CircleModuler) Run() {
+    fmt.Print("CircleModuler.Run()\n")
+}
+
+func (cm *CircleModuler) Stop() {
+    fmt.Print("CircleModuler.Stop()\n")
+}
+
+func (cm *CircleModuler) IsSelfRun() bool {
+    return false
+}
+
+func (cm *CircleModuler) Load() {
+    cm.Init()
+    if cm.IsSelfRun() == true {
+        cm.Run()
+    }
+}
+
+func (cm *CircleModuler) Unload() {
+    if cm.IsSelfRun() == true {
+        cm.Stop()
+    }
+}
+
 type Node struct {
     NodeID          int
     FrontNode       *Node

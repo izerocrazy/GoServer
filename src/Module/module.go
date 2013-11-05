@@ -1,7 +1,15 @@
 package Module
 
-type Module interface {
+type Moduler interface {
     Init()
     Breath()
     Run()
+    Stop()
+
+    IsSelfRun() bool
+
+    Load()
+    Unload()
 }
+
+
