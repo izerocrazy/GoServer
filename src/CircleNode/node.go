@@ -1,203 +1,43 @@
 package CircleNode
 
-import (
-    "fmt"
-)
+type Node interface {
+    InitNode(nodeId int)
 
-type CircleModuler struct{
+    GetNodeId() int
 
+    GetFrontNode() Node
+    SetFrontNode(Node)
+
+    GetBehindNode() Node
+    SetBehindNode(Node)
 }
 
-func (cm *CircleModuler) Init() {
-    fmt.Print("CircleModuler.Init()\n")
+type CircleNode struct {
+    NodeId          int
+    FrontNode       Node
+    BehindNode      Node
 }
 
-func (cm *CircleModuler) Breath(){
-    fmt.Print("CircleModuler.Breath()\n")
+func (n *CircleNode) InitNode(nodeId int) {
+    n.NodeId = nodeId
 }
 
-func (cm *CircleModuler) Run() {
-    fmt.Print("CircleModuler.Run()\n")
+func (n *CircleNode) GetNodeId() int {
+    return n.NodeId
 }
 
-func (cm *CircleModuler) Stop() {
-    fmt.Print("CircleModuler.Stop()\n")
+func (n *CircleNode) GetFrontNode() Node {
+    return n.FrontNode
 }
 
-func (cm *CircleModuler) IsSelfRun() bool {
-    return false
+func (n *CircleNode) GetBehindNode() Node {
+    return n.BehindNode
 }
 
-func (cm *CircleModuler) Load() {
-    cm.Init()
-    if cm.IsSelfRun() == true {
-        cm.Run()
-    }
+func (n *CircleNode) SetFrontNode(fNode Node) {
+    n.FrontNode = fNode
 }
 
-func (cm *CircleModuler) Unload() {
-    if cm.IsSelfRun() == true {
-        cm.Stop()
-    }
+func (n *CircleNode) SetBehindNode(bNode Node) {
+    n.BehindNode = bNode
 }
-
-type Node struct {
-    NodeID          int
-    FrontNode       *Node
-    BehindNode      *Node
-
-    MyCircle        *NodeCircle
-}
-
-func (n *Node) InitNode(nodeID int, circle *NodeCircle) {
-    n.NodeID = nodeID
-    n.MyCircle = circle
-}
-
-//============
-
-type NodeCircle struct {
-    HeadNode    *Node
-    Count       int
-    NodeMap     map[int]string
-}
-
-func (c *NodeCircle) InitCircle() {
-    c.Count = 0
-    c.NodeMap = make(map[int]string)
-}
-
-func (c *NodeCircle) AddNode(nodeID int, str string){
-    var node Node
-    node.InitNode(nodeID, c)
-
-    if c.Count == 0 {
-        c.HeadNode = &node
-        node.FrontNode = &node
-        node.BehindNode = &node
-    } else {
-        frontNode := c.FindFrontNode(nodeID)
-        behindNode := c.FindBehindNode(nodeID)
-
-        frontNode.BehindNode = &node
-        behindNode.FrontNode = &node
-        node.FrontNode = frontNode
-        node.BehindNode = behindNode
-
-        if c.HeadNode == node.FrontNode && node.NodeID < c.HeadNode.NodeID {
-            c.HeadNode = &node
-        }
-    }
-
-    c.NodeMap[nodeID] = str
-
-    c.Count = c.Count + 1
-}
-
-func (c *NodeCircle) FindFrontNode(nodeID int) *Node {
-    if c.Count == 0 {
-        return nil
-    }
-
-    node := c.HeadNode
-    for {
-        fmt.Printf("FindFrontNode :%d, %d, %d \n", node.NodeID, node.BehindNode.NodeID, nodeID);
-        if node.NodeID == node.BehindNode.NodeID {
-            return node
-        }
-
-        // last one
-        if node.NodeID > node.FrontNode.NodeID && node.NodeID < nodeID {
-            return node.FrontNode
-        }
-
-        // first one
-        if node.NodeID < node.BehindNode.NodeID && node.NodeID > nodeID && node.BehindNode.NodeID > nodeID{
-            return node
-        }
-
-        if node.NodeID > node.BehindNode.NodeID && node.NodeID > nodeID && node.BehindNode.NodeID < nodeID {
-            return node
-        }
-
-        node = node.FrontNode
-        if node == c.HeadNode {
-            return nil
-        }
-    }
-}
-
-func (c *NodeCircle) FindBehindNode(nodeID int) *Node {
-    if c.Count == 0 {
-        return nil
-    }
-
-    node := c.HeadNode
-    for {
-        fmt.Printf("FindBehindNode: %d, %d, %d \n", node.NodeID, node.FrontNode.NodeID, nodeID);
-        if node.NodeID == node.FrontNode.NodeID {
-            return node
-        }
-
-        // last one
-        if node.NodeID > node.FrontNode.NodeID && node.NodeID < nodeID && node.FrontNode.NodeID < nodeID {
-            return node
-        }
-
-        // first one
-        if node.NodeID < node.BehindNode.NodeID && node.NodeID > nodeID {
-            return node.BehindNode
-        }
-
-        // normal one
-        if node.NodeID < node.FrontNode.NodeID && node.NodeID < nodeID && node.FrontNode.NodeID > nodeID{
-            return node
-        }
-
-        node = node.FrontNode
-        if node == c.HeadNode {
-            return nil
-        }
-    }
-}
-
-func (c *NodeCircle) Show() {
-    if c.Count == 0 {
-        fmt.Printf("this circle is empty \n")
-        return
-    }
-
-    node := c.HeadNode
-    for {
-        fmt.Printf("%d\n", node.NodeID)
-
-        node = node.FrontNode
-        if node == c.HeadNode {
-            return 
-        }
-    }
-}
-
-
-/*func main() {
-    var circle NodeCircle
-    circle.InitCircle()
-    circle.Show()
-
-    //var node1 Node
-    circle.AddNode(1, "Node")
-    circle.Show()
-    fmt.Printf("++++\n")
-
-    circle.AddNode(3, "Node")
-    circle.Show()
-    fmt.Printf("++++\n")
-
-    circle.AddNode(4, "Node")
-    circle.Show()
-    fmt.Printf("++++\n")
-
-    circle.AddNode(2, "Node")
-    circle.Show()
-    fmt.Printf("++++\n")
-}*/

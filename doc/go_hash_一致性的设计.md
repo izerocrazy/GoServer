@@ -14,45 +14,62 @@
 
 	type Node interface {
 		InitNode (nodeID int)
-		GetFrontNode () *Node
-		GetBehindNode () *Node
+		GetNodeId() int
+
+		GetFrontNode () Node
+		SetFrontNode (Node)
+
+		GetBehindNode () Node
+		SetBehindNode (Node)
 	}
 	
-	type HashNode struct {
+	type CircleNode struct {
 		NodeID 		int
-		FrontNode	*HashNode
-		BehindNode	*HashNode
+		FrontNode	Node
+		BehindNode	Node
 	}
 	
-	func (n *HashNode) InitNode(nodeID int)
-	func (n *HashNode) GetFrontNode() *Node
-	func (n *HashNode) GetBehindNode() *Node
+	func (n *CircleNode) InitNode(nodeID int)
+	func (n *CircleNode) GetNodeId() int
+	func (n *CircleNode) GetFrontNode() Node
+	func (n *CircleNode) SetFrontNode(Node)
+	func (n *CircleNode) GetBehindNode() Node
+	func (n *CircleNode) SetBehindNode(Node)
 	
 #### **NodeCircle** ####
 
 Circle 数据结构，代码实现如下，其接口 AddNode 是假设传入的 NodeID 自身保证了单调性，这个 NodeID 也就是用户生成的 Hash 值。
 
 	type Circle interface {
-		InitCircle()
+		Init()		// 原为 InitCircle，但考虑和 Module 的结合，改为 Init()
 		
-		AddNode(nodeID int)
-		ReduceNode(nodeID int)
-		GetNode(nodeID int) *Node
+		AddNode(nodeId int)
+		ReduceNode(nodeId int)
+		
+		GetNode(nodeId int) Node
+		GetFrontNode(nodeId int) Node
+		GetBehindNode(nodeId int) Node
 	}
 	
-	type NodeCircle struct {
-		HeadNode	*Node
+	type CircleModuler struct {
+		HeadNode	Node
 		Count		int
 	}
 	
-	func (c* NodeCircle) InitCircle()
-	func (c* NodeCircle) AddNode(nodeID int)
-	func (c* NodeCircle) ReduceNode(nodeID int)
-	func (c* NodeCircle) GetNode(nodeID int) *Node
+	func (c* CircleModuler) Init()
+	func (c* CircleModuler) AddNode(nodeId int)
+	func (c* CircleModuler) AddHashNode(nodeId string)	// 暂时只做一个 string 转 int 的函数，提供 Hash 功能	
+	func (c* CircleModuler) ReduceNode(nodeId int)
+	func (c* CircleModuler) GetNode(nodeId int) *Node
 	// GetNode 实际调用的就是下面两个中的一个（具体看设计），如果没有直接命中的话
-	func (c* NodeCircle) GetFrontNode(nodeID int) *Node
-	func (c* NodeCircle) GetBehindNode(nodeID int) *Node
+	func (c* CircleModuler) GetFrontNode(nodeId int) *Node
+	func (c* CircleModuler) GetBehindNode(nodeId int) *Node
 	
 #### Hash 数的生成 ####
 
-这个就直接用 GoLang 标准库中的 Hash 就可以了：）	
+这个就直接用 GoLang 标准库中的 Hash 就可以了：）
+
+#### 几处修改 ####
+函数返回不使用指针，应该会自己使用引用。
+
+修改函数：1、更好看；2、以便于和 Module 结合。
