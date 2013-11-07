@@ -64,17 +64,21 @@ func (cm *CircleModuler) IsSelfRun() bool {
     return false
 }
 
-func (cm *CircleModuler) Load() {
+func (cm *CircleModuler) Load()  error {
     cm.Init()
     if cm.IsSelfRun() == true {
         cm.Run()
     }
+
+    return nil
 }
 
-func (cm *CircleModuler) Unload() {
+func (cm *CircleModuler) Unload() error {
     if cm.IsSelfRun() == true {
         cm.Stop()
     }
+
+    return nil
 }
 
 //=========

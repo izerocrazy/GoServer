@@ -8,7 +8,7 @@
 对一个 TCP Server，必须存储的是它自己的 IP 和 Port，在 GoLang 中 net.TCPAddr 包含了两者，当然，还有其他的必要数据，如端口的监听对象 net.TCPListen；以及不必要的数据，如对每一个存在的连接。具体代码见下
 
 	type Server interface {
-		InitServer (string)
+		Init(string)
 		RunServer()
 	}
 	
@@ -28,16 +28,17 @@
 TCP Client 会记住连接的 Server 的 IP 和 Port，另外，此处我将 net.Conn 直接放在此中了，需要想个办法去实现上面提到的那个想法，也就是客户端和服务端使用同一段代码。
 
 	type Client interface {
-		InitClient(string)
-		ConnectServer()
+		Init()
+		SendData(v interface{}) error
 	}
 	
 	type EncodeClient struct {
 		ClientTCPInfo 	string
 		ClientConn		net.Conn
+		ClientError	error
 	}
 	
-	func (ec *EncodeClient) InitClient(server string)
-	func (ec *EncodeClient) ConnectServer()
+	func (ec *EncodeClient) Init()
+	func (ec *EncodeClient) SendData(v interface{}) error
 	
 虽然在结构体中包含了 net.Conn ，但在接口设计中却没有出现 Write 和 Read 对应的接口。**此处尚待补足。**

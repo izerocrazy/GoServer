@@ -1,4 +1,4 @@
-package EncodeServer
+package EncodeNet
 
 import (
     "fmt"
@@ -96,31 +96,3 @@ func doConn(conn net.Conn) {
     }
 }*/
 
-type EncodeClient struct {
-    ClientTCPInfo string
-    ClientConn net.Conn
-}
-
-func (ec *EncodeClient) InitClient(server string) {
-    ec.ClientTCPInfo = server
-}
-
-func (ec *EncodeClient) ConnectServer() {
-    var err error
-    ec.ClientConn, err = net.Dial("tcp", ec.ClientTCPInfo)
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "can not DialTCP err: %s \n", err.Error)
-        os.Exit(1)
-    }
-}
-
-func (ec *EncodeClient) doClient() {
-    var testData MyData
-    testData.Ip = ec.ClientTCPInfo
-    testData.Port = ec.ClientTCPInfo
-
-    fmt.Printf("to send my encoder\n")
-    encoder := json.NewEncoder(ec.ClientConn)
-    encoder.Encode(&testData)
-    fmt.Printf("send my encoder over %s, %s\n", testData.Ip, testData.Port)
-}

@@ -4,11 +4,15 @@ import (
     "fmt"
     "Module"
     "CircleNode"
+    "EncodeNet"
 )
 
 func CreateModule(msg string) Module.Moduler {
     if msg == "CircleModuler" {
         retModule := new (CircleNode.CircleModuler)
+        return retModule
+    } else if msg == "EncodeClient" {
+        retModule := new (EncodeNet.EncodeClient)
         return retModule
     }
 
@@ -21,7 +25,7 @@ func main() {
     // init 
     fmt.Print("main start\n")
 
-    cm = CreateModule("CircleModuler")
+    cm = CreateModule("EncodeClient")
     if cm != nil {
         cm.Load()
     }
