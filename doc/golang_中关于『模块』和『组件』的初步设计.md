@@ -16,8 +16,8 @@
 		
 		IsSelfRun() bool
 		
-		Load()
-		Unload()
+		Load() error
+		Unload() error
 	}
 	 
 从代码实现上来说，Load() 它实际上调用了 Init() 和 Run()（如果是模块的话），Unload() 实际调用了 Stop()。所以，也许并不需要这么多接口，但我是这样以为的，从程序员的角度来说，Init Run Stop 这些关键字浅显易懂，加上也还行。而 Load Unload 是从接口使用者的角度出发的，所以是必须存在的。这样的设计或许缺点就是冗余，并且对某些人会产生困扰，该不该还是看实际应用吧。

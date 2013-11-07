@@ -8,8 +8,8 @@ type Moduler interface {
 
     IsSelfRun() bool
 
-    Load()
-    Unload()
+    Load() error
+    Unload() error
 }
 
 
