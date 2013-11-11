@@ -16,6 +16,8 @@
 		
 		IsSelfRun() bool
 		
+		// 便携
+API
 		Load() error
 		Unload() error
 	}

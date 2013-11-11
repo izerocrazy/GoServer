@@ -8,7 +8,7 @@
 对一个 TCP Server，必须存储的是它自己的 IP 和 Port，在 GoLang 中 net.TCPAddr 包含了两者，当然，还有其他的必要数据，如端口的监听对象 net.TCPListen；以及不必要的数据，如对每一个存在的连接。具体代码见下
 
 	type Server interface {
-		Init(string)
+		Init()
 		RunServer()
 	}
 	
@@ -19,7 +19,7 @@
 	}
 	
 	// 完成对端口的绑定和监听逻辑
-	func (es *EncodeServer) InitServer(str string)	// 处理客户端发上来连接服务端的请求
+	func (es *EncodeServer) InitServer()	// 处理客户端发上来连接服务端的请求
 	func (es* EncodeServer) RunServer()
 	
 如你所见，此处只是完成部分，主要是对服务器的初始化和处理客户端的连接请求。对于一个完成的服务器而言，还缺少处理客户端具体请求的逻辑部分——这部分逻辑将会主要围绕 net.Conn 这个结构体，并且对于客户端和服务端而言，它都扮演的一样的角色，所以我的想法是尽可能的让服务端和客户端使用同样的代码——至少，暂不在服务端表现吧。

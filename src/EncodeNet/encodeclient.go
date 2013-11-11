@@ -23,7 +23,7 @@ func (ec *EncodeClient) Init() {
     fmt.Printf("EncodeClient: Init()")
 
     ec.ClientTCPInfo = "127.0.0.1:8282"
-    ec.ConnectServer()
+    ec.connectServer()
 }
 
 func (ec *EncodeClient) Breath() {
@@ -38,6 +38,8 @@ func (ec *EncodeClient) Run() {
 
 func (ec *EncodeClient) Stop() {
     fmt.Printf("EncodeClient:Stop()")
+
+    ec.ClientConn.Close()
 }
 
 func (ec *EncodeClient) IsSelfRun() bool {
@@ -72,7 +74,7 @@ func (ec *EncodeClient) Unload() error {
     return nil
 }
 
-func (ec *EncodeClient) ConnectServer() error {
+func (ec *EncodeClient) connectServer() error {
     var err error
     ec.ClientConn, err = net.Dial("tcp", ec.ClientTCPInfo)
     if err != nil {

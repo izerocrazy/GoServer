@@ -14,6 +14,9 @@ func CreateModule(msg string) Module.Moduler {
     } else if msg == "EncodeClient" {
         retModule := new (EncodeNet.EncodeClient)
         return retModule
+    } else if msg == "EncodeServer" {
+        retModule := new (EncodeNet.EncodeServer)
+        return retModule
     }
 
     return nil
@@ -25,7 +28,7 @@ func main() {
     // init 
     fmt.Print("main start\n")
 
-    cm = CreateModule("EncodeClient")
+    cm = CreateModule("EncodeServer")
     if cm != nil {
         cm.Load()
     }

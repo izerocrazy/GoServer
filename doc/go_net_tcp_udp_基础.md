@@ -82,13 +82,14 @@ UDP 和 TCP 函数格式差距并不大，主要调用的函数如下
 接口来完成数据传输。实际上，在 Net 包中提供了更为简洁的，纯粹用接口来实现 TCP 和 UDP 的函数和类型，见下。
 
 #### net 包中的接口 ####
-Conn 接口和它相关的函数
+Conn 接口和它相关的函数，也类似于一种『便捷API』设计
 
 	// 客户端
 	func Dial(net, laddr, raddr string)(c Conn, err os.Error)
 	// 服务端
 	func Listen(net, laddr string)(l Listener, err os.Error)
 	func (l Listener) Accept() (c Conn, err os.Error)
+	func Close()
 	
 这里面非常有意思的是，其参数不再是指针了，这点和C++中的概念还是很接近的，一个接口相对于子类来说，像是一个指针
 

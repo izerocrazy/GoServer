@@ -7,11 +7,12 @@ import (
     "encoding/json"
 )
 
-type MyData struct {
-    Ip string
-    Port string
+type Server interface {
+    Init()
+    Run()
 }
 
+// ========
 type EncodeServer struct {
     // For Link Client
     ServerListenInfo string
@@ -19,12 +20,19 @@ type EncodeServer struct {
     ServerListen *net.TCPListener
 }
 
-func (es *EncodeServer) InitServer(str string) {
+func (es *EncodeServer) Init() {
+    var str string = "127.0.0.1:8282"
     es.setServerListenString(str)
     es.createServerListen()
 }
 
-func (es *EncodeServer) RunServer() {
+func (es *EncodeServer) Breath() {
+    fmt.Printf("EncodeServer: Breath")
+}
+
+func (es *EncodeServer) Run() {
+    fmt.Printf("EncodeServer: Run")
+
     for {
         conn, err := es.ServerListen.Accept()
         if err != nil {
@@ -35,6 +43,39 @@ func (es *EncodeServer) RunServer() {
             go doConn(conn)
         }
     }
+}
+
+func (es *EncodeServer) Stop() {
+    fmt.Printf("EncodeServer:Stop")
+
+    es.ServerListen.Close()
+}
+
+func (es *EncodeServer) IsSelfRun() bool {
+    fmt.Printf("EncodeServer:IsSelfRun")
+
+    return true
+}
+
+func (es *EncodeServer) Load() error {
+    fmt.Printf("EnocodeServer:Load")
+    es.Init()
+
+    if es.IsSelfRun() == true {
+        es.Run()
+    }
+
+    return nil
+}
+
+func (es *EncodeServer) Unload() error {
+    fmt.Printf("EncodeServer:Unload")
+
+    if es.IsSelfRun() == true {
+        es.Stop()
+    }
+
+    return nil
 }
 
 func (es *EncodeServer) setServerListenString(str string) {
@@ -67,11 +108,11 @@ func doConn(conn net.Conn) {
 
     // 解码TCPAddr
     //var tcpAddr net.TCPAddr
-    var testData MyData
+    var testData string
+    testData = "ip: 127.0.0.1:8282"
     decoder := json.NewDecoder(conn)
     decoder.Decode(&testData)
-    fmt.Printf("ip: %s, port, %s", testData.Ip, testData.Port)
-
+    
     defer conn.Close()
 }
 
