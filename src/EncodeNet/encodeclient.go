@@ -79,7 +79,6 @@ func (ec *EncodeClient) connectServer() error {
     ec.ClientConn, err = net.Dial("tcp", ec.ClientTCPInfo)
     if err != nil {
         fmt.Fprintf(os.Stderr, "can not DialTCP err: %s \n", err.Error())
-        //os.Exit(1)
         ec.ClientError = err
     }
 

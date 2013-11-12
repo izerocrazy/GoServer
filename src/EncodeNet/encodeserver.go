@@ -27,12 +27,15 @@ func (es *EncodeServer) Init() {
 }
 
 func (es *EncodeServer) Breath() {
-    fmt.Printf("EncodeServer: Breath")
+    fmt.Printf("EncodeServer: Breath\n")
 }
 
 func (es *EncodeServer) Run() {
-    fmt.Printf("EncodeServer: Run")
+    fmt.Printf("EncodeServer: Run\n")
+    go es.runFunc()
+}
 
+func (es *EncodeServer) runFunc() {
     for {
         conn, err := es.ServerListen.Accept()
         if err != nil {
@@ -46,19 +49,19 @@ func (es *EncodeServer) Run() {
 }
 
 func (es *EncodeServer) Stop() {
-    fmt.Printf("EncodeServer:Stop")
+    fmt.Printf("EncodeServer:Stop\n")
 
     es.ServerListen.Close()
 }
 
 func (es *EncodeServer) IsSelfRun() bool {
-    fmt.Printf("EncodeServer:IsSelfRun")
+    fmt.Printf("EncodeServer:IsSelfRun\n")
 
     return true
 }
 
 func (es *EncodeServer) Load() error {
-    fmt.Printf("EnocodeServer:Load")
+    fmt.Printf("EnocodeServer:Load\n")
     es.Init()
 
     if es.IsSelfRun() == true {
@@ -69,7 +72,7 @@ func (es *EncodeServer) Load() error {
 }
 
 func (es *EncodeServer) Unload() error {
-    fmt.Printf("EncodeServer:Unload")
+    fmt.Printf("EncodeServer:Unload\n")
 
     if es.IsSelfRun() == true {
         es.Stop()
