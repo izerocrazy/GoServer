@@ -4,12 +4,12 @@ import (
     "fmt"
     "time"
     "os"
-    "bufio"
+    "io/ioutil"
     "html/template"
     "encoding/xml"
 )
 
-//const temp = `TypeId={{.TypeId}}, StartTime={{.StartTime}}, EndTime = {{.EndTime}}`
+const temp = `TypeId={{.TypeId}}, StartTime={{.StartTime}}, EndTime = {{.EndTime}}`
 
 type Psth struct {
     TypeId      int         `xml:"type_id"`
@@ -17,31 +17,11 @@ type Psth struct {
     EndTime     time.Time   `xml:"end_time"`
 }
 
-func (p Psth) WriteFile() {
-    f, _ := os.OpenFile("./test.db", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
-    defer f.Close()
-
-    /*t := template.New("Psth template 2")
-    t, err := t.Parse(temp)
-    CheckErr(err)
-
-    err = t.Execute(f, psth)
-    CheckErr(err)*/
-
-    w := bufio.NewWriter(f)     // NewWirter() 和 io.Writer，以及 os.Stdout 的关系同上
-    defer w.Flush()
-
-    buf,err := xml.Marshal(p)
-    CheckErr(err)
-
-    w.Write(buf)
-}
-
 type PlayerPsth struct {
     PsthList    []Psth      `xml:"psth_list"`
 }
 
-func (p PlayerPsth) AddStep(nTypeId int){
+func (p *PlayerPsth) AddStep(nTypeId int){
     i := len(p.PsthList)
     now := time.Now()
     newPsth := Psth{
@@ -56,33 +36,56 @@ func (p PlayerPsth) AddStep(nTypeId int){
     p.PsthList = append(p.PsthList, newPsth)
 }
 
+func (p *PlayerPsth) LoadFromFile(szFileName string) {
+    buf, err := ioutil.ReadFile(szFileName)
+    if len(buf) == 0 {
+        return
+    }
 
-func ReadFile(MyPsthList []Psth) ([]Psth){
-    f, _ := os.OpenFile("./test.db", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
-    defer f.Close()
-
-    buf := make([]byte, 1024)
-    n, err := f.Read(buf)
     CheckErr(err)
 
-    err = xml.Unmarshal(buf)
+    err = xml.Unmarshal(buf, &p)
 }
+
+func (p *PlayerPsth) SaveToFile(szFileName string) {
+    buf,err := xml.Marshal(p)
+    CheckErr(err)
+
+    ioutil.WriteFile(szFileName, buf, 0777);
+}
+
 func CheckErr(err error){
     if err != nil {
+        fmt.Println("the error is")
         fmt.Println(err);
     }
 }
 
-func ShowTemplate(psth Psth) () {
-    t := template.New("Psth template")
-    t, err := t.Parse(temp)
-    CheckErr(err);
+func (p *PlayerPsth) ShowTemplate() {
+    for i := 0; i < len(p.PsthList); i++ {
+        psth := p.PsthList[i];
 
-    err = t.Execute(os.Stdout, psth)
-    CheckErr(err);
+        t := template.New("Psth template")
+        t, err := t.Parse(temp)
+        CheckErr(err);
+
+        err = t.Execute(os.Stdout, psth)
+        CheckErr(err);
+    }
 }
 
 func main() {
     var MyPsthList PlayerPsth
+    var szFileName = "./test.db";
+
+    MyPsthList.LoadFromFile(szFileName)
+    fmt.Println(len(MyPsthList.PsthList))
+
+    if len(MyPsthList.PsthList) == 0 {
+        MyPsthList.AddStep(1)
+    }
+
+    MyPsthList.ShowTemplate()
+    MyPsthList.SaveToFile(szFileName)
 }
 
