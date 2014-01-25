@@ -1,4 +1,4 @@
-package main
+package Psth
 
 import (
     "fmt"
@@ -11,20 +11,20 @@ import (
 
 const temp = `TypeId={{.TypeId}}, StartTime={{.StartTime}}, EndTime = {{.EndTime}}`
 
-type Psth struct {
+type Step struct {
     TypeId      int         `xml:"type_id"`
     StartTime   time.Time   `xml:"start_time"`
     EndTime     time.Time   `xml:"end_time"`
 }
 
 type PlayerPsth struct {
-    PsthList    []Psth      `xml:"psth_list"`
+    PsthList    []Step `xml:"psth_list"`
 }
 
 func (p *PlayerPsth) AddStep(nTypeId int){
     i := len(p.PsthList)
     now := time.Now()
-    newPsth := Psth{
+    newPsth := Step{
         TypeId:     nTypeId,
         StartTime:  now,
         EndTime:    now,
@@ -74,9 +74,9 @@ func (p *PlayerPsth) ShowTemplate() {
     }
 }
 
-func main() {
+/*func main() {
     var MyPsthList PlayerPsth
-    var szFileName = "./test.db";
+    var szFileName = "./db.xml";
 
     MyPsthList.LoadFromFile(szFileName)
     fmt.Println(len(MyPsthList.PsthList))
@@ -87,5 +87,5 @@ func main() {
 
     MyPsthList.ShowTemplate()
     MyPsthList.SaveToFile(szFileName)
-}
+}*/
 
