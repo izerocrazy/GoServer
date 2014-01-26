@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Step Psth</title>
+    </head>
+    <body>
+        {{range .EventTypeList}}
+        <br>
+        <br><a href="./BeginEvent?TypeId={{.TypeId}}">{{.TypeName}}</a>
+        {{end}}
+        <br>
+        <br>
+        {{range .PsthList}}
+        <br>
+        <br>EventName={{.EventTypeName}} <br>StartTime={{.StartTime}}, EndTime = {{.EndTime}}
+        {{end}}
+    </body>
+</html>

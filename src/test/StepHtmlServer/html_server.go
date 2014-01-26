@@ -16,8 +16,24 @@ type StepShow struct {
     EndTime         string
 }
 
-const temp = `TypeId={{.EventTypeId}}, EventName={{.EventTypeName}} StartTime={{.StartTime}}, EndTime = {{.EndTime}}`
-const temp_a = `<a href="./BeginEvent?TypeId={{.TypeId}}">{{.TypeName}}</a>`
+type WebShow struct {
+    EventTypeList []Step.Event
+    PsthList []StepShow
+}
+
+func (ws *WebShow) LoadStepShow(stepList []Step.Step) {
+    for _, v := range stepList {
+        var showtem StepShow;
+        showtem.EventTypeId = v.TypeId
+        event := em.GetEventInfoByType(v.TypeId)
+        showtem.EventTypeName = event.TypeName
+        showtem.EventTypeIcon = event.TypeIcon
+        showtem.StartTime = v.StartTime.String()
+        showtem.EndTime = v.EndTime.String()
+
+        ws.PsthList = append(ws.PsthList, showtem)
+    }
+}
 
 var pl Step.PlayerPsth
 var em Step.EventManage
@@ -43,6 +59,7 @@ func testBegin(w http.ResponseWriter, r *http.Request) {
     fmt.Println(r.URL.Query())
     nTypeId,_ := strconv.Atoi(szTypeId)
     pl.AddStep(nTypeId)
+    pl.SaveToFile("./db.xml");
 
     testFun(w, r)
 }
@@ -51,12 +68,23 @@ func testFun(w http.ResponseWriter, r *http.Request){
     //fmt.Fprintf(w, "hello, %q", html.EscapeString(r.URL.RawQuery))
     //fmt.Fprintf(w, "hello, %q", r.URL.RawQuery)
     //fmt.Println(r.URL.Query())
-    ShowAllType(w)
 
-    ShowAllList(w)
+    ShowAll(w)
 }
 
-func ShowAllType(w http.ResponseWriter) {
+func ShowAll(w http.ResponseWriter) {
+    v := new (WebShow)
+    v.EventTypeList = em.EventList
+    v.LoadStepShow(pl.PsthList)
+
+    t, err := template.ParseFiles("./index.html")
+    CheckErr(err);
+
+    err = t.Execute(w, v)
+    CheckErr(err);
+}
+
+/*func ShowAllType(w http.ResponseWriter) {
     for _, v := range em.EventList {
         t := template.New("Event template")
         t, err := t.Parse(temp_a)
@@ -84,7 +112,7 @@ func ShowAllList(w http.ResponseWriter) {
         err = t.Execute(w, showtem)
         CheckErr(err);
     }
-}
+}*/
 
 func CheckErr(e error) {
     if e != nil {
