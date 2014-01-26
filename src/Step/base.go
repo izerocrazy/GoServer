@@ -1,4 +1,4 @@
-package Psth
+package Step
 
 import (
     "fmt"
@@ -45,6 +45,8 @@ func (p *PlayerPsth) LoadFromFile(szFileName string) {
     CheckErr(err)
 
     err = xml.Unmarshal(buf, &p)
+
+    CheckErr(err)
 }
 
 func (p *PlayerPsth) SaveToFile(szFileName string) {
@@ -52,13 +54,6 @@ func (p *PlayerPsth) SaveToFile(szFileName string) {
     CheckErr(err)
 
     ioutil.WriteFile(szFileName, buf, 0777);
-}
-
-func CheckErr(err error){
-    if err != nil {
-        fmt.Println("the error is")
-        fmt.Println(err);
-    }
 }
 
 func (p *PlayerPsth) ShowTemplate() {
@@ -74,7 +69,7 @@ func (p *PlayerPsth) ShowTemplate() {
     }
 }
 
-/*func main() {
+func PsthTest() {
     var MyPsthList PlayerPsth
     var szFileName = "./db.xml";
 
@@ -87,5 +82,5 @@ func (p *PlayerPsth) ShowTemplate() {
 
     MyPsthList.ShowTemplate()
     MyPsthList.SaveToFile(szFileName)
-}*/
+}
 

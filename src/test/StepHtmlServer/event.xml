@@ -1,0 +1,12 @@
+<EventManage>
+    <event_list>
+        <type_id>1</type_id>
+        <type_name>test_name_1</type_name>
+        <type_icon>test_icon-1</type_icon>
+    </event_list>
+    <event_list>
+        <type_id>2</type_id>
+        <type_name>test_name_2</type_name>
+        <type_icon>test_icon-2</type_icon>
+    </event_list>
+</EventManage>
