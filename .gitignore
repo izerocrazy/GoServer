@@ -1,1 +1,3 @@
-*.xml
+src/test/StepHtmlServer/
+db.xml
+
