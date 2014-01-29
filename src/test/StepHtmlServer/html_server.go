@@ -22,7 +22,9 @@ type WebShow struct {
 }
 
 func (ws *WebShow) LoadStepShow(stepList []Step.Step) {
-    for _, v := range stepList {
+    nLen := len(stepList)
+    for k, _ := range stepList {
+        v := stepList[nLen - k - 1]
         var showtem StepShow;
         showtem.EventTypeId = v.TypeId
         event := em.GetEventInfoByType(v.TypeId)
