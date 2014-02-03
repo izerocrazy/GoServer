@@ -6,6 +6,7 @@ import (
     "Step"
     "html/template"
     "strconv"
+    "time"
 )
 
 type StepShow struct {
@@ -14,6 +15,7 @@ type StepShow struct {
     EventTypeIcon   string
     StartTime       string
     EndTime         string
+    LastTime        int
 }
 
 type WebShow struct {
@@ -23,15 +25,23 @@ type WebShow struct {
 
 func (ws *WebShow) LoadStepShow(stepList []Step.Step) {
     nLen := len(stepList)
+    nTimeNow := time.Now()
     for k, _ := range stepList {
         v := stepList[nLen - k - 1]
+        if nTimeNow.Sub(v.EndTime).Hours() > 24 {
+            continue
+        }
+
+        const layout = time.RFC850
+
         var showtem StepShow;
         showtem.EventTypeId = v.TypeId
         event := em.GetEventInfoByType(v.TypeId)
         showtem.EventTypeName = event.TypeName
         showtem.EventTypeIcon = event.TypeIcon
-        showtem.StartTime = v.StartTime.String()
-        showtem.EndTime = v.EndTime.String()
+        showtem.StartTime = v.StartTime.Format(layout)
+        showtem.EndTime = v.EndTime.Format(layout)
+        showtem.LastTime = int(v.EndTime.Sub(v.StartTime).Minutes())
 
         ws.PsthList = append(ws.PsthList, showtem)
     }

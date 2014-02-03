@@ -12,7 +12,7 @@
         <br>
         {{range .PsthList}}
         <br>
-        <br>EventName={{.EventTypeName}} <br>StartTime={{.StartTime}}, EndTime = {{.EndTime}}
+        <br>『{{.EventTypeName}}』时长：{{.LastTime}} 分钟<br> 开始于：{{.StartTime}}, 结束于：{{.EndTime}}
         {{end}}
     </body>
 </html>

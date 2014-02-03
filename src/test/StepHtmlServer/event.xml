@@ -1,12 +1,12 @@
 <EventManage>
     <event_list>
         <type_id>1</type_id>
-        <type_name>编码</type_name>
+        <type_name>编码/写作</type_name>
         <type_icon>test_icon-1</type_icon>
     </event_list>
     <event_list>
         <type_id>2</type_id>
-        <type_name>需求分析</type_name>
+        <type_name>需求分析/写提纲</type_name>
         <type_icon>test_icon-2</type_icon>
     </event_list>
     <event_list>
