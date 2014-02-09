@@ -51,15 +51,15 @@ var pl Step.PlayerPsth
 var em Step.EventManage
 
 func main() {
-    //HtmlServer := http.FileServer(http.Dir("."))
-    //http.Handle("/", HtmlServer)
+    HtmlServer := http.FileServer(http.Dir("."))
+    http.Handle("/", HtmlServer)
     //http.HandleFunc("/test", testFun)
 
     var szFileName = "./db.xml";
     pl.LoadFromFile(szFileName)
     em.LoadFromFile();
 
-    http.HandleFunc("/", testFun)
+    http.HandleFunc("/index", Index)
     http.HandleFunc("/BeginEvent", testBegin)
 
     err := http.ListenAndServe(":8000", nil)
@@ -74,6 +74,10 @@ func testBegin(w http.ResponseWriter, r *http.Request) {
     pl.SaveToFile("./db.xml");
 
     testFun(w, r)
+}
+
+func Index(w http.ResponseWriter, r *http.Request) {
+	ShowAll(w)
 }
 
 func testFun(w http.ResponseWriter, r *http.Request){
