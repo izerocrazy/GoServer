@@ -1,5 +1,12 @@
 <!doctype html>
 <html>
+    <script language="JavaScript">
+        function Refresh() {
+            location.href = 'localhost:8000/index';
+        }
+
+        setInterval("Refresh()", 1000 * 60);
+    </script>
     <head>
        <title>Step Psth</title>
 		<link rel="stylesheet" href="./bootstrap.css" media="screen">
@@ -25,9 +32,13 @@
 			</div>
 		</div>
 		<div class="page-header">
-			
 		</div>
 		<div class="container">
+            <h1>
+                {{with .NowStep}}
+                    {{.EventTypeName}} -- {{.LastTime}} 分钟
+                {{end}}
+            </h1>
 			<table class="table table-striped table-bordered table-hover">
 			   <thead>
 				   <tr>
