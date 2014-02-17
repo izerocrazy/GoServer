@@ -21,6 +21,25 @@ type StepShow struct {
 type WebShow struct {
     EventTypeList []Step.Event
     PsthList []StepShow
+    NowStep StepShow
+}
+
+func (ws *WebShow) LoadOneStepShow(s Step.Step) StepShow {
+    var showtem StepShow;
+
+    showtem.EventTypeId = s.TypeId
+    event := em.GetEventInfoByType(s.TypeId)
+    showtem.EventTypeName = event.TypeName
+    showtem.EventTypeIcon = event.TypeIcon
+    const layout = time.RFC850
+    showtem.StartTime = s.StartTime.Format(layout)
+    if s.StartTime == s.EndTime {
+        s.EndTime = time.Now()
+    }
+    showtem.EndTime = s.EndTime.Format(layout)
+    showtem.LastTime = int(s.EndTime.Sub(s.StartTime).Minutes())
+
+    return showtem
 }
 
 func (ws *WebShow) LoadStepShow(stepList []Step.Step) {
@@ -28,22 +47,17 @@ func (ws *WebShow) LoadStepShow(stepList []Step.Step) {
     nTimeNow := time.Now()
     for k, _ := range stepList {
         v := stepList[nLen - k - 1]
+        // 第一个也就是当前的事件
+        if k == 0 {
+            ws.NowStep = ws.LoadOneStepShow(v)
+            continue
+        }
+
         if nTimeNow.Sub(v.EndTime).Hours() > 24 {
             continue
         }
 
-        const layout = time.RFC850
-
-        var showtem StepShow;
-        showtem.EventTypeId = v.TypeId
-        event := em.GetEventInfoByType(v.TypeId)
-        showtem.EventTypeName = event.TypeName
-        showtem.EventTypeIcon = event.TypeIcon
-        showtem.StartTime = v.StartTime.Format(layout)
-        showtem.EndTime = v.EndTime.Format(layout)
-        showtem.LastTime = int(v.EndTime.Sub(v.StartTime).Minutes())
-
-        ws.PsthList = append(ws.PsthList, showtem)
+        ws.PsthList = append(ws.PsthList, ws.LoadOneStepShow(v))
     }
 }
 
