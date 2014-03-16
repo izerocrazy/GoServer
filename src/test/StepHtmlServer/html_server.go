@@ -15,7 +15,7 @@ type StepShow struct {
     EventTypeIcon   string
     StartTime       string
     EndTime         string
-    LastTime        int
+    LastTime        string
 }
 
 type WebShow struct {
@@ -37,9 +37,17 @@ func (ws *WebShow) LoadOneStepShow(s Step.Step) StepShow {
         s.EndTime = time.Now()
     }
     showtem.EndTime = s.EndTime.Format(layout)
-    showtem.LastTime = int(s.EndTime.Sub(s.StartTime).Minutes())
+    showtem.LastTime = ws.GetTimeString(s.EndTime.Sub(s.StartTime))
 
     return showtem
+}
+
+func (ws *WebShow) GetTimeString(t time.Duration) string {
+    nHour := int(t.Hours())
+    nMinute := t.Minutes()
+    s := fmt.Sprintf("%d : %d", nHour, int(nMinute) - nHour * 60)
+
+    return s;
 }
 
 func (ws *WebShow) LoadStepShow(stepList []Step.Step) {
@@ -50,6 +58,10 @@ func (ws *WebShow) LoadStepShow(stepList []Step.Step) {
         // 第一个也就是当前的事件
         if k == 0 {
             ws.NowStep = ws.LoadOneStepShow(v)
+
+            timeSince := time.Since(v.StartTime)
+            ws.NowStep.LastTime = ws.GetTimeString(timeSince)
+
             continue
         }
 
