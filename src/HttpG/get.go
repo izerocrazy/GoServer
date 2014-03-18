@@ -8,6 +8,7 @@ import (
         "strings"
         "io"
         "code.google.com/p/go.net/html"
+        "github.com/qiniu/iconv"
 )
 
 func main() {
