@@ -11,6 +11,8 @@ import (
         "github.com/qiniu/iconv"
 )
 
+var nCount = 0
+
 func main() {
     gzgcjg := "http://www.gzgcjg.com/gzqypjtx/Login.aspx"
     //gzzb := "http://www.gzzb.gd.cn/cms/wz/view/sccx/QyxxServlet?siteId=1"
@@ -50,7 +52,14 @@ func GetHttpBady(szUrl string) (io.ReadCloser) {
 func PostHttpBady(szUrl string, szQymc string) (io.ReadCloser) {
     client := &http.Client{}
     values := make(url.Values)
-    values.Set("qyxx_qymc", szQymc)
+
+    cd, err := iconv.Open("gbk", "utf-8")
+    checkError(err)
+    defer cd.Close()
+
+    szGbk := cd.ConvString(szQymc)
+
+    values.Set("qyxx_qymc", szGbk)
     values.Set("qyxx_qylx", "02")
 
     request, err := http.NewRequest("POST", szUrl, strings.NewReader(values.Encode()))
@@ -78,6 +87,18 @@ func PostHttpBady(szUrl string, szQymc string) (io.ReadCloser) {
     return resp.Body
 }
 
+func FilterDivValu(s string) bool {
+    arr := []string{"myTab_div1","myTab_div2","myTab_div3","div_yllh","div2","myTab_divRight1","myTab_divRight2","myTab_divRight3","div_zjzx"}
+    for _, a := range arr {
+        if s == a {
+            fmt.Println(s)
+            return true
+        }
+    }
+
+    return false
+}
+
 func FilterBody(r io.ReadCloser) {
     doc, err := html.Parse(r)
     checkError(err)
@@ -98,7 +119,13 @@ func FilterBody(r io.ReadCloser) {
             }
         }else if (n.Type == html.ElementNode && n.Data == "div") {
             for _, a := range n.Attr {
-                if a.Val == "myTab_divRight1" {
+                if FilterDivValu(a.Val) {
+                    if bFindDiv == false {
+                        for c:= n.FirstChild; c != nil; c = c.NextSibling {
+                            fmt.Println(c.Data)
+                        }
+                    }
+
                     bFindDiv = true;
                 }
             }
@@ -110,14 +137,16 @@ func FilterBody(r io.ReadCloser) {
                 bFind2 = false
                 //fmt.Println(len(c.Data))
                 fmt.Println(c.Data)
+                nCount = nCount + 1
+                fmt.Println(nCount)
 
-                gzzb := "http://www.gzzb.gd.cn/cms/wz/view/sccx/QyxxServlet?siteId=1"
-                url, err := url.Parse(gzzb)
-                checkError(err)
+                //gzzb := "http://www.gzzb.gd.cn/cms/wz/view/sccx/QyxxServlet?siteId=1"
+                //url, err := url.Parse(gzzb)
+                //checkError(err)
 
-                ShowReader(PostHttpBady(url.String(), c.Data))
+                //ShowReader(PostHttpBady(url.String(), c.Data))
 
-                os.Exit(0)
+                //os.Exit(0)
             }
 
             f(c, bFindDiv)
