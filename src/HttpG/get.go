@@ -7,7 +7,7 @@ import (
         "os"
         "strings"
         "code.google.com/p/go.net/html"
-        "github.com/qiniu/iconv"
+        "github.com/p/mahonia"
         "time"
         "strconv"
 )
@@ -17,38 +17,36 @@ var szQybhUrlMap = make(map[string]string)
 var szCompanyChenxinMap = make(map[string][]string)
 
 func main() {
-    //gzgcjg := "http://www.gzgcjg.com/gzqypjtx/Login.aspx"
+    gzgcjg := "http://www.gzgcjg.com/gzqypjtx/Login.aspx"
     gzgcjg2 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYbhnt.aspx"
-    //gzgcjg3 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYllh.aspx"
-    //gzzb := "http://www.gzzb.gd.cn/cms/wz/view/sccx/QyxxServlet?siteId=1"
+    gzgcjg3 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYllh.aspx"
 
-    //ShowReader(GetHttpResp(url.String()))
-    //FilterBody(GetHttpResp(gzgcjg), false, "")
+    FilterBody(GetHttpResp(gzgcjg), false, "")
     FilterBody(GetHttpResp(gzgcjg2), true, "div_2")
-    //FilterBody(GetHttpResp(gzgcjg3), true, "div_yllh")
+    FilterBody(GetHttpResp(gzgcjg3), true, "div_yllh")
 
+	fmt.Println("[INFO] Get All Campany Name !")
+	
     //ShowReader(PostHttpResp(url4.String(), 1, nStringMap[1][1]))
     for key, value := range nStringMap{
         fmt.Println(key)
         for key2, value2 := range value {
-            fmt.Println(value2, key2)
+            fmt.Println(key2, "Get Company ", value2, "Base Info Url")
             gzzb := "http://www.gzzb.gd.cn/cms/wz/view/sccx/QyxxServlet?siteId=1"
-            /*url4, err := url.Parse(gzzb)
-            checkError(err)*/
             FilterBody2(PostHttpResp(gzzb, key, value2), value2)
             time.Sleep(10 * time.Second)
         }
     }
 
     for key, value := range szQybhUrlMap {
-        fmt.Println(key, value)
+        fmt.Println("Get Company", key, "Data Info")
         s := []string{"http://www.gzzb.gd.cn/", value}
         szUrl := strings.Join(s, "");
         FilterBody3(GetHttpResp(szUrl), key);
         time.Sleep(10 * time.Second)
     }
 
-    fmt.Println(szCompanyChenxinMap)
+    //fmt.Println(szCompanyChenxinMap)
     file, err := os.OpenFile("result.txt", os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777);
     checkError(err)
     defer file.Close()
@@ -73,14 +71,25 @@ func GetHttpResp(szUrl string) (*http.Response) {
     request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
     checkError(err)
 
-    response, err := client.Do(request)
+    
+	//checkError(err)
+	var response *http.Response
+	for {
+		response, err = client.Do(request)
+		if err != nil {
+			time.Sleep(10 * time.Second)
+		} else {
+			break
+		}
+	}
+	
     if response.Status != "200 OK" {
         fmt.Println(response.Status)
         os.Exit(2)
     }
 
     chSet := getCharset(response)
-    fmt.Printf("got charset %s\n", chSet)
+    //fmt.Printf("got charset %s\n", chSet)
     if chSet != "UTF-8" {
         fmt.Println("Cannot handle", chSet)
         os.Exit(4)
@@ -93,11 +102,14 @@ func PostHttpResp(szUrl string, nSelTypeId int, szQymc string) (*http.Response) 
     client := &http.Client{}
     values := make(url.Values)
 
-    cd, err := iconv.Open("gbk", "utf-8")
-    checkError(err)
-    defer cd.Close()
-
-    szGbk := cd.ConvString(szQymc)
+    //cd, err := iconv.Open("gbk", "utf-8")
+    //checkError(err)
+    //defer cd.Close()
+	//szGbk := cd.ConvString(szQymc)
+	
+	enc:=mahonia.NewEncoder("gbk")
+	//converts a  string from UTF-8 to gbk encoding.
+	szGbk := enc.ConvertString(szQymc) 
 
     values.Set("qyxx_qymc", szGbk)
     szSelTypeId := "0"
@@ -111,7 +123,7 @@ func PostHttpResp(szUrl string, nSelTypeId int, szQymc string) (*http.Response) 
 
     request, err := http.NewRequest("POST", szUrl, strings.NewReader(values.Encode()))
     checkError(err)
-    fmt.Println(values.Encode())
+    //fmt.Println(values.Encode())
 
     request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
     request.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
@@ -137,7 +149,7 @@ func FilterDivValue(s string) bool {
     arr := []string{"myTab_div1","myTab_div2","myTab_div3","myTab_divRight1","myTab_divRight2","myTab_divRight3","myTab_divRight4","div_zjzx"}
     for _, a := range arr {
         if s == a {
-            fmt.Println(s)
+            //fmt.Println(s)
             return true
         }
     }
@@ -172,14 +184,21 @@ func FilterBody3(resp* http.Response, szCompanyName string) {
         for c:= n.FirstChild; c != nil; c = c.NextSibling {
             if c.Type == html.TextNode {
                 if bFindDiv1== true {
-                    cd, err := iconv.Open("utf-8", "gbk")
-                    checkError(err)
-                    defer cd.Close()
-
-                    szGbk := cd.ConvString(c.Data)
+                    //cd, err := iconv.Open("utf-8", "gbk")
+                    //checkError(err)
+                    //defer cd.Close()
+                    //szGbk := cd.ConvString(c.Data)
+					
+					enc:=mahonia.NewDecoder("gbk")
+					//converts a  string from UTF-8 to gbk encoding.
+					szGbk := enc.ConvertString(c.Data) 
+					
                     szCompanyChenxinMap[szCompanyName] = append(szCompanyChenxinMap[szCompanyName], szGbk)
+					
+					fmt.Println("Name: ", szGbk)
                 } else if bFindDiv2 == true {
                     szCompanyChenxinMap[szCompanyName] = append(szCompanyChenxinMap[szCompanyName], c.Data)
+					fmt.Println("Data: ", c.Data)
                 }
             }
 
@@ -220,7 +239,8 @@ func FilterBody2(resp *http.Response, szCompanyName string) {
                     if a.Key == "href"{
                         bFindDiv = false;
                         szQybhUrlMap[szCompanyName] = a.Val
-                        //fmt.Println(szQybhUrlMap)
+                        
+						fmt.Println("url:", a.Val)
                     }
                 }
             }
@@ -267,6 +287,8 @@ func FilterBody(resp *http.Response, bFindDiv bool, szDivName string) {
 
                 nDivId := GetStringToInt(szDivName)
                 nStringMap[nDivId] = append(nStringMap[nDivId], c.Data)
+				
+				fmt.Println("Get Company Name: ", c.Data)
             }
 
             f(c, bFindDiv, szDivName)
@@ -286,7 +308,7 @@ func ShowReader(resp *http.Response) {
 
     var buf [512]byte
     reader := r
-    fmt.Println("got body")
+    //fmt.Println("got body")
     for {
         n, err := reader.Read(buf[0:])
         if err != nil {
