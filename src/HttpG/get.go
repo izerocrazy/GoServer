@@ -321,7 +321,7 @@ func PostHttpResp(szUrl string, nSelTypeId int, szQymc string) (*http.Response) 
     //defer cd.Close()
 	//szGbk := cd.ConvString(szQymc)
 	
-
+	values := make(url.Values)
     values.Set("qyxx_qymc", szGbk)
     szSelTypeId := "0"
     if nSelTypeId > 9 {
@@ -691,7 +691,7 @@ func FilterBody(resp *http.Response, bFindDiv bool, szDivName string) {
                 nDivId := GetStringToInt(szDivName)
                 nStringMap[nDivId] = append(nStringMap[nDivId], c.Data)
 				
-				fmt.Println("Get Company Name: ", c.Data)
+				//fmt.Println("Get Company Name: ", c.Data)
             }
 
             f(c, bFindDiv, szDivName)
