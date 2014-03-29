@@ -303,15 +303,6 @@ func GetHttpResp(szUrl string) (*http.Response) {
 func PostHttpResp2(szUrl string, szService string, szArguments string, szFunc string) (*http.Response) {
     values := make(url.Values)
 
-    //cd, err := iconv.Open("gbk", "utf-8")
-    //checkError(err)
-    //defer cd.Close()
-	//szGbk := cd.ConvString(szQymc)
-	
-	//enc:=mahonia.NewEncoder("gbk")
-	//converts a  string from UTF-8 to gbk encoding.
-	//szGbk := enc.ConvertString(szQymc) 
-	
     values.Set("service", szService)
     values.Set("arguments", szArguments)
     values.Set("method", szFunc)
@@ -325,6 +316,11 @@ func PostHttpResp(szUrl string, nSelTypeId int, szQymc string) (*http.Response) 
 	enc:=mahonia.NewEncoder("gbk")
 	//converts a  string from UTF-8 to gbk encoding.
 	szGbk := enc.ConvertString(szQymc) 
+    //cd, err := iconv.Open("gbk", "utf-8")
+    //checkError(err)
+    //defer cd.Close()
+	//szGbk := cd.ConvString(szQymc)
+	
 
     values.Set("qyxx_qymc", szGbk)
     szSelTypeId := "0"
