@@ -379,7 +379,7 @@ func FilterDivValue(s string) bool {
 }
 
 func GetDivNameIndex(s string) int {
-    StrMap := map[string]int{"myTab_div1": 1, "myTab_div2": 1, "myTab_div3": 1, "myTab_divRight1": 2, "myTab_divRight2": 2, "myTab_divRight3": 2, "myTab_divRight4": 5, "div_yllh": 12, "div_2": 6, "div_zjzx": 9}
+    StrMap := map[string]int{"myTab_div1": 1, "myTab_div2": 2, "myTab_div3": 3, "myTab_divRight1": 4, "myTab_divRight2": 5, "myTab_divRight3": 6, "myTab_divRight4": 7, "div_yllh": 8, "div_2": 9, "div_zjzx": 10}
 
     return StrMap[s]
 }
