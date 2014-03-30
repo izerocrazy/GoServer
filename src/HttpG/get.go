@@ -74,17 +74,21 @@ func ShowIntStringTable() (int){
     var id int
     for {
         fmt.Println("请选择你需要查询企业类别对应的数字：\n")
-        fmt.Println("1：施工企业排名【包含市政、房建】\n")
-        fmt.Println("2：监理单位排名【包含市政、房建】\n")
-        fmt.Println("5：招标代理排名\n")
-        fmt.Println("6：预拌混凝土\n")
-        fmt.Println("9：造价咨询\n")
-        fmt.Println("12：园林绿化\n")
+        fmt.Println("1：施工企业排名")
+        fmt.Println("2：施工企业-市政排名")
+        fmt.Println("3：施工企业-房建排名")
+        fmt.Println("4：监理单位排名")
+        fmt.Println("5：监理单位-市政排名")
+        fmt.Println("6：监理单位-房建排名")
+        fmt.Println("7：招标代理排名")
+        fmt.Println("8：园林绿化")
+        fmt.Println("9：预拌混凝土")
+        fmt.Println("10：造价咨询")
         fmt.Print("请输入：")
 
         fmt.Scanf("%d", &id)
 
-        if id == 1 || id == 2 || id == 5 || id == 6 || id == 9 || id == 12 {
+        if id > 0 && id < 11 {
             break
         }
     }
@@ -114,7 +118,8 @@ func main() {
                 for _, value2 := range value {
                     fmt.Println("已载入 "+ value2)
                     gzzb := "http://www.gzzb.gd.cn/cms/wz/view/sccx/QyxxServlet?siteId=1"
-                    FilterBody2(PostHttpResp(gzzb, key, value2), value2)
+                    selKey := GetIndexKey(key)
+                    FilterBody2(PostHttpResp(gzzb, selKey, value2), value2)
                     fmt.Println("Wait 10 Second...")
                     time.Sleep(10 * time.Second)
                     //break
@@ -373,10 +378,16 @@ func FilterDivValue(s string) bool {
     return false
 }
 
-func GetStringToInt(s string) int {
+func GetDivNameIndex(s string) int {
     StrMap := map[string]int{"myTab_div1": 1, "myTab_div2": 1, "myTab_div3": 1, "myTab_divRight1": 2, "myTab_divRight2": 2, "myTab_divRight3": 2, "myTab_divRight4": 5, "div_yllh": 12, "div_2": 6, "div_zjzx": 9}
 
     return StrMap[s]
+}
+
+func GetIndexKey(nIndex int) int {
+    IndexKeyMap := map[int]int{1:1, 2:1, 3:1, 4:2, 5:2, 6:2, 7:5, 8:12, 9:6, 10:9}
+
+    return IndexKeyMap[nIndex]
 }
 
 func FilterJson_XmyjHjqk(resp* http.Response) ([]XmyjHjqk) {
@@ -688,7 +699,7 @@ func FilterBody(resp *http.Response, bFindDiv bool, szDivName string) {
             if bFind1 == true && bFindDiv == true && len(c.Data) > 6 && c.Type == html.TextNode {
                 bFind1 = false
 
-                nDivId := GetStringToInt(szDivName)
+                nDivId := GetDivNameIndex(szDivName)
                 nStringMap[nDivId] = append(nStringMap[nDivId], c.Data)
 				
 				//fmt.Println("Get Company Name: ", c.Data)
