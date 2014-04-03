@@ -153,7 +153,7 @@ func main() {
 
             for _, szId := range arrId {
                 fmt.Println("Wait 10 Second...")
-                time.Sleep(10 * time.Second)
+                time.Sleep(5 * time.Second)
                 fmt.Println("已载入 "+szId)
                 szArguments := fmt.Sprintf("[{\"xmyjid\":\"%s\"}]", szId)
                 qBase := FilterJson_XmyjBase(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyyj"))
