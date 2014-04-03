@@ -96,6 +96,12 @@ func ShowIntStringTable() (int){
     return id
 }
 
+func GetCodeForTest() {
+    s := "http://www.gzzb.gd.cn/qyww/json";
+    szArguments := fmt.Sprintf("[\"[{\\\"tableName\\\":\\\"basic_code\\\",\\\"valueField\\\":\\\"code\\\",\\\"textField\\\":\\\"name\\\",\\\"where\\\":\\\"code_type=\\\\\\'QY_YJ_ZZDJ\\\\\\'\\\",\\\"eleid\\\":\\\"zzdj\\\"}]\"]")
+    ShowReader(PostHttpResp2(s, "CodeBS", szArguments, "findCode"))
+}
+
 func main() {
     gzgcjg := "http://www.gzgcjg.com/gzqypjtx/Login.aspx"
     gzgcjg2 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYbhnt.aspx"
@@ -123,9 +129,9 @@ func main() {
                     FilterBody2(PostHttpResp(gzzb, selKey, value2), value2)
                     fmt.Println("Wait 10 Second...")
                     time.Sleep(10 * time.Second)
-                    //break // __________ debug
+                    break // __________ debug
                 }
-                //break //__________ debug
+                break //__________ debug
             }
         }
 
@@ -140,7 +146,7 @@ func main() {
             fmt.Println("Wait 10 Second...")
             time.Sleep(10 * time.Second)
 
-            //value[1] = "10020" // __________ debug
+            value[1] = "10020" // __________ debug
 
             s := "http://www.gzzb.gd.cn/qyww/json";
             szArguments := fmt.Sprintf("[\"%s\"]", value[1])
@@ -150,7 +156,7 @@ func main() {
             cb.arrNswh = FilterJson2(PostHttpResp2(s, "TQyQynswhBS", szArguments, "findTQyQynswhInfo"))
 
             szArguments = fmt.Sprintf("[0,10,\"%s\"]", value[1])
-            arrId := FilterJson3(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findTQyXmyjInfo"), value[1], true)
+            arrId := FilterJson3(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findTQyXmyjInfo"), value[1], false)  // _______________debug
             //fmt.Println(arrId)
             //arrId := FilterJson3(PostHttpResp2(s, "JyBlzbtzsBS", szArguments, "findJyBlzbtzsInfox"), value[1], true)
 
@@ -224,11 +230,17 @@ func SaveChenxin(){
         s = append(s, szNs2011)
         s = append(s, szNs2012)
 
-        for _, value2 := range value.arrQylx {
-            s1 := append(s, value2.szName)
-            s1 = append(s1, value2.szEndTime)
+        if len(value.arrQylx) > 0 {
+            for _, value2 := range value.arrQylx {
+                s1 := append(s, value2.szName)
+                s1 = append(s1, value2.szEndTime)
 
-            szLine := strings.Join(s1, "\t");
+                szLine := strings.Join(s1, "\t")
+                szLine = szLine + "\r\n"
+                file.WriteString(szLine)
+            }
+        } else {
+            szLine := strings.Join(s, "\t")
             szLine = szLine + "\r\n"
             file.WriteString(szLine)
         }
@@ -257,11 +269,17 @@ func SaveXmyj() {
         s = append(s, value.Plus.Gczj)
         s = append(s, value.Plus.Jzmj)
 
-        for _, value2 := range value.ArrQyzz{
-            s1 := append(s, value2.Zzmc)
-            s1 = append(s1, value2.Zzdj)
-
-            szLine := strings.Join(s1, "\t");
+        if len(value.ArrQyzz) > 0 {
+            for _, value2 := range value.ArrQyzz{
+                s1 := append(s, value2.Zzmc)
+                s1 = append(s1, getZzdj(value2.Zzdj))
+    
+                szLine := strings.Join(s1, "\t");
+                szLine = szLine + "\r\n"
+                file.WriteString(szLine)
+            }
+        } else {
+            szLine := strings.Join(s, "\t");
             szLine = szLine + "\r\n"
             file.WriteString(szLine)
         }
@@ -282,7 +300,7 @@ func SaveHjqk() {
 
         for _, value2 := range value.ArrHjqk{
             s1 := append(s, value2.Nd)
-            s1 = append(s1, value2.Hjmc)
+            s1 = append(s1, getHjmc(value2.Hjmc))
             s1 = append(s1, value2.Bjsj)
             s1 = append(s1, value2.Bjdw)
 
@@ -534,7 +552,7 @@ func FilterJson3(resp* http.Response, szId string, bNeedPage bool) ([]string) {
                     arrId = append(arrId, v)
                 }
 
-                //break //______ debug
+                break //______ debug
             }
         }
     }
@@ -617,8 +635,8 @@ func FilterBody3(resp* http.Response, szCompanyName string) (CompanyBaseInfo){
             if c.Type == html.TextNode {
                 if bFindDiv1== true {
                     enc:=mahonia.NewDecoder("gbk")
-					//converts a  string from UTF-8 to gbk encoding.
-					szGbk := enc.ConvertString(c.Data) 
+		    //converts a  string from UTF-8 to gbk encoding.
+		    szGbk := enc.ConvertString(c.Data) 
 					
                     szTempQylxmc = szGbk
                     bGetQylxmc = true
@@ -726,8 +744,7 @@ func FilterBody(resp *http.Response, bFindDiv bool, szDivName string) {
 
                 nDivId := GetDivNameIndex(szDivName)
                 nStringMap[nDivId] = append(nStringMap[nDivId], c.Data)
-				
-				//fmt.Println("Get Company Name: ", c.Data)
+		//fmt.Println("Get Company Name: ", c.Data)
             }
 
             f(c, bFindDiv, szDivName)
@@ -765,6 +782,18 @@ func ShowReader(resp *http.Response) {
     }
 
     //os.Exit(0)
+}
+
+func getHjmc(n string) string {
+    StrMap := map[string]string{"01":"中国建设工程鲁班奖（国家优质工程）","02":"全国市政金杯示范工程","03":"国家优质工程（金质奖）","04":"国家优质工程（银质奖）","05":"广东省建设工程金匠奖","06":"全国建筑工程装饰奖","07":"广州地区建设工程质量“五羊杯”","08":"广州市优良样板工程","09":"广州市安全文明施工样板工地（市双优）","10":"广东省房屋市政工程安全生产文明施工示范工地（原广东省安全文明施工样板工地）","11":"广东省建设工程优质奖（原省优良样板工程）","12":"广州市市政优良样板工程","13":"中国土木工程詹天佑奖","14":"全国建筑业新技术应用示范工程执行单位","15":"广东省建筑业新技术应用示范工程执行单位","16":"广东省优秀建筑装饰工程奖","17":"广州市建筑装饰优质工程奖","18":"广州市建设工程（市政）质量“五羊杯”"}
+    
+    return StrMap[n]            
+}
+
+func getZzdj(n string) string {
+    StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","05":"不分等级"}
+
+    return StrMap[n]
 }
 
 func getCharset(response *http.Response) string {
