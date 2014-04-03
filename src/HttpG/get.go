@@ -41,7 +41,7 @@ type XmyjBaseJson struct {
     Zbtzsrq string
     Zbj string
     Htj string
-    Jqysrq string
+    Jgysrq string
 }
 
 type XmyjQyzzJson struct{
@@ -112,6 +112,7 @@ func main() {
         id := ShowIntStringTable()
 
         //ShowReader(PostHttpResp(url4.String(), 1, nStringMap[1][1]))
+	//fmt.Println(nStringMap)
         for key, value := range nStringMap {
             //fmt.Println(key)
             if key == id {
@@ -122,9 +123,9 @@ func main() {
                     FilterBody2(PostHttpResp(gzzb, selKey, value2), value2)
                     fmt.Println("Wait 10 Second...")
                     time.Sleep(10 * time.Second)
-                    //break
+                    //break // __________ debug
                 }
-                //break
+                //break //__________ debug
             }
         }
 
@@ -139,6 +140,8 @@ func main() {
             fmt.Println("Wait 10 Second...")
             time.Sleep(10 * time.Second)
 
+            //value[1] = "10020" // __________ debug
+
             s := "http://www.gzzb.gd.cn/qyww/json";
             szArguments := fmt.Sprintf("[\"%s\"]", value[1])
             cb.szZczb = FilterJson(PostHttpResp2(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
@@ -152,22 +155,31 @@ func main() {
             //arrId := FilterJson3(PostHttpResp2(s, "JyBlzbtzsBS", szArguments, "findJyBlzbtzsInfox"), value[1], true)
 
             for _, szId := range arrId {
+                //szId = "yj_80f11ebf-be47-4d80-9ea8-e30c3d20831c" // ____________ debug
                 fmt.Println("Wait 10 Second...")
+<<<<<<< HEAD
                 time.Sleep(5 * time.Second)
+=======
+                time.Sleep(2 * time.Second)
+>>>>>>> FETCH_HEAD
                 fmt.Println("已载入 "+szId)
                 szArguments := fmt.Sprintf("[{\"xmyjid\":\"%s\"}]", szId)
                 qBase := FilterJson_XmyjBase(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyyj"))
+                fmt.Println(qBase)
                 //ShowReader(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyyj"))
 
                 szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szId)
                 //ShowReader(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyzz"))
                 arrQyzz := FilterJson_XmyjQyzz(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyzz"))
+                fmt.Println(arrQyzz)
 
                 szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szId)
                 qXmgm := FilterJson_XmyjPlus(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findXmgm"))
+                fmt.Println(qXmgm)
 
                 szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szId)
                 qHjqk := FilterJson_XmyjHjqk(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findHjqk"))
+                fmt.Println(qHjqk)
 
                 szXmyjMap[szId] = Xmyj{
                     Base: qBase,
@@ -175,7 +187,9 @@ func main() {
                     Plus: qXmgm,
                     ArrHjqk: qHjqk,
                 }
+                //break _____________ debug
             }
+            //break // ________________ debug
         }
         //fmt.Println(szCompanyChenxinMap)
         //fmt.Println(szXmyjMap)
@@ -190,6 +204,10 @@ func SaveChenxin(){
     file, err := os.OpenFile("1.txt", os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777);
     checkError(err)
     defer file.Close()
+
+    szTitleLine := "企业名称\t注册资本(万元) \t2010纳税\t2011纳税\t2012纳税\t企业类型\t有效期\r\n"
+    file.WriteString(szTitleLine)
+
     for key, value := range szCompanyChenxinMap {
         s := []string{key}
         s = append(s, value.szZczb)
@@ -225,14 +243,19 @@ func SaveXmyj() {
     file, err := os.OpenFile("2.txt", os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777)
     checkError(err)
     defer file.Close()
-    for key, value := range szXmyjMap{
-        s := []string{key}
+    
+    szTitleLine := "企业名称\t项目名称\t中标日期\t中标价（万元）\t合同价（万元）\t竣工验收日期\t地上层数\t地下层数\t工程造价\t建筑面积\t工程资质\t工程等级\r\n"
+    file.WriteString(szTitleLine)
+    
+    for _, value := range szXmyjMap{
+        //s := []string{key}
+        s := []string{}
         s = append(s, value.Base.Qymc)
         s = append(s, value.Base.Xmmc)
         s = append(s, value.Base.Zbtzsrq)
         s = append(s, value.Base.Zbj)
         s = append(s, value.Base.Htj)
-        s = append(s, value.Base.Jqysrq)
+        s = append(s, value.Base.Jgysrq)
         s = append(s, value.Plus.Dscs)
         s = append(s, value.Plus.Dxcs)
         s = append(s, value.Plus.Gczj)
@@ -253,9 +276,13 @@ func SaveHjqk() {
     file, err := os.OpenFile("3.txt", os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777)
     checkError(err)
     defer file.Close()
-    for key, value := range szXmyjMap{
-        s := []string{key}
-        s = append(s, value.Base.Qymc)
+
+    szTitleLine := "项目名称\t年度\t奖项\t颁奖时间\t颁奖单位\r\n"
+    file.WriteString(szTitleLine)
+    
+    for _, value := range szXmyjMap{
+        s := []string{}
+        s = append(s, value.Base.Xmmc)
 
         for _, value2 := range value.ArrHjqk{
             s1 := append(s, value2.Nd)
@@ -510,6 +537,8 @@ func FilterJson3(resp* http.Response, szId string, bNeedPage bool) ([]string) {
                 for _, v := range arrId2 {
                     arrId = append(arrId, v)
                 }
+
+                //break //______ debug
             }
         }
     }
