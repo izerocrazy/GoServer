@@ -129,9 +129,9 @@ func main() {
                     FilterBody2(PostHttpResp(gzzb, selKey, value2), value2)
                     fmt.Println("Wait 10 Second...")
                     time.Sleep(10 * time.Second)
-                    break // __________ debug
+                    //break // __________ debug
                 }
-                break //__________ debug
+                //break //__________ debug
             }
         }
 
@@ -141,12 +141,11 @@ func main() {
             szUrl := strings.Join(arrS, "");
 
             cb := FilterBody3(GetHttpResp(szUrl), key);
-            szCompanyChenxinMap[key] = cb
 
             fmt.Println("Wait 10 Second...")
             time.Sleep(10 * time.Second)
 
-            value[1] = "10020" // __________ debug
+            //value[1] = "10020" // __________ debug
 
             s := "http://www.gzzb.gd.cn/qyww/json";
             szArguments := fmt.Sprintf("[\"%s\"]", value[1])
@@ -155,15 +154,18 @@ func main() {
             szArguments = fmt.Sprintf("[0,10,\"%s\"]", value[1])
             cb.arrNswh = FilterJson2(PostHttpResp2(s, "TQyQynswhBS", szArguments, "findTQyQynswhInfo"))
 
+            // only can be set at the end of process 
+            szCompanyChenxinMap[key] = cb
+
             szArguments = fmt.Sprintf("[0,10,\"%s\"]", value[1])
-            arrId := FilterJson3(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findTQyXmyjInfo"), value[1], false)  // _______________debug
+            arrId := FilterJson3(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findTQyXmyjInfo"), value[1], true)  // _______________ debug
             //fmt.Println(arrId)
             //arrId := FilterJson3(PostHttpResp2(s, "JyBlzbtzsBS", szArguments, "findJyBlzbtzsInfox"), value[1], true)
 
             for _, szId := range arrId {
                 //szId = "yj_80f11ebf-be47-4d80-9ea8-e30c3d20831c" // ____________ debug
                 fmt.Println("Wait 10 Second...")
-                time.Sleep(2 * time.Second)
+                time.Sleep(5 * time.Second)
                 fmt.Println("已载入 "+szId)
                 szArguments := fmt.Sprintf("[{\"xmyjid\":\"%s\"}]", szId)
                 qBase := FilterJson_XmyjBase(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyyj"))
@@ -173,15 +175,15 @@ func main() {
                 szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szId)
                 //ShowReader(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyzz"))
                 arrQyzz := FilterJson_XmyjQyzz(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findQyzz"))
-                fmt.Println(arrQyzz)
+                //fmt.Println(arrQyzz)
 
                 szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szId)
                 qXmgm := FilterJson_XmyjPlus(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findXmgm"))
-                fmt.Println(qXmgm)
+                //fmt.Println(qXmgm)
 
                 szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szId)
                 qHjqk := FilterJson_XmyjHjqk(PostHttpResp2(s, "TQyXmyjBS", szArguments, "findHjqk"))
-                fmt.Println(qHjqk)
+                //fmt.Println(qHjqk)
 
                 szXmyjMap[szId] = Xmyj{
                     Base: qBase,
@@ -189,7 +191,7 @@ func main() {
                     Plus: qXmgm,
                     ArrHjqk: qHjqk,
                 }
-                //break _____________ debug
+                //break // _____________ debug
             }
             //break // ________________ debug
         }
@@ -211,6 +213,7 @@ func SaveChenxin(){
     file.WriteString(szTitleLine)
 
     for key, value := range szCompanyChenxinMap {
+        //fmt.Println(value)
         s := []string{key}
         s = append(s, value.szZczb)
 
@@ -552,7 +555,7 @@ func FilterJson3(resp* http.Response, szId string, bNeedPage bool) ([]string) {
                     arrId = append(arrId, v)
                 }
 
-                break //______ debug
+                //break //______ debug
             }
         }
     }
@@ -579,6 +582,7 @@ func FilterJson2(resp* http.Response) ([]CompanyNswh) {
     var arrCn []CompanyNswh
     for _, a := range d.Data{
         if a.Nd == "2010" || a.Nd == "2011" || a.Nd == "2012"{
+            //fmt.Println(a.Nd, a.Nsze)
             var cn CompanyNswh
             cn.szYear = a.Nd
             cn.szMoney = a.Nsze
