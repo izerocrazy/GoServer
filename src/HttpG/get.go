@@ -49,13 +49,6 @@ type XmyjQyzzJson struct{
     Zzdj string
 }
 
-type XmyjPlus struct {
-    Dscs string
-    Dxcs string
-    Gczj string
-    Jzmj string
-}
-
 type XmyjHjqk struct {
     Nd string
     Hjmc string
@@ -66,7 +59,7 @@ type XmyjHjqk struct {
 type Xmyj struct {
     Base XmyjBaseJson
     ArrQyzz []XmyjQyzzJson
-    Plus XmyjPlus
+    Plus map[string]string
     ArrHjqk []XmyjHjqk
 }
 
@@ -74,6 +67,7 @@ func ShowIntStringTable() (int){
     var id int
     for {
         fmt.Println("请选择你需要查询企业类别对应的数字：\n")
+        fmt.Println("0：全取")
         fmt.Println("1：施工企业排名")
         fmt.Println("2：施工企业-市政排名")
         fmt.Println("3：施工企业-房建排名")
@@ -88,7 +82,7 @@ func ShowIntStringTable() (int){
 
         fmt.Scanf("%d", &id)
 
-        if id > 0 && id < 11 {
+        if id > -1 && id < 11 {
             break
         }
     }
@@ -121,7 +115,7 @@ func main() {
 	//fmt.Println(nStringMap)
         for key, value := range nStringMap {
             //fmt.Println(key)
-            if key == id {
+            if (id == 0 || key == id){
                 for _, value2 := range value {
                     fmt.Println("已载入 "+ value2)
                     gzzb := "http://www.gzzb.gd.cn/cms/wz/view/sccx/QyxxServlet?siteId=1"
@@ -254,10 +248,10 @@ func SaveXmyj() {
     file, err := os.OpenFile("2.txt", os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777)
     checkError(err)
     defer file.Close()
-    
-    szTitleLine := "企业名称\t项目名称\t中标日期\t中标价（万元）\t合同价（万元）\t竣工验收日期\t地上层数\t地下层数\t工程造价\t建筑面积\t工程资质\t工程等级\r\n"
+
+    szTitleLine := "企业名称\t项目名称\t中标日期\t中标价（万元）\t合同价（万元）\t竣工验收日期\t工程资质\t工程等级\r\n"
     file.WriteString(szTitleLine)
-    
+
     for _, value := range szXmyjMap{
         //s := []string{key}
         s := []string{}
@@ -267,22 +261,25 @@ func SaveXmyj() {
         s = append(s, value.Base.Zbj)
         s = append(s, value.Base.Htj)
         s = append(s, value.Base.Jgysrq)
-        s = append(s, value.Plus.Dscs)
-        s = append(s, value.Plus.Dxcs)
-        s = append(s, value.Plus.Gczj)
-        s = append(s, value.Plus.Jzmj)
+
+        szPlus := ""
+        for key, value := range value.Plus {
+            szPlus = szPlus + key + "\t"
+            szPlus = szPlus + value + "\t"
+        }
 
         if len(value.ArrQyzz) > 0 {
             for _, value2 := range value.ArrQyzz{
                 s1 := append(s, value2.Zzmc)
                 s1 = append(s1, getZzdj(value2.Zzdj))
-    
                 szLine := strings.Join(s1, "\t");
+                szLine = szLine + szPlus
                 szLine = szLine + "\r\n"
                 file.WriteString(szLine)
             }
         } else {
             szLine := strings.Join(s, "\t");
+            szLine = szLine + szPlus
             szLine = szLine + "\r\n"
             file.WriteString(szLine)
         }
@@ -450,7 +447,7 @@ func FilterJson_XmyjHjqk(resp* http.Response) ([]XmyjHjqk) {
     return d.Data
 }
 
-func FilterJson_XmyjPlus(resp* http.Response) (XmyjPlus) {
+func FilterJson_XmyjPlus(resp* http.Response) (map[string]string) {
     r := resp.Body
     defer r.Close()
 
@@ -469,9 +466,9 @@ func FilterJson_XmyjPlus(resp* http.Response) (XmyjPlus) {
     err := dec.Decode(&d)
     checkError(err)
 
-    var ret XmyjPlus
+    ret := make(map[string]string)
     for _, value := range d.Data {
-        szGbk := value.Gmzb
+        /*szGbk := value.Gmzb
         if szGbk == "工程造价" {
             ret.Gczj = value.Sl
         } else if szGbk == "地上层数" {
@@ -480,7 +477,8 @@ func FilterJson_XmyjPlus(resp* http.Response) (XmyjPlus) {
             ret.Dxcs = value.Sl
         } else if szGbk == "建筑面积" {
             ret.Jzmj = value.Sl
-        }
+        }*/
+        ret[value.Gmzb] = value.Sl
     }
 
     return ret
