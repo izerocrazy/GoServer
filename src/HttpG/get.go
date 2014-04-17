@@ -106,8 +106,14 @@ func main() {
     fmt.Println("Program Init...")
     for {
         FilterBody(GetHttpResp(gzgcjg), false, "")
+        fmt.Println("Wait 5 Second...", gzgcjg)
+        time.Sleep(5 * time.Second)
         FilterBody(GetHttpResp(gzgcjg2), true, "div_2")
+        fmt.Println("Wait 5 Second...", gzgcjg2)
+        time.Sleep(5 * time.Second)
         FilterBody(GetHttpResp(gzgcjg3), true, "div_yllh")
+        fmt.Println("Wait 5 Second...", gzgcjg3)
+        time.Sleep(5 * time.Second)
 
         id := ShowIntStringTable()
 
@@ -273,13 +279,13 @@ func SaveXmyj() {
                 s1 := append(s, value2.Zzmc)
                 s1 = append(s1, getZzdj(value2.Zzdj))
                 szLine := strings.Join(s1, "\t");
-                szLine = szLine + szPlus
+                szLine = szLine + "\t" + szPlus
                 szLine = szLine + "\r\n"
                 file.WriteString(szLine)
             }
         } else {
             szLine := strings.Join(s, "\t");
-            szLine = szLine + szPlus
+            szLine = szLine + "\t" + szPlus
             szLine = szLine + "\r\n"
             file.WriteString(szLine)
         }
@@ -320,12 +326,12 @@ func GetHttpResp(szUrl string) (*http.Response) {
     request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
     checkError(err)
 
-    
 	//checkError(err)
 	var response *http.Response
 	for {
 		response, err = client.Do(request)
 		if err != nil {
+            fmt.Println("Get url err wait 10 Second....")
 			time.Sleep(10 * time.Second)
 		} else {
 			break
