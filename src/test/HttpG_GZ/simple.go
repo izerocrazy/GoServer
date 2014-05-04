@@ -2,16 +2,41 @@ package main
 
 import (
         "fmt"
+        "os"
+        "time"
+        "strings"
         "HttpG"
 )
 
 func main() {
-    for i := 10002; i < 10003; i++ {
-        DoForOneCompany(i)
+    var nBeginId int
+    var nEndId int
+
+    fmt.Print("温馨提示>> : 如果你希望进行新一轮的信息选取，请在输入前删除上次的信息文件（既文件『1.txt』和『2.txt』)。\r\n")
+    fmt.Print("请输入开始企业ID（建议：网站默认第一个企业 ID 为10002）：")
+    fmt.Scanf("%d", &nBeginId)
+    fmt.Print("\r\n请输入结束企业ID（建议：目前最后一个企业 ID 至少大于20000）：")
+    fmt.Scanf("%d", &nEndId)
+
+    szTitleLine := "企业名称\t注册资本(万元) \t2010纳税\t2011纳税\t2012纳税\t企业类型\t有效期\r\n"
+    file1 := HttpG.CreateFileWithNameAddTitle("1.txt", szTitleLine)
+    defer file1.Close()
+
+    szTitleLine = "企业名称\t资质等级\t资质内容\r\n"
+    file2 := HttpG.CreateFileWithNameAddTitle("2.txt", szTitleLine)
+    defer file2.Close()
+
+    for i := nBeginId; i < nEndId + 1; i++ {
+        fmt.Println("正在载入 ID：", i);
+        DoForOneCompany(i, file1, file2)
+
+        if i < nEndId {
+            time.Sleep(2 * time.Second)
+        }
     }
 }
 
-func DoForOneCompany(nCompanyId int) {
+func DoForOneCompany(nCompanyId int, file *os.File, file2 *os.File) {
     szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn/qyww/sccx/basicInfoview.jsp?qybh=%d", nCompanyId);
     s := "http://www.gzzb.gd.cn/qyww/json";
     szArguments := fmt.Sprintf("[\"%d\"]", nCompanyId)
@@ -30,5 +55,65 @@ func DoForOneCompany(nCompanyId int) {
        cb.ArrQyzzInfo = append(cb.ArrQyzzInfo, HttpG.GetCompanyQyzzInfo(HttpG.PostGzHttpJson(s, "TQyZzxxBS", szArguments, "findZzxxInfo")))
     }
 
-    fmt.Println(cb)
+    if cb.SzCompanyName != "" {
+        SaveToFile(nCompanyId, cb, file, file2)
+        fmt.Println("已读取完公司",cb.SzCompanyName,"，请稍候。\r\n")
+    } else {
+        fmt.Println("此 ID 暂无对应公司信息。\r\n")
+    }
+}
+
+func SaveToFile(nCompanyId int, cb HttpG.CompanyBaseInfo, file *os.File, file2 *os.File) {
+    s := []string{}
+
+    szCompanyId := fmt.Sprintf("%d", nCompanyId)
+    s = append(s, szCompanyId)
+    s = append(s, cb.SzCompanyName)
+    szNs2010 := ""
+    szNs2011 := ""
+    szNs2012 := ""
+    for _, szNs := range cb.ArrNswh {
+        if szNs.SzYear == "2010" {
+            szNs2010 = szNs.SzMoney
+        } else if szNs.SzYear == "2011" {
+            szNs2011 = szNs.SzMoney
+        } else if szNs.SzYear == "2012" {
+            szNs2012 = szNs.SzMoney
+        }
+    }
+    s = append(s, szNs2010)
+    s = append(s, szNs2011)
+    s = append(s, szNs2012)
+
+    if len(cb.ArrQylx) > 0 {
+        for _, cb2 := range cb.ArrQylx {
+            s1 := append(s, cb2.SzName)
+            s1 = append(s1, cb2.SzEndTime)
+
+            szLine := strings.Join(s1, "\t")
+            szLine = szLine + "\r\n"
+            file.WriteString(szLine)
+            //fmt.Println(szLine)
+        }
+    } else {
+        szLine := strings.Join(s, "\t")
+        szLine = szLine + "\r\n"
+        file.WriteString(szLine)
+        //fmt.Println(szLine)
+    }
+
+    //////////////////////////////
+    for _, arr := range cb.ArrQyzzInfo {
+        for _, cq := range arr {
+            s2 := []string{}
+            s2 = append(s2, cb.SzCompanyName)
+            s2 = append(s2, HttpG.GetZzdj(cq.Zzdj))
+            s2 = append(s2, cq.ZznrName)
+            szLine := strings.Join(s2, "\t")
+            szLine = szLine + "\r\n"
+            file2.WriteString(szLine)
+
+            //fmt.Println(szLine)
+        }
+    }
 }

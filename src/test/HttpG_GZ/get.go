@@ -234,7 +234,7 @@ func SaveXmyj() {
         if len(value.ArrQyzz) > 0 {
             for _, value2 := range value.ArrQyzz{
                 s1 := append(s, value2.Zzmc)
-                s1 = append(s1, getZzdj(value2.Zzdj))
+                s1 = append(s1, HttpG.GetZzdj(value2.Zzdj))
                 szLine := strings.Join(s1, "\t");
                 szLine = szLine + "\t" + szPlus
                 szLine = szLine + "\r\n"
@@ -256,7 +256,7 @@ func SaveHjqk() {
 
     szTitleLine := "企业名称\t项目名称\t年度\t奖项\t颁奖时间\t颁奖单位\r\n"
     file.WriteString(szTitleLine)
-    
+
     for _, value := range szXmyjMap{
         s := []string{}
         s = append(s, value.Base.Qymc)
@@ -568,11 +568,5 @@ func getHjmc(n string) string {
     StrMap := map[string]string{"01":"中国建设工程鲁班奖（国家优质工程）","02":"全国市政金杯示范工程","03":"国家优质工程（金质奖）","04":"国家优质工程（银质奖）","05":"广东省建设工程金匠奖","06":"全国建筑工程装饰奖","07":"广州地区建设工程质量“五羊杯”","08":"广州市优良样板工程","09":"广州市安全文明施工样板工地（市双优）","10":"广东省房屋市政工程安全生产文明施工示范工地（原广东省安全文明施工样板工地）","11":"广东省建设工程优质奖（原省优良样板工程）","12":"广州市市政优良样板工程","13":"中国土木工程詹天佑奖","14":"全国建筑业新技术应用示范工程执行单位","15":"广东省建筑业新技术应用示范工程执行单位","16":"广东省优秀建筑装饰工程奖","17":"广州市建筑装饰优质工程奖","18":"广州市建设工程（市政）质量“五羊杯”"}
     
     return StrMap[n]            
-}
-
-func getZzdj(n string) string {
-    StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","05":"不分等级"}
-
-    return StrMap[n]
 }
 

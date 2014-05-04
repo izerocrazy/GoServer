@@ -157,7 +157,7 @@ func PostGzHttpJson(szUrl string, szService string, szArguments string, szFunc s
     values.Set("method", szFunc)
 
     szPost := strings.NewReader(values.Encode())
-    fmt.Println(szPost)
+    //fmt.Println(szPost)
     return PostHttpResp(szUrl, szPost)
 }
 
@@ -318,4 +318,20 @@ func GetCompanyQyzzInfo(resp* http.Response) ([]CompanyQyzzInfo) {
     CheckError(err)
 
     return d.Data
+}
+
+func CreateFileWithNameAddTitle(szFileName string, szTitleLine string) (file *os.File) {
+    //file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777);
+    file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777);
+    CheckError(err)
+
+    file.WriteString(szTitleLine)
+
+    return file
+}
+
+func GetZzdj(n string) string {
+    StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","05":"不分等级"}
+
+    return StrMap[n]
 }
