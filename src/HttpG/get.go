@@ -291,7 +291,7 @@ func SaveHjqk() {
     checkError(err)
     defer file.Close()
 
-    szTitleLine := "项目名称\t年度\t奖项\t颁奖时间\t颁奖单位\r\n"
+    szTitleLine := "企业名称\t项目名称\t年度\t奖项\t颁奖时间\t颁奖单位\r\n"
     file.WriteString(szTitleLine)
     
     for _, value := range szXmyjMap{
