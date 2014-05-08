@@ -296,6 +296,7 @@ func SaveHjqk() {
     
     for _, value := range szXmyjMap{
         s := []string{}
+        s = append(s, value.Base.Qymc)
         s = append(s, value.Base.Xmmc)
 
         for _, value2 := range value.ArrHjqk{
