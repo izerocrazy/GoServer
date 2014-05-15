@@ -12,11 +12,26 @@ import (
         "encoding/json"
 )
 
+// because do not make ,waste my time ,fuck
+var c chan int = make(chan int)
+
 func CheckError(err error) {
     if err != nil {
-        fmt.Println("Fatal error ", err.Error())
-        os.Exit(1)
+        fmt.Println("Check Fatal error ", err.Error())
+        //os.Exit(1)
+        c <- 1
     }
+}
+
+func GetChannel() int{
+    fmt.Println("waiting for channel...")
+    nRetCode := <-c
+    return nRetCode
+}
+
+func SendChannel(nRetCode int) {
+    fmt.Println("send to channel", nRetCode)
+    c <- nRetCode
 }
 
 func GetCharset(response *http.Response) string {
