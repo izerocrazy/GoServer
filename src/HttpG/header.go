@@ -153,10 +153,10 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) (*http.Response) {
 
     var resp *http.Response
     for {
-        resp, err := client.Do(request)
+        resp, err = client.Do(request)
         if err != nil {
             fmt.Println("post url err wait 10 second")
-            time.sleep(10 * time.Second)
+            time.Sleep(10 * time.Second)
         } else {
             break
         }
