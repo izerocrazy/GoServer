@@ -31,16 +31,11 @@ func main() {
 
     for i := nBeginId; i < nEndId + 1; i++ {
         fmt.Println("正在载入 ID：", i)
-        go DoForOneCompany(i, file1, file2)
+        DoForOneCompany(i, file1, file2)
 
-        //if i < nEndId {
-            nRetCode := HttpG.GetChannel()
-            fmt.Println("==debug")
-            if nRetCode == 1 {
-                i = i - 1
-            }
+        if i < nEndId {
             time.Sleep(2 * time.Second)
-        //}
+        }
     }
 }
 
@@ -70,7 +65,7 @@ func DoForOneCompany(nCompanyId int, file *os.File, file2 *os.File) {
         fmt.Println("此 ID 暂无对应公司信息。\r\n")
     }
 
-    HttpG.SendChannel(2)
+    //HttpG.SendChannel(2)
 }
 
 func SaveToFile(nCompanyId int, cb HttpG.CompanyBaseInfo, file *os.File, file2 *os.File) {

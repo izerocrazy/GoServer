@@ -18,8 +18,8 @@ var c chan int = make(chan int)
 func CheckError(err error) {
     if err != nil {
         fmt.Println("Check Fatal error ", err.Error())
-        //os.Exit(1)
-        c <- 1
+        os.Exit(1)
+        //c <- 1
     }
 }
 
@@ -151,8 +151,17 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) (*http.Response) {
     request.Header.Add("Host", "www.gzzb.gd.cn")
     request.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.149 Safari/537.36")
 
-    resp, err := client.Do(request)
-    CheckError(err)
+    var resp *http.Response
+    for {
+        resp, err := client.Do(request)
+        if err != nil {
+            fmt.Println("post url err wait 10 second")
+            time.sleep(10 * time.Second)
+        } else {
+            break
+        }
+    }
+    //CheckError(err)
 
     chSet := GetCharset(resp)
     //fmt.Printf("got charset %s\n", chSet)
