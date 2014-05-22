@@ -47,12 +47,17 @@ func ShowIntStringTable() (int){
 }
 
 func GetCodeForTest() {
+    // QY_YJ_ZZDJ
     s := "http://www.gzzb.gd.cn/qyww/json";
-    szArguments := fmt.Sprintf("[\"[{\\\"tableName\\\":\\\"basic_code\\\",\\\"valueField\\\":\\\"code\\\",\\\"textField\\\":\\\"name\\\",\\\"where\\\":\\\"code_type=\\\\\\'QY_YJ_ZZDJ\\\\\\'\\\",\\\"eleid\\\":\\\"zzdj\\\"}]\"]")
+    szArguments := fmt.Sprintf("[\"[{\\\"tableName\\\":\\\"basic_code\\\",\\\"valueField\\\":\\\"code\\\",\\\"textField\\\":\\\"name\\\",\\\"where\\\":\\\"code_type=\\\\\\'QY_ZZDJ\\\\\\'\\\",\\\"eleid\\\":\\\"zzdj\\\"}]\"]")
     ShowReader(HttpG.PostGzHttpJson(s, "CodeBS", szArguments, "findCode"))
 }
 
 func main() {
+    GetCodeForTest()
+}
+
+func _main() {
     gzgcjg := "http://www.gzgcjg.com/gzqypjtx/Login.aspx"
     gzgcjg2 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYbhnt.aspx"
     gzgcjg3 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYllh.aspx"

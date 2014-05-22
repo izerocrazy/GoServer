@@ -355,7 +355,9 @@ func CreateFileWithNameAddTitle(szFileName string, szTitleLine string) (file *os
 }
 
 func GetZzdj(n string) string {
-    StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","05":"不分等级"}
+    //StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","05":"不分等级"}
+    StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","06":"甲","07":"乙","08":"丙","09":"暂乙级","12":"暂定级","13":"暂二级","14":"暂三级","17":"暂一级","21":"丁","10":"暂五级","05":"临时资质","20":"五级","19":"四级","11":"暂四级","15":"不分等级","16":"暂甲级","18":"暂丙级","22":"预备级"}
+
 
     return StrMap[n]
 }
