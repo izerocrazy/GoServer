@@ -12,7 +12,7 @@ import (
         "encoding/json"
 )
 
-// because do not make ,waste my time ,fuck
+// because do not make ,waste my time 
 var c chan int = make(chan int)
 
 func CheckError(err error) {
@@ -361,3 +361,4 @@ func GetZzdj(n string) string {
 
     return StrMap[n]
 }
+
