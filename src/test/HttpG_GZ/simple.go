@@ -10,62 +10,61 @@ import (
 
 
 func main() {
-    var nBeginId int
-    var nEndId int
-
-    fmt.Print("温馨提示>> : 如果你希望进行新一轮的信息选取，请在输入前删除上次的信息文件（文件『1.txt』和『2.txt』)。\r\n")
-    fmt.Print("请输入开始企业ID（建议：网站默认第一个企业 ID 为10002）：")
-    fmt.Scanf("%d", &nBeginId)
-    var szStr string
-    fmt.Scanf("%s", &szStr)
-    fmt.Print("请输入结束企业ID（建议：目前最后一个企业 ID 至少大于20000）：")
-    fmt.Scanf("%d", &nEndId)
-
-    szTitleLine := "企业名称\t注册资本(万元) \t2010纳税\t2011纳税\t2012纳税\t企业类型\t有效期\r\n"
-    file1 := HttpG.CreateFileWithNameAddTitle("1.txt", szTitleLine)
-    defer file1.Close()
-
-    szTitleLine = "企业名称\t资质等级\t资质内容\r\n"
-    file2 := HttpG.CreateFileWithNameAddTitle("2.txt", szTitleLine)
-    defer file2.Close()
-
-    for i := nBeginId; i < nEndId + 1; i++ {
-        fmt.Println("正在载入 ID：", i)
-        DoForOneCompany(i, file1, file2)
-
-        if i < nEndId {
-            time.Sleep(2 * time.Second)
-        }
-    }
+    //DoForOneCompany(10020);
+    DoForOneQyyj("x");
 }
 
-func DoForOneCompany(nCompanyId int, file *os.File, file2 *os.File) {
-    szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn/qyww/sccx/basicInfoview.jsp?qybh=%d", nCompanyId);
+func DoForOneCompany(nCompanyId int) {
+    var sampleList []HttpG.QyyjSample
+    nOffset := 0;
+    for {
+        szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn/cms/wz/view/sccx/QyyjServlet?qyyj_qybh=%d&qyyj_qymc=&qyyj_xmbh=&qyyj_xmmc=&siteId=1&channelId=29&pager.offset=%d", nCompanyId, nOffset);
+        fmt.Println(szHtmlUrl);
+        //s := "http://www.gzzb.gd.cn/qyww/json";
+        //szArguments := fmt.Sprintf("[\"%d\"]", nCompanyId)
+
+        bIsEnd := true
+        retList := HttpG.GetCompanyQyyjInfos(HttpG.GetHttpResp(szHtmlUrl))
+        for n, sample := range retList {
+            sampleList = append(sampleList, sample)
+
+            if n == 14 {
+                bIsEnd = false
+            }
+        }
+
+        if bIsEnd == true {
+            break
+        } else {
+            nOffset = nOffset + 15
+        }
+
+        time.Sleep(2 * time.Second)
+    }
+
+    fmt.Println(sampleList);
+
+    DoForOneQyyj(sampleList[0].Url)
+    //cb := HttpG.GetCompanyQylxInfo(HttpG.GetHttpResp(szHtmlUrl));
+    //cb.SzCompanyName, cb.SzZczb = HttpG.GetCompanyJczl(HttpG.PostGzHttpJson(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
+}
+
+func DoForOneQyyj(szUrl string) {
+    szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn%s", szUrl)
+    fmt.Println(szHtmlUrl)
+
+    //strList := strings.Split(szUrl, "=")
+    //szCompanyId := strList[1]
+    szCompanyId := "yj_0bee9f63-007e-4321-b06f-f106dfbca77f" 
+
     s := "http://www.gzzb.gd.cn/qyww/json";
-    szArguments := fmt.Sprintf("[\"%d\"]", nCompanyId)
+    szArguments := fmt.Sprintf("[{\"xmyjid\":\"%s\"}]", szCompanyId)
+    //HttpG.GetProjectBaseInfo(HttpG.PostGzHttpJson(s, "TQyXmyjBS", szArguments, "findQyyj"))
 
-    cb := HttpG.GetCompanyQylxInfo(HttpG.GetHttpResp(szHtmlUrl));
-    cb.SzCompanyName, cb.SzZczb = HttpG.GetCompanyJczl(HttpG.PostGzHttpJson(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
-
-    szArguments = fmt.Sprintf("[0,10,\"%d\"]", nCompanyId)
-    cb.ArrNswh = HttpG.GetCompanyNswh(HttpG.PostGzHttpJson(s, "TQyQynswhBS", szArguments, "findTQyQynswhInfo"))
-
-    szArguments = fmt.Sprintf("[0,100,\"%d\"]", nCompanyId)
-    cb.ArrQyzz = HttpG.GetCompanyQyzz(HttpG.PostGzHttpJson(s, "TQyQyzzBS", szArguments, "findTQyQyzzInfo"))
-
-    for _, a := range cb.ArrQyzz {
-       szArguments = fmt.Sprintf("[0,100,\"%s\"]", a.Qyzzid)
-       cb.ArrQyzzInfo = append(cb.ArrQyzzInfo, HttpG.GetCompanyQyzzInfo(HttpG.PostGzHttpJson(s, "TQyZzxxBS", szArguments, "findZzxxInfo")))
-    }
-
-    if cb.SzCompanyName != "" {
-        SaveToFile(nCompanyId, cb, file, file2)
-        fmt.Println("已读取完公司",cb.SzCompanyName,"，请稍候。\r\n")
-    } else {
-        fmt.Println("此 ID 暂无对应公司信息。\r\n")
-    }
-
-    //HttpG.SendChannel(2)
+    szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szCompanyId)
+    //HttpG.GetProjectQyzz(HttpG.PostGzHttpJson(s, "TQyXmyjBS", szArguments, "findQyzz"))
+    //HttpG.ShowReader(HttpG.PostGzHttpJson(s, "TQyXmyjBS", szArguments, "findQyzz"))
+    HttpG.ShowReader(HttpG.PostGzHttpJson(s, "TQyXmyjBS", szArguments, "findQyzz"))
 }
 
 func SaveToFile(nCompanyId int, cb HttpG.CompanyBaseInfo, file *os.File, file2 *os.File) {

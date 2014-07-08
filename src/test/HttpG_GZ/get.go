@@ -53,11 +53,11 @@ func GetCodeForTest() {
     ShowReader(HttpG.PostGzHttpJson(s, "CodeBS", szArguments, "findCode"))
 }
 
-func main() {
+func _main() {
     GetCodeForTest()
 }
 
-func _main() {
+func main() {
     gzgcjg := "http://www.gzgcjg.com/gzqypjtx/Login.aspx"
     gzgcjg2 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYbhnt.aspx"
     gzgcjg3 := "http://www.gzgcjg.com/gzqypjtx/common/LoginYllh.aspx"

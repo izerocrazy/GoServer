@@ -15,6 +15,30 @@ import (
 // because do not make ,waste my time 
 var c chan int = make(chan int)
 
+func ShowReader(resp *http.Response) {
+    r := resp.Body
+    defer resp.Body.Close()
+
+    var buf [512]byte
+    reader := r
+    //fmt.Println("got body")
+    for {
+        n, err := reader.Read(buf[0:])
+        if err != nil {
+            break
+        }
+
+        fmt.Println(string(buf[0:n]))
+        //cd, err := iconv.Open("gbk", "utf-8")
+        //HttpG.CheckError(err)
+        //defer cd.Close()
+        //szGbk := cd.ConvString(string(buf[0:n]))
+        //fmt.Print(szGbk)
+    }
+
+    //os.Exit(0)
+}
+
 func CheckError(err error) {
     if err != nil {
         fmt.Println("Check Fatal error ", err.Error())
@@ -48,6 +72,14 @@ func GetCharset(response *http.Response) string {
     return strings.Trim(contentType[idx:], " ")
 }
 
+type ProjectBaseInfo struct {
+    Zbtzsrq string
+    Zbj string
+    Xmjlxm string
+    Jgysrq string
+    Htj string
+}
+
 type CompanyBaseInfo struct{
     SzCompanyName string
     ArrQylx []CompanyQylx
@@ -76,21 +108,19 @@ type CompanyQyzzInfo struct {
     ZznrName string
 }
 
-type XmyjBaseJson struct {
-    Qymc string
-    Xmmc string
-    Zbtzsrq string
-    Zbj string
-    Htj string
-    Jgysrq string
-}
-
-type XmyjQyzzJson struct{
+type ProjectZz struct{
     Zzmc string
     Zzdj string
 }
 
-type XmyjHjqk struct {
+type ProjectSize struct{
+    Gclb string
+    Gmzb string
+    Sl  string
+    Dw  string
+}
+
+type ProjectPrice struct {
     Nd string
     Hjmc string
     Bjsj string
@@ -98,10 +128,15 @@ type XmyjHjqk struct {
 }
 
 type Xmyj struct {
-    Base XmyjBaseJson
-    ArrQyzz []XmyjQyzzJson
-    Plus map[string]string
-    ArrHjqk []XmyjHjqk
+    Base ProjectBaseInfo
+    ArrQyzz []ProjectZz
+    Size ProjectSize
+    ArrHjqk []ProjectPrice
+}
+
+type QyyjSample struct {
+    Name string
+    Url string
 }
 
 func GetHttpResp(szUrl string) (*http.Response) {
@@ -164,7 +199,7 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) (*http.Response) {
     //CheckError(err)
 
     chSet := GetCharset(resp)
-    //fmt.Printf("got charset %s\n", chSet)
+    fmt.Printf("got charset %s\n", chSet)
     if chSet != "UTF-8" {
         fmt.Println("Cannot handle", chSet)
         os.Exit(4)
@@ -181,8 +216,106 @@ func PostGzHttpJson(szUrl string, szService string, szArguments string, szFunc s
     values.Set("method", szFunc)
 
     szPost := strings.NewReader(values.Encode())
-    //fmt.Println(szPost)
+    fmt.Println(szUrl, szPost)
     return PostHttpResp(szUrl, szPost)
+}
+
+func FindDivNodeByName(node *html.Node, szName string) ([]*html.Node) {
+    var retList []*html.Node
+
+    if (node.Type == html.DocumentNode || node.Type == html.ElementNode) && node.Data == "div" {
+        for _, a := range node.Attr {
+            if (a.Key == "class" && a.Val == szName) {
+                    retList = append(retList, node)
+            }
+        }
+    }
+
+    for c:= node.FirstChild; c != nil; c = c.NextSibling {
+        rList := FindDivNodeByName(c, szName)
+
+        for _, n := range rList {
+            retList = append(retList, n)
+        }
+    }
+
+    return retList;
+}
+
+func FindNodeByTypeName(node *html.Node, szTypeName string) ([]*html.Node) {
+    var retList []*html.Node
+
+    if (node.Type == html.DocumentNode || node.Type == html.ElementNode) && node.Data == szTypeName {
+        retList = append(retList, node)
+    }
+
+    for c:= node.FirstChild; c != nil; c = c.NextSibling {
+        rList := FindNodeByTypeName(c, szTypeName)
+
+        for _, n := range rList {
+            retList = append(retList, n)
+        }
+    }
+
+    return retList;
+}
+
+func GetNodeText(node *html.Node) (text string) {
+    for child := node.FirstChild; child != nil; child = child.NextSibling {
+        if child.Type == html.TextNode {
+            return child.Data
+        }
+    }
+
+    return ""
+}
+
+func GetCompanyQyyjInfos(resp* http.Response) ([]QyyjSample){
+    var retList []QyyjSample
+
+    r := resp.Body
+    defer r.Close()
+    doc, err := html.Parse(r)
+    CheckError(err)
+
+    divList := FindDivNodeByName(doc, "bszn_right_table");
+    for _, div := range divList {
+        trList := FindNodeByTypeName(div, "tr")
+        for n, tr := range trList {
+            if n == 0 {
+                continue
+            }
+
+            tdList := FindNodeByTypeName(tr, "td")
+
+            var qyyjSample QyyjSample
+            /*tbChild := td.FirstChild   //Table Index
+            fmt.Println(tbChild.Data)
+            tbChild = tbChild.NextSibling  //Id: YJ201103170297
+            fmt.Println(tbChild.Data)*/
+            tbChild := tdList[2]//a and name
+
+            for tempChild := tbChild.FirstChild; tempChild != nil; tempChild = tempChild.NextSibling {
+                if tempChild.Data == "a" {
+                    szText := GetNodeText(tempChild)
+                    enc:=mahonia.NewDecoder("gbk")
+                    szGbk := enc.ConvertString(szText)
+                    qyyjSample.Name = szGbk
+
+                    for _, a := range tempChild.Attr {
+                        if a.Key == "href" {
+                            qyyjSample.Url = a.Val
+                        }
+                    }
+                }
+            }
+
+            retList = append(retList, qyyjSample)
+        }
+    }
+
+    //fmt.Println(retList)
+    return retList
 }
 
 func GetCompanyQylxInfo(resp* http.Response) (CompanyBaseInfo){
@@ -342,6 +475,44 @@ func GetCompanyQyzzInfo(resp* http.Response) ([]CompanyQyzzInfo) {
     CheckError(err)
 
     return d.Data
+}
+
+func GetProjectBaseInfo(resp* http.Response) (ProjectBaseInfo) {
+    //ShowReader(resp)
+    r := resp.Body
+    defer r.Close()
+
+    dec := json.NewDecoder(r)
+    var t ProjectBaseInfo
+    err := dec.Decode(&t)
+    CheckError(err)
+
+    fmt.Println(t)
+
+    return t
+}
+
+func GetProjectQyzz(resp* http.Response) ([]ProjectZz){
+    //ShowReader(resp)
+    r := resp.Body
+    defer r.Close()
+
+    type QyyjQyzzJson struct {
+        Data []HttpG.ProjectZz
+    }
+
+    dec := json.NewDecoder(r)
+    var d QyyjQyzzJson
+    err := dec.Decode(&d)
+    HttpG.CheckError(err)
+
+    fmt.Println(d.Data)
+
+    return d.Data
+}
+
+
+func GetProjectQyzz(resp* http.Response) () {
 }
 
 func CreateFileWithNameAddTitle(szFileName string, szTitleLine string) (file *os.File) {
