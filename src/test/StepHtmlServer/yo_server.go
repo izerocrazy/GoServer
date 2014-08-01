@@ -3,10 +3,6 @@ package main
 import (
     "fmt"
     "net/http"
-    //"Step"
-    //"html/template"
-    //"strconv"
-    //"time"
     "encoding/json"
 )
 
@@ -17,36 +13,33 @@ type HttpBaseRequest struct {
 }
 
 func testFun(w http.ResponseWriter, r *http.Request){
-    /* fmt.Fprintf(w, "hello, %q", html.EscapeString(r.URL.RawQuery)) */
     fmt.Fprintf(w, "hello, %q", r.URL.RawQuery)
     fmt.Println(r.URL.Query())
 }
 
 type RegUserData struct {
-    userid int
+    Userid int `json:"username"`
 }
 
+-- 思考怎么实现数据上的继承
 type RegUserStruct struct {
-    /* HttpBaseRequest */
-    retcode int
-    msg string
-    datetime int
-    data RegUserData
+    Retcode int `json:"retconde"`
+    Msg string `json:"msg"`
+    Datetime int `json:"datetime"`
+    Data RegUserData `json:"data"`  
 }
 
 func RegUser(w http.ResponseWriter, r *http.Request){
-    szUserName := r.URL.Query()["username"][0]
-    fmt.Fprintf(w, "hello, %s", szUserName)
+    /* szUserName := r.URL.Query()["username"][0] */
+    /* fmt.Fprintf(w, "hello, %s", szUserName) */
     
     reg := RegUserStruct {
-        retcode: 200,
-        msg: "ok",
-        datetime: 10,
-        data: RegUserData { userid : 100 },
+        Retcode: 200,
+        Msg: "ok",
+        Datetime: 10,
+        Data: RegUserData { Userid : 100 },
     }
-
-    fmt.Println(reg)
-
+    
     encode := json.NewEncoder(w)
     encode.Encode(reg) 
 }
