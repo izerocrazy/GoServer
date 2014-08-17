@@ -5,7 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
-	// "strings"
+	"strings"
 	"time"
 )
 
@@ -44,7 +44,9 @@ func DoForOneCompany(nCompanyId int) {
 
 	fmt.Println(sampleList)
 
-	DoForOneQyyj(sampleList[0].Url)
+	for _, a := range sampleList {
+		DoForOneQyyj(a.Url)
+	}
 	//cb := HttpG.GetCompanyQylxInfo(HttpG.GetHttpResp(szHtmlUrl));
 	//cb.SzCompanyName, cb.SzZczb = HttpG.GetCompanyJczl(HttpG.PostGzHttpJson(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
 }
