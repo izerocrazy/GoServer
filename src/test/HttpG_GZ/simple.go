@@ -17,6 +17,8 @@ func main() {
 	defer f.Close()
 
 	f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+	w := csv.NewWriter(f)
+	w.Write([]string{"企业编号", "业绩名称", "中标日期", "中标价", "项目经理", "合同价", "竣工验收时间", "资质名称和等级", "特征", "获奖"})
 
 	DoForOneCompany(10020, f)
 	// DoForOneQyyj("x")
@@ -54,7 +56,7 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 
 	for _, a := range sampleList {
 		xmInfo := DoForOneQyyj(a.Url)
-		SaveToFile(xmInfo, file)
+		SaveToFile(nCompanyId, a.Name, xmInfo, file)
 	}
 	//cb := HttpG.GetCompanyQylxInfo(HttpG.GetHttpResp(szHtmlUrl));
 	//cb.SzCompanyName, cb.SzZczb = HttpG.GetCompanyJczl(HttpG.PostGzHttpJson(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
@@ -78,6 +80,8 @@ func DoForOneQyyj(szUrl string) HttpG.Xmyj {
 	xmInfo.ArrQyzz = HttpG.GetProjectQyzz(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findQyzz"))
 	// HttpG.ShowReader(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findQyzz"))
 
+	xmInfo.ArrXmgm = HttpG.GetProjectSize(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findXmgm"))
+
 	szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szCompanyId)
 	xmInfo.ArrHjqk = HttpG.GetProjectPrice(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findHjqk"))
 	// HttpG.ShowReader(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findHjqk"))
@@ -87,28 +91,38 @@ func DoForOneQyyj(szUrl string) HttpG.Xmyj {
 	return xmInfo
 }
 
-func SaveToFile(xmInfo HttpG.Xmyj, file *os.File) {
+func SaveToFile(nCompanyId int, szName string, xmInfo HttpG.Xmyj, file *os.File) {
 	w := csv.NewWriter(file)
 	// w.Write([]string{"1", "张三", "23"})
 	// Base
 	var data []string
+	data = append(data, string(nCompanyId))
+	data = append(data, szName)
+
 	data = append(data, xmInfo.Base.Zbtzsrq)
 	data = append(data, xmInfo.Base.Zbj)
 	data = append(data, xmInfo.Base.Xmjlxm)
-	data = append(data, xmInfo.Base.Jgysrq)
 	data = append(data, xmInfo.Base.Htj)
+	data = append(data, xmInfo.Base.Jgysrq)
 
 	// zz
 	var szQyzz string
 	for _, a := range xmInfo.ArrQyzz {
-		szQyzz = szQyzz + a.Zzmc + "\t" + a.Zzdj + "\r\n"
+		szQyzz = szQyzz + a.Zzmc + " " + a.Zzdj + "\r\n"
+	}
+	data = append(data, szQyzz)
+
+	// xmgm
+	var szXmgm string
+	for _, a := range xmInfo.ArrXmgm {
+		szXmgm = szXmgm + a.Gclb + " " + a.Gmzb + " " + a.Sl + " " + a.Dw + "\r\n"
 	}
 	data = append(data, szQyzz)
 
 	// hjqk
 	var szHjqk string
 	for _, a := range xmInfo.ArrHjqk {
-		szHjqk = szHjqk + a.Nd + "\t" + a.Hjmc + "\t" + a.Bjsj + "\t" + a.Bjdw + "\r\n"
+		szHjqk = szHjqk + a.Nd + " " + a.Hjmc + " " + a.Bjsj + " " + a.Bjdw + "\r\n"
 	}
 	data = append(data, szHjqk)
 

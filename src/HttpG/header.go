@@ -130,7 +130,7 @@ type ProjectPrice struct {
 type Xmyj struct {
 	Base    ProjectBaseInfo
 	ArrQyzz []ProjectZz
-	Size    ProjectSize
+	ArrXmgm []ProjectSize
 	ArrHjqk []ProjectPrice
 }
 
@@ -507,6 +507,22 @@ func GetProjectQyzz(resp *http.Response) []ProjectZz {
 	CheckError(err)
 
 	// fmt.Println(d.Data)
+
+	return d.Data
+}
+
+func GetProjectSize(resp *http.Response) []ProjectSize {
+	r := resp.Body
+	defer r.Close()
+
+	type XmyjHjqkJson struct {
+		Data []ProjectSize
+	}
+
+	dec := json.NewDecoder(r)
+	var d XmyjHjqkJson
+	err := dec.Decode(&d)
+	CheckError(err)
 
 	return d.Data
 }
