@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	// DoForOneCompany(10020)
-	DoForOneQyyj("x")
+	DoForOneCompany(10020)
+	// DoForOneQyyj("x")
 }
 
 func DoForOneCompany(nCompanyId int) {
@@ -53,9 +53,9 @@ func DoForOneQyyj(szUrl string) {
 	szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn%s", szUrl)
 	fmt.Println(szHtmlUrl)
 
-	// strList := strings.Split(szUrl, "=")
-	// szCompanyId := strList[1]
-	szCompanyId := "402828ac2f522638012f76cb6c841030"
+	strList := strings.Split(szUrl, "=")
+	szCompanyId := strList[1]
+	// szCompanyId := "402828ac2f522638012f76cb6c841030"
 
 	var xmInfo HttpG.Xmyj
 	s := "http://www.gzzb.gd.cn/qyww/json"
