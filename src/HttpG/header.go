@@ -1,535 +1,545 @@
 package HttpG
 
 import (
-        "net/http"
-        "fmt"
-        "os"
-        "time"
-        "strings"
-        "net/url"
-        "github.com/p/mahonia"
-        "code.google.com/p/go.net/html"
-        "encoding/json"
+	"code.google.com/p/go.net/html"
+	"encoding/json"
+	"fmt"
+	"github.com/p/mahonia"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
+	"time"
 )
 
-// because do not make ,waste my time 
+// because do not make ,waste my time
 var c chan int = make(chan int)
 
 func ShowReader(resp *http.Response) {
-    r := resp.Body
-    defer resp.Body.Close()
+	r := resp.Body
+	defer resp.Body.Close()
 
-    var buf [512]byte
-    reader := r
-    //fmt.Println("got body")
-    for {
-        n, err := reader.Read(buf[0:])
-        if err != nil {
-            break
-        }
+	var buf [512]byte
+	reader := r
+	//fmt.Println("got body")
+	for {
+		n, err := reader.Read(buf[0:])
+		if err != nil {
+			break
+		}
 
-        fmt.Println(string(buf[0:n]))
-        //cd, err := iconv.Open("gbk", "utf-8")
-        //HttpG.CheckError(err)
-        //defer cd.Close()
-        //szGbk := cd.ConvString(string(buf[0:n]))
-        //fmt.Print(szGbk)
-    }
+		fmt.Println(string(buf[0:n]))
+		//cd, err := iconv.Open("gbk", "utf-8")
+		//HttpG.CheckError(err)
+		//defer cd.Close()
+		//szGbk := cd.ConvString(string(buf[0:n]))
+		//fmt.Print(szGbk)
+	}
 
-    //os.Exit(0)
+	//os.Exit(0)
 }
 
 func CheckError(err error) {
-    if err != nil {
-        fmt.Println("Check Fatal error ", err.Error())
-        os.Exit(1)
-        //c <- 1
-    }
+	if err != nil {
+		fmt.Println("Check Fatal error ", err.Error())
+		os.Exit(1)
+		//c <- 1
+	}
 }
 
-func GetChannel() int{
-    fmt.Println("waiting for channel...")
-    nRetCode := <-c
-    return nRetCode
+func GetChannel() int {
+	fmt.Println("waiting for channel...")
+	nRetCode := <-c
+	return nRetCode
 }
 
 func SendChannel(nRetCode int) {
-    fmt.Println("send to channel", nRetCode)
-    c <- nRetCode
+	fmt.Println("send to channel", nRetCode)
+	c <- nRetCode
 }
 
 func GetCharset(response *http.Response) string {
-    contentType := response.Header.Get("Content-Type")
-    if contentType == "" {
-        // guess
-        return "UTF-8"
-    }
-    idx := strings.Index(contentType, "charset:")
-    if idx == -1 {
-        // guess
-        return "UTF-8"
-    }
-    return strings.Trim(contentType[idx:], " ")
+	contentType := response.Header.Get("Content-Type")
+	if contentType == "" {
+		// guess
+		return "UTF-8"
+	}
+	idx := strings.Index(contentType, "charset:")
+	if idx == -1 {
+		// guess
+		return "UTF-8"
+	}
+	return strings.Trim(contentType[idx:], " ")
 }
 
 type ProjectBaseInfo struct {
-    Zbtzsrq string
-    Zbj string
-    Xmjlxm string
-    Jgysrq string
-    Htj string
+	Zbtzsrq string
+	Zbj     string
+	Xmjlxm  string
+	Jgysrq  string
+	Htj     string
 }
 
-type CompanyBaseInfo struct{
-    SzCompanyName string
-    ArrQylx []CompanyQylx
-    SzZczb string
-    ArrNswh []CompanyNswh
-    ArrQyzz []CompanyQyzz
-    ArrQyzzInfo [][]CompanyQyzzInfo
+type CompanyBaseInfo struct {
+	SzCompanyName string
+	ArrQylx       []CompanyQylx
+	SzZczb        string
+	ArrNswh       []CompanyNswh
+	ArrQyzz       []CompanyQyzz
+	ArrQyzzInfo   [][]CompanyQyzzInfo
 }
 
-type CompanyQylx struct{
-    SzName string
-    SzEndTime string
+type CompanyQylx struct {
+	SzName    string
+	SzEndTime string
 }
 
 type CompanyNswh struct {
-    SzYear string
-    SzMoney string
+	SzYear  string
+	SzMoney string
 }
 
 type CompanyQyzz struct {
-    Qyzzid string
+	Qyzzid string
 }
 
 type CompanyQyzzInfo struct {
-    Zzdj string
-    ZznrName string
+	Zzdj     string
+	ZznrName string
 }
 
-type ProjectZz struct{
-    Zzmc string
-    Zzdj string
+type ProjectZz struct {
+	Zzmc string
+	Zzdj string
 }
 
-type ProjectSize struct{
-    Gclb string
-    Gmzb string
-    Sl  string
-    Dw  string
+type ProjectSize struct {
+	Gclb string
+	Gmzb string
+	Sl   string
+	Dw   string
 }
 
 type ProjectPrice struct {
-    Nd string
-    Hjmc string
-    Bjsj string
-    Bjdw string
+	Nd   string
+	Hjmc string
+	Bjsj string
+	Bjdw string
 }
 
 type Xmyj struct {
-    Base ProjectBaseInfo
-    ArrQyzz []ProjectZz
-    Size ProjectSize
-    ArrHjqk []ProjectPrice
+	Base    ProjectBaseInfo
+	ArrQyzz []ProjectZz
+	Size    ProjectSize
+	ArrHjqk []ProjectPrice
 }
 
 type QyyjSample struct {
-    Name string
-    Url string
+	Name string
+	Url  string
 }
 
-func GetHttpResp(szUrl string) (*http.Response) {
-    client := &http.Client{}
+func GetHttpResp(szUrl string) *http.Response {
+	client := &http.Client{}
 
-    request, err := http.NewRequest("GET", szUrl, nil)
-    // only accept UTF-8
-    request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
-    CheckError(err)
+	request, err := http.NewRequest("GET", szUrl, nil)
+	// only accept UTF-8
+	request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
+	CheckError(err)
 
 	//CheckError(err)
 	var response *http.Response
 	for {
 		response, err = client.Do(request)
 		if err != nil {
-            fmt.Println("Get url err wait 10 Second....")
+			fmt.Println("Get url err wait 10 Second....")
 			time.Sleep(10 * time.Second)
 		} else {
 			break
 		}
 	}
 
-    if response.Status != "200 OK" {
-        fmt.Println(response.Status)
-        os.Exit(2)
-    }
+	if response.Status != "200 OK" {
+		fmt.Println(response.Status)
+		os.Exit(2)
+	}
 
-    chSet := GetCharset(response)
-    //fmt.Printf("got charset %s\n", chSet)
-    if chSet != "UTF-8" {
-        fmt.Println("Cannot handle", chSet)
-        os.Exit(4)
-    }
+	chSet := GetCharset(response)
+	//fmt.Printf("got charset %s\n", chSet)
+	if chSet != "UTF-8" {
+		fmt.Println("Cannot handle", chSet)
+		os.Exit(4)
+	}
 
-    return response
+	return response
 }
 
-func PostHttpResp(szUrl string, szPost *strings.Reader) (*http.Response) {
-    client := &http.Client{}
-    request, err := http.NewRequest("POST", szUrl, szPost);
-    CheckError(err)
+func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
+	client := &http.Client{}
+	request, err := http.NewRequest("POST", szUrl, szPost)
+	CheckError(err)
 
-    request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-    request.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-    request.Header.Add("Accept-Encoding", "gzip,deflate,sdch")
-    request.Header.Add("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4,nl;q=0.2,zh-TW;q=0.2")
-    request.Header.Add("Host", "www.gzzb.gd.cn")
-    request.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.149 Safari/537.36")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	request.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+	request.Header.Add("Accept-Encoding", "gzip,deflate,sdch")
+	request.Header.Add("Accept-Language", "zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4,nl;q=0.2,zh-TW;q=0.2")
+	request.Header.Add("Host", "www.gzzb.gd.cn")
+	request.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.149 Safari/537.36")
 
-    var resp *http.Response
-    for {
-        resp, err = client.Do(request)
-        if err != nil {
-            fmt.Println("post url err wait 10 second")
-            time.Sleep(10 * time.Second)
-        } else {
-            break
-        }
-    }
-    //CheckError(err)
+	var resp *http.Response
+	for {
+		resp, err = client.Do(request)
+		if err != nil {
+			fmt.Println("post url err wait 10 second")
+			time.Sleep(10 * time.Second)
+		} else {
+			break
+		}
+	}
+	//CheckError(err)
 
-    chSet := GetCharset(resp)
-    fmt.Printf("got charset %s\n", chSet)
-    if chSet != "UTF-8" {
-        fmt.Println("Cannot handle", chSet)
-        os.Exit(4)
-    }
+	chSet := GetCharset(resp)
+	fmt.Printf("got charset %s\n", chSet)
+	if chSet != "UTF-8" {
+		fmt.Println("Cannot handle", chSet)
+		os.Exit(4)
+	}
 
-    return resp
+	return resp
 }
 
-func PostGzHttpJson(szUrl string, szService string, szArguments string, szFunc string) (*http.Response) {
-    values := make(url.Values)
+func PostGzHttpJson(szUrl string, szService string, szArguments string, szFunc string) *http.Response {
+	values := make(url.Values)
 
-    values.Set("service", szService)
-    values.Set("arguments", szArguments)
-    values.Set("method", szFunc)
+	values.Set("service", szService)
+	values.Set("arguments", szArguments)
+	values.Set("method", szFunc)
 
-    szPost := strings.NewReader(values.Encode())
-    fmt.Println(szUrl, szPost)
-    return PostHttpResp(szUrl, szPost)
+	szPost := strings.NewReader(values.Encode())
+	fmt.Println(szUrl, szPost)
+	return PostHttpResp(szUrl, szPost)
 }
 
-func FindDivNodeByName(node *html.Node, szName string) ([]*html.Node) {
-    var retList []*html.Node
+func FindDivNodeByName(node *html.Node, szName string) []*html.Node {
+	var retList []*html.Node
 
-    if (node.Type == html.DocumentNode || node.Type == html.ElementNode) && node.Data == "div" {
-        for _, a := range node.Attr {
-            if (a.Key == "class" && a.Val == szName) {
-                    retList = append(retList, node)
-            }
-        }
-    }
+	if (node.Type == html.DocumentNode || node.Type == html.ElementNode) && node.Data == "div" {
+		for _, a := range node.Attr {
+			if a.Key == "class" && a.Val == szName {
+				retList = append(retList, node)
+			}
+		}
+	}
 
-    for c:= node.FirstChild; c != nil; c = c.NextSibling {
-        rList := FindDivNodeByName(c, szName)
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		rList := FindDivNodeByName(c, szName)
 
-        for _, n := range rList {
-            retList = append(retList, n)
-        }
-    }
+		for _, n := range rList {
+			retList = append(retList, n)
+		}
+	}
 
-    return retList;
+	return retList
 }
 
-func FindNodeByTypeName(node *html.Node, szTypeName string) ([]*html.Node) {
-    var retList []*html.Node
+func FindNodeByTypeName(node *html.Node, szTypeName string) []*html.Node {
+	var retList []*html.Node
 
-    if (node.Type == html.DocumentNode || node.Type == html.ElementNode) && node.Data == szTypeName {
-        retList = append(retList, node)
-    }
+	if (node.Type == html.DocumentNode || node.Type == html.ElementNode) && node.Data == szTypeName {
+		retList = append(retList, node)
+	}
 
-    for c:= node.FirstChild; c != nil; c = c.NextSibling {
-        rList := FindNodeByTypeName(c, szTypeName)
+	for c := node.FirstChild; c != nil; c = c.NextSibling {
+		rList := FindNodeByTypeName(c, szTypeName)
 
-        for _, n := range rList {
-            retList = append(retList, n)
-        }
-    }
+		for _, n := range rList {
+			retList = append(retList, n)
+		}
+	}
 
-    return retList;
+	return retList
 }
 
 func GetNodeText(node *html.Node) (text string) {
-    for child := node.FirstChild; child != nil; child = child.NextSibling {
-        if child.Type == html.TextNode {
-            return child.Data
-        }
-    }
+	for child := node.FirstChild; child != nil; child = child.NextSibling {
+		if child.Type == html.TextNode {
+			return child.Data
+		}
+	}
 
-    return ""
+	return ""
 }
 
-func GetCompanyQyyjInfos(resp* http.Response) ([]QyyjSample){
-    var retList []QyyjSample
+func GetCompanyQyyjInfos(resp *http.Response) []QyyjSample {
+	var retList []QyyjSample
 
-    r := resp.Body
-    defer r.Close()
-    doc, err := html.Parse(r)
-    CheckError(err)
+	r := resp.Body
+	defer r.Close()
+	doc, err := html.Parse(r)
+	CheckError(err)
 
-    divList := FindDivNodeByName(doc, "bszn_right_table");
-    for _, div := range divList {
-        trList := FindNodeByTypeName(div, "tr")
-        for n, tr := range trList {
-            if n == 0 {
-                continue
-            }
+	divList := FindDivNodeByName(doc, "bszn_right_table")
+	for _, div := range divList {
+		trList := FindNodeByTypeName(div, "tr")
+		for n, tr := range trList {
+			if n == 0 {
+				continue
+			}
 
-            tdList := FindNodeByTypeName(tr, "td")
+			tdList := FindNodeByTypeName(tr, "td")
 
-            var qyyjSample QyyjSample
-            /*tbChild := td.FirstChild   //Table Index
-            fmt.Println(tbChild.Data)
-            tbChild = tbChild.NextSibling  //Id: YJ201103170297
-            fmt.Println(tbChild.Data)*/
-            tbChild := tdList[2]//a and name
+			var qyyjSample QyyjSample
+			/*tbChild := td.FirstChild   //Table Index
+			  fmt.Println(tbChild.Data)
+			  tbChild = tbChild.NextSibling  //Id: YJ201103170297
+			  fmt.Println(tbChild.Data)*/
+			tbChild := tdList[2] //a and name
 
-            for tempChild := tbChild.FirstChild; tempChild != nil; tempChild = tempChild.NextSibling {
-                if tempChild.Data == "a" {
-                    szText := GetNodeText(tempChild)
-                    enc:=mahonia.NewDecoder("gbk")
-                    szGbk := enc.ConvertString(szText)
-                    qyyjSample.Name = szGbk
+			for tempChild := tbChild.FirstChild; tempChild != nil; tempChild = tempChild.NextSibling {
+				if tempChild.Data == "a" {
+					szText := GetNodeText(tempChild)
+					enc := mahonia.NewDecoder("gbk")
+					szGbk := enc.ConvertString(szText)
+					qyyjSample.Name = szGbk
 
-                    for _, a := range tempChild.Attr {
-                        if a.Key == "href" {
-                            qyyjSample.Url = a.Val
-                        }
-                    }
-                }
-            }
+					for _, a := range tempChild.Attr {
+						if a.Key == "href" {
+							qyyjSample.Url = a.Val
+						}
+					}
+				}
+			}
 
-            retList = append(retList, qyyjSample)
-        }
-    }
+			retList = append(retList, qyyjSample)
+		}
+	}
 
-    //fmt.Println(retList)
-    return retList
+	//fmt.Println(retList)
+	return retList
 }
 
-func GetCompanyQylxInfo(resp* http.Response) (CompanyBaseInfo){
-    var cb CompanyBaseInfo
+func GetCompanyQylxInfo(resp *http.Response) CompanyBaseInfo {
+	var cb CompanyBaseInfo
 
-    r := resp.Body
-    defer r.Close()
-    doc, err := html.Parse(r)
-    CheckError(err)
+	r := resp.Body
+	defer r.Close()
+	doc, err := html.Parse(r)
+	CheckError(err)
 
-    var szTempQylxmc string
-    var bGetQylxmc bool
-    var szTempYxqz string
-    var bGetYxqz bool
+	var szTempQylxmc string
+	var bGetQylxmc bool
+	var szTempYxqz string
+	var bGetYxqz bool
 
-    var f func(*html.Node, bool, bool)
-    f = func(n *html.Node, bFindDiv1 bool, bFindDiv2 bool) {
-        if (n.Type == html.DocumentNode || n.Type == html.ElementNode) && n.Data == "div" {
-            for _, a := range n.Attr {
-                if a.Val == "qylxmc" {
-                    bFindDiv1 = true
-                } else if a.Val == "yxqz" {
-                    bFindDiv2 = true
-                }
-            }
-        }
+	var f func(*html.Node, bool, bool)
+	f = func(n *html.Node, bFindDiv1 bool, bFindDiv2 bool) {
+		if (n.Type == html.DocumentNode || n.Type == html.ElementNode) && n.Data == "div" {
+			for _, a := range n.Attr {
+				if a.Val == "qylxmc" {
+					bFindDiv1 = true
+				} else if a.Val == "yxqz" {
+					bFindDiv2 = true
+				}
+			}
+		}
 
-        for c:= n.FirstChild; c != nil; c = c.NextSibling {
-            if c.Type == html.TextNode {
-                if bFindDiv1== true {
-                    enc:=mahonia.NewDecoder("gbk")
-                    //converts a  string from UTF-8 to gbk encoding.
-                    szGbk := enc.ConvertString(c.Data) 
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			if c.Type == html.TextNode {
+				if bFindDiv1 == true {
+					enc := mahonia.NewDecoder("gbk")
+					//converts a  string from UTF-8 to gbk encoding.
+					szGbk := enc.ConvertString(c.Data)
 
-                    szTempQylxmc = szGbk
-                    bGetQylxmc = true
-                } else if bFindDiv2 == true {
-                    szTempYxqz = c.Data
-                    bGetYxqz = true
-                }
+					szTempQylxmc = szGbk
+					bGetQylxmc = true
+				} else if bFindDiv2 == true {
+					szTempYxqz = c.Data
+					bGetYxqz = true
+				}
 
-                if bGetQylxmc && bGetYxqz {
-                    var q CompanyQylx
-                    q.SzName = szTempQylxmc
-                    q.SzEndTime = szTempYxqz
-                    cb.ArrQylx = append(cb.ArrQylx, q)
+				if bGetQylxmc && bGetYxqz {
+					var q CompanyQylx
+					q.SzName = szTempQylxmc
+					q.SzEndTime = szTempYxqz
+					cb.ArrQylx = append(cb.ArrQylx, q)
 
-                    bGetQylxmc = false
-                    bGetYxqz = false
-                }
-            }
+					bGetQylxmc = false
+					bGetYxqz = false
+				}
+			}
 
-            f(c, bFindDiv1, bFindDiv2)
-        }
+			f(c, bFindDiv1, bFindDiv2)
+		}
 
-        if bFindDiv1 == true {
-            bFindDiv1 = false
-        }
+		if bFindDiv1 == true {
+			bFindDiv1 = false
+		}
 
-        if bFindDiv2 == true {
-            bFindDiv2 = false
-        }
-    }
+		if bFindDiv2 == true {
+			bFindDiv2 = false
+		}
+	}
 
-    f(doc, false, false)
+	f(doc, false, false)
 
-    return cb
+	return cb
 }
 
-func GetCompanyJczl(resp* http.Response) (string, string){
-    r := resp.Body
-    defer r.Close()
+func GetCompanyJczl(resp *http.Response) (string, string) {
+	r := resp.Body
+	defer r.Close()
 
-    type Cjson struct {
-        Czzb    string
-        Qymc    string
-    }
-    dec := json.NewDecoder(r)
-    var c Cjson
-    err := dec.Decode(&c)
-    CheckError(err)
+	type Cjson struct {
+		Czzb string
+		Qymc string
+	}
+	dec := json.NewDecoder(r)
+	var c Cjson
+	err := dec.Decode(&c)
+	CheckError(err)
 
-    return c.Qymc, c.Czzb
+	return c.Qymc, c.Czzb
 }
 
-func GetCompanyNswh(resp* http.Response) ([]CompanyNswh) {
-    r := resp.Body
-    defer r.Close()
-    type QylxData struct {
-        Nsze string
-        Nd  string
-    }
+func GetCompanyNswh(resp *http.Response) []CompanyNswh {
+	r := resp.Body
+	defer r.Close()
+	type QylxData struct {
+		Nsze string
+		Nd   string
+	}
 
-    type Djson struct {
-        Data []QylxData
-    }
+	type Djson struct {
+		Data []QylxData
+	}
 
-    dec := json.NewDecoder(r)
-    var d Djson
-    err := dec.Decode(&d)
-    CheckError(err)
+	dec := json.NewDecoder(r)
+	var d Djson
+	err := dec.Decode(&d)
+	CheckError(err)
 
-    var arrCn []CompanyNswh
-    for _, a := range d.Data{
-        if a.Nd == "2010" || a.Nd == "2011" || a.Nd == "2012"{
-            //fmt.Println(a.Nd, a.Nsze)
-            var cn CompanyNswh
-            cn.SzYear = a.Nd
-            cn.SzMoney = a.Nsze
+	var arrCn []CompanyNswh
+	for _, a := range d.Data {
+		if a.Nd == "2010" || a.Nd == "2011" || a.Nd == "2012" {
+			//fmt.Println(a.Nd, a.Nsze)
+			var cn CompanyNswh
+			cn.SzYear = a.Nd
+			cn.SzMoney = a.Nsze
 
-            arrCn = append(arrCn, cn)
-        }
-    }
+			arrCn = append(arrCn, cn)
+		}
+	}
 
-    return arrCn
+	return arrCn
 }
 
-func GetCompanyQyzz(resp* http.Response) ([]CompanyQyzz) {
-    r := resp.Body
-    defer r.Close()
+func GetCompanyQyzz(resp *http.Response) []CompanyQyzz {
+	r := resp.Body
+	defer r.Close()
 
-    type QyzzData struct {
-        Qyzzid string
-    }
+	type QyzzData struct {
+		Qyzzid string
+	}
 
-    type Djson struct {
-        Data []QyzzData
-    }
+	type Djson struct {
+		Data []QyzzData
+	}
 
-    dec := json.NewDecoder(r)
-    var d Djson
-    err := dec.Decode(&d)
-    CheckError(err)
+	dec := json.NewDecoder(r)
+	var d Djson
+	err := dec.Decode(&d)
+	CheckError(err)
 
-    var arrCn []CompanyQyzz
-    for _, a := range d.Data {
-        var cn CompanyQyzz
-        cn.Qyzzid = a.Qyzzid
+	var arrCn []CompanyQyzz
+	for _, a := range d.Data {
+		var cn CompanyQyzz
+		cn.Qyzzid = a.Qyzzid
 
-        arrCn = append(arrCn, cn)
-    }
+		arrCn = append(arrCn, cn)
+	}
 
-    return arrCn
+	return arrCn
 }
 
-func GetCompanyQyzzInfo(resp* http.Response) ([]CompanyQyzzInfo) {
-    r := resp.Body
-    defer r.Close()
+func GetCompanyQyzzInfo(resp *http.Response) []CompanyQyzzInfo {
+	r := resp.Body
+	defer r.Close()
 
-    type Djson struct {
-        Data []CompanyQyzzInfo
-    }
+	type Djson struct {
+		Data []CompanyQyzzInfo
+	}
 
-    dec := json.NewDecoder(r)
-    var d Djson
-    err := dec.Decode(&d)
-    CheckError(err)
+	dec := json.NewDecoder(r)
+	var d Djson
+	err := dec.Decode(&d)
+	CheckError(err)
 
-    return d.Data
+	return d.Data
 }
 
-func GetProjectBaseInfo(resp* http.Response) (ProjectBaseInfo) {
-    //ShowReader(resp)
-    r := resp.Body
-    defer r.Close()
+func GetProjectBaseInfo(resp *http.Response) ProjectBaseInfo {
+	//ShowReader(resp)
+	r := resp.Body
+	defer r.Close()
 
-    dec := json.NewDecoder(r)
-    var t ProjectBaseInfo
-    err := dec.Decode(&t)
-    CheckError(err)
+	dec := json.NewDecoder(r)
+	var t ProjectBaseInfo
+	err := dec.Decode(&t)
+	CheckError(err)
 
-    fmt.Println(t)
+	fmt.Println(t)
 
-    return t
+	return t
 }
 
-func GetProjectQyzz(resp* http.Response) ([]ProjectZz){
-    //ShowReader(resp)
-    r := resp.Body
-    defer r.Close()
+func GetProjectQyzz(resp *http.Response) []ProjectZz {
+	//ShowReader(resp)
+	r := resp.Body
+	defer r.Close()
 
-    type QyyjQyzzJson struct {
-        Data []HttpG.ProjectZz
-    }
+	type QyyjQyzzJson struct {
+		Data []ProjectZz
+	}
 
-    dec := json.NewDecoder(r)
-    var d QyyjQyzzJson
-    err := dec.Decode(&d)
-    HttpG.CheckError(err)
+	dec := json.NewDecoder(r)
+	var d QyyjQyzzJson
+	err := dec.Decode(&d)
+	CheckError(err)
 
-    fmt.Println(d.Data)
+	// fmt.Println(d.Data)
 
-    return d.Data
+	return d.Data
 }
 
+func GetProjectPrice(resp *http.Response) []ProjectPrice {
+	r := resp.Body
+	defer r.Close()
 
-func GetProjectQyzz(resp* http.Response) () {
+	type XmyjHjqkJson struct {
+		Data []ProjectPrice
+	}
+
+	dec := json.NewDecoder(r)
+	var d XmyjHjqkJson
+	err := dec.Decode(&d)
+	CheckError(err)
+
+	return d.Data
 }
 
 func CreateFileWithNameAddTitle(szFileName string, szTitleLine string) (file *os.File) {
-    //file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777);
-    file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777);
-    CheckError(err)
+	//file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777);
+	file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	CheckError(err)
 
-    file.WriteString(szTitleLine)
+	file.WriteString(szTitleLine)
 
-    return file
+	return file
 }
 
 func GetZzdj(n string) string {
-    //StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","05":"不分等级"}
-    StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","06":"甲","07":"乙","08":"丙","09":"暂乙级","12":"暂定级","13":"暂二级","14":"暂三级","17":"暂一级","21":"丁","10":"暂五级","05":"临时资质","20":"五级","19":"四级","11":"暂四级","15":"不分等级","16":"暂甲级","18":"暂丙级","22":"预备级"}
+	//StrMap := map[string]string{"01":"特级","02":"一级","03":"二级","04":"三级","05":"不分等级"}
+	StrMap := map[string]string{"01": "特级", "02": "一级", "03": "二级", "04": "三级", "06": "甲", "07": "乙", "08": "丙", "09": "暂乙级", "12": "暂定级", "13": "暂二级", "14": "暂三级", "17": "暂一级", "21": "丁", "10": "暂五级", "05": "临时资质", "20": "五级", "19": "四级", "11": "暂四级", "15": "不分等级", "16": "暂甲级", "18": "暂丙级", "22": "预备级"}
 
-
-    return StrMap[n]
+	return StrMap[n]
 }
-
