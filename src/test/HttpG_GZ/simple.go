@@ -122,7 +122,7 @@ func SaveToFile(nCompanyId int, szName string, xmInfo HttpG.Xmyj, file *os.File)
 	// zz
 	var szQyzz string
 	for _, a := range xmInfo.ArrQyzz {
-		szQyzz = szQyzz + a.Zzmc + " " + a.Zzdj + "\r\n"
+		szQyzz = szQyzz + a.Zzmc + " " + HttpG.GetZzdj(a.Zzdj) + "\r\n"
 	}
 	data = append(data, szQyzz)
 
@@ -136,7 +136,7 @@ func SaveToFile(nCompanyId int, szName string, xmInfo HttpG.Xmyj, file *os.File)
 	// hjqk
 	var szHjqk string
 	for _, a := range xmInfo.ArrHjqk {
-		szHjqk = szHjqk + a.Nd + " " + a.Hjmc + " " + a.Bjsj + " " + a.Bjdw + "\r\n"
+		szHjqk = szHjqk + a.Nd + " " + HttpG.GetHjmc(a.Hjmc) + " " + a.Bjsj + " " + a.Bjdw + "\r\n"
 	}
 	data = append(data, szHjqk)
 
