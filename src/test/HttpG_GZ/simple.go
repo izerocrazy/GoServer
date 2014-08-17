@@ -19,6 +19,7 @@ func main() {
 	f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
 	w := csv.NewWriter(f)
 	w.Write([]string{"企业编号", "业绩名称", "中标日期", "中标价", "项目经理", "合同价", "竣工验收时间", "资质名称和等级", "特征", "获奖"})
+	w.Flush()
 
 	DoForOneCompany(10020, f)
 	// DoForOneQyyj("x")
@@ -80,6 +81,7 @@ func DoForOneQyyj(szUrl string) HttpG.Xmyj {
 	xmInfo.ArrQyzz = HttpG.GetProjectQyzz(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findQyzz"))
 	// HttpG.ShowReader(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findQyzz"))
 
+	szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szCompanyId)
 	xmInfo.ArrXmgm = HttpG.GetProjectSize(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findXmgm"))
 
 	szArguments = fmt.Sprintf("[0,500,{\"xmyjid\":\"%s\"}]", szCompanyId)
@@ -96,7 +98,8 @@ func SaveToFile(nCompanyId int, szName string, xmInfo HttpG.Xmyj, file *os.File)
 	// w.Write([]string{"1", "张三", "23"})
 	// Base
 	var data []string
-	data = append(data, string(nCompanyId))
+	szCompanyId := fmt.Sprintf("%d", nCompanyId)
+	data = append(data, szCompanyId)
 	data = append(data, szName)
 
 	data = append(data, xmInfo.Base.Zbtzsrq)
@@ -117,7 +120,7 @@ func SaveToFile(nCompanyId int, szName string, xmInfo HttpG.Xmyj, file *os.File)
 	for _, a := range xmInfo.ArrXmgm {
 		szXmgm = szXmgm + a.Gclb + " " + a.Gmzb + " " + a.Sl + " " + a.Dw + "\r\n"
 	}
-	data = append(data, szQyzz)
+	data = append(data, szXmgm)
 
 	// hjqk
 	var szHjqk string
