@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+	var nBeginId int
+	var nEndId int
+
 	f, err := os.Create("XMYJ.xls")
 	if err != nil {
 		panic(err)
@@ -21,8 +24,22 @@ func main() {
 	w.Write([]string{"企业编号", "业绩名称", "中标日期", "中标价", "项目经理", "合同价", "竣工验收时间", "资质名称和等级", "特征", "获奖"})
 	w.Flush()
 
-	DoForOneCompany(10020, f)
-	// DoForOneQyyj("x")
+	fmt.Print("温馨提示>> : 如果你希望进行新一轮的信息选取，请在输入前删除上次的信息文件。\r\n")
+	fmt.Print("请输入开始企业ID（建议：网站默认第一个企业 ID 为10002）：")
+	fmt.Scanf("%d", &nBeginId)
+	var szStr string
+	fmt.Scanf("%s", &szStr)
+	fmt.Print("请输入结束企业ID（建议：目前最后一个企业 ID 至少大于20000）：")
+	fmt.Scanf("%d", &nEndId)
+
+	for i := nBeginId; i < nEndId+1; i++ {
+		fmt.Println("正在载入 ID：", i)
+		DoForOneCompany(i, f)
+
+		if i < nEndId {
+			time.Sleep(2 * time.Second)
+		}
+	}
 }
 
 func DoForOneCompany(nCompanyId int, file *os.File) {
@@ -30,9 +47,6 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 	nOffset := 0
 	for {
 		szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn/cms/wz/view/sccx/QyyjServlet?qyyj_qybh=%d&qyyj_qymc=&qyyj_xmbh=&qyyj_xmmc=&siteId=1&channelId=29&pager.offset=%d", nCompanyId, nOffset)
-		fmt.Println(szHtmlUrl)
-		//s := "http://www.gzzb.gd.cn/qyww/json";
-		//szArguments := fmt.Sprintf("[\"%d\"]", nCompanyId)
 
 		bIsEnd := true
 		retList := HttpG.GetCompanyQyyjInfos(HttpG.GetHttpResp(szHtmlUrl))
@@ -50,23 +64,20 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 			nOffset = nOffset + 15
 		}
 
-		time.Sleep(2 * time.Second)
+		// time.Sleep(2 * time.Second)
 	}
 
-	fmt.Println(sampleList)
-
-	for _, a := range sampleList {
+	for i, a := range sampleList {
 		xmInfo := DoForOneQyyj(a.Url)
 		SaveToFile(nCompanyId, a.Name, xmInfo, file)
+		if i%30 == 0 {
+			fmt.Println("暂停 1 s")
+			time.Sleep(1 * time.Second)
+		}
 	}
-	//cb := HttpG.GetCompanyQylxInfo(HttpG.GetHttpResp(szHtmlUrl));
-	//cb.SzCompanyName, cb.SzZczb = HttpG.GetCompanyJczl(HttpG.PostGzHttpJson(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
 }
 
 func DoForOneQyyj(szUrl string) HttpG.Xmyj {
-	szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn%s", szUrl)
-	fmt.Println(szHtmlUrl)
-
 	strList := strings.Split(szUrl, "=")
 	szCompanyId := strList[1]
 	// szCompanyId := "402828ac2f522638012f76cb6c841030"
@@ -88,7 +99,7 @@ func DoForOneQyyj(szUrl string) HttpG.Xmyj {
 	xmInfo.ArrHjqk = HttpG.GetProjectPrice(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findHjqk"))
 	// HttpG.ShowReader(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findHjqk"))
 
-	fmt.Println(xmInfo)
+	// fmt.Println(xmInfo)
 
 	return xmInfo
 }

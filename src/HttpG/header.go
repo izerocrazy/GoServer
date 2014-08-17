@@ -287,6 +287,10 @@ func GetCompanyQyyjInfos(resp *http.Response) []QyyjSample {
 			}
 
 			tdList := FindNodeByTypeName(tr, "td")
+			m := len(tdList)
+			if m < 2 {
+				continue
+			}
 
 			var qyyjSample QyyjSample
 			/*tbChild := td.FirstChild   //Table Index
