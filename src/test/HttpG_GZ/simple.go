@@ -10,11 +10,19 @@ import (
 )
 
 func main() {
-	DoForOneCompany(10020)
+	f, err := os.Create("XMYJ.xls")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+
+	DoForOneCompany(10020, f)
 	// DoForOneQyyj("x")
 }
 
-func DoForOneCompany(nCompanyId int) {
+func DoForOneCompany(nCompanyId int, file *os.File) {
 	var sampleList []HttpG.QyyjSample
 	nOffset := 0
 	for {
@@ -45,13 +53,14 @@ func DoForOneCompany(nCompanyId int) {
 	fmt.Println(sampleList)
 
 	for _, a := range sampleList {
-		DoForOneQyyj(a.Url)
+		xmInfo := DoForOneQyyj(a.Url)
+		SaveToFile(xmInfo, file)
 	}
 	//cb := HttpG.GetCompanyQylxInfo(HttpG.GetHttpResp(szHtmlUrl));
 	//cb.SzCompanyName, cb.SzZczb = HttpG.GetCompanyJczl(HttpG.PostGzHttpJson(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
 }
 
-func DoForOneQyyj(szUrl string) {
+func DoForOneQyyj(szUrl string) HttpG.Xmyj {
 	szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn%s", szUrl)
 	fmt.Println(szHtmlUrl)
 
@@ -74,19 +83,12 @@ func DoForOneQyyj(szUrl string) {
 	// HttpG.ShowReader(HttpG.PostGzHttpJson(s, "XmyjBS", szArguments, "findHjqk"))
 
 	fmt.Println(xmInfo)
-	SaveToFile(xmInfo)
+
+	return xmInfo
 }
 
-func SaveToFile(xmInfo HttpG.Xmyj) {
-	f, err := os.Create("XMYJ.xls")
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
-
-	w := csv.NewWriter(f)
+func SaveToFile(xmInfo HttpG.Xmyj, file *os.File) {
+	w := csv.NewWriter(file)
 	// w.Write([]string{"1", "张三", "23"})
 	// Base
 	var data []string
