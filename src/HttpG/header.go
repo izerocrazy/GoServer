@@ -199,7 +199,7 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
 	//CheckError(err)
 
 	chSet := GetCharset(resp)
-	fmt.Printf("got charset %s\n", chSet)
+	// fmt.Printf("got charset %s\n", chSet)
 	if chSet != "UTF-8" {
 		fmt.Println("Cannot handle", chSet)
 		os.Exit(4)
@@ -216,7 +216,7 @@ func PostGzHttpJson(szUrl string, szService string, szArguments string, szFunc s
 	values.Set("method", szFunc)
 
 	szPost := strings.NewReader(values.Encode())
-	fmt.Println(szUrl, szPost)
+	// fmt.Println(szUrl, szPost)
 	return PostHttpResp(szUrl, szPost)
 }
 
@@ -491,7 +491,7 @@ func GetProjectBaseInfo(resp *http.Response) ProjectBaseInfo {
 	err := dec.Decode(&t)
 	CheckError(err)
 
-	fmt.Println(t)
+	// fmt.Println(t)
 
 	return t
 }

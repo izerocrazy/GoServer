@@ -43,6 +43,8 @@ func main() {
 }
 
 func DoForOneCompany(nCompanyId int, file *os.File) {
+	fmt.Println(">>>>>>>>>>> 读取公司 ID：", nCompanyId)
+
 	var sampleList []HttpG.QyyjSample
 	nOffset := 0
 	for {
@@ -68,6 +70,7 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 	}
 
 	for i, a := range sampleList {
+		fmt.Println(">>>>>>>>>>> 读取公司 ID：", nCompanyId, "，其项目：", a.Name)
 		xmInfo := DoForOneQyyj(a.Url)
 		SaveToFile(nCompanyId, a.Name, xmInfo, file)
 		if i%30 == 0 {
