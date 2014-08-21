@@ -7,6 +7,7 @@ import (
 	"strings"
 	// "Step"
 	"html/template"
+    "page"
 	// "strconv"
 	// "time"
 )
@@ -18,6 +19,7 @@ func main() {
 	Base.CheckErr(err)
 }
 
+// 强制要求所有都读取 html 文件
 func Multiplexer(rw http.ResponseWriter, request *http.Request) {
 	fmt.Println(request.URL.Path)
 	// 如果 url 请求的是 html 则生成对应的 html
@@ -27,7 +29,6 @@ func Multiplexer(rw http.ResponseWriter, request *http.Request) {
 		//打开文件
 		szFilePath := "." + request.URL.Path
 		t, err := template.ParseFiles(szFilePath)
-		// _, err := template.ParseFiles(szFilePath)
 		bSucc := Base.CheckErr(err)
 		if bSucc == false {
 			rw.WriteHeader(http.StatusNoContent)
