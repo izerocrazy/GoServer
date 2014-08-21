@@ -7,7 +7,7 @@ import (
 	"strings"
 	// "Step"
 	"html/template"
-    "page"
+	"test/todo/page"
 	// "strconv"
 	// "time"
 )
@@ -27,14 +27,16 @@ func Multiplexer(rw http.ResponseWriter, request *http.Request) {
 		fmt.Println("User ask for html", request.URL.Path)
 
 		//打开文件
-		szFilePath := "." + request.URL.Path
+		szFilePath := "./page" + request.URL.Path
 		t, err := template.ParseFiles(szFilePath)
 		bSucc := Base.CheckErr(err)
 		if bSucc == false {
 			rw.WriteHeader(http.StatusNoContent)
 		} else {
+			v := new(Page.Index)
+			v.Init()
 			// 按照模板生成 html 文件
-			err = t.Execute(rw, nil)
+			err = t.Execute(rw, v)
 			Base.CheckErr(err)
 		}
 	} else {
