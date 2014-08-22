@@ -1,6 +1,7 @@
 package HttpG
 
 import (
+	"Base"
 	"code.google.com/p/go.net/html"
 	"encoding/json"
 	"fmt"
@@ -30,21 +31,13 @@ func ShowReader(resp *http.Response) {
 
 		fmt.Println(string(buf[0:n]))
 		//cd, err := iconv.Open("gbk", "utf-8")
-		//HttpG.CheckError(err)
+		//HttpG.Base.CheckErr(err)
 		//defer cd.Close()
 		//szGbk := cd.ConvString(string(buf[0:n]))
 		//fmt.Print(szGbk)
 	}
 
 	//os.Exit(0)
-}
-
-func CheckError(err error) {
-	if err != nil {
-		fmt.Println("Check Fatal error ", err.Error())
-		os.Exit(1)
-		//c <- 1
-	}
 }
 
 func GetChannel() int {
@@ -145,9 +138,8 @@ func GetHttpResp(szUrl string) *http.Response {
 	request, err := http.NewRequest("GET", szUrl, nil)
 	// only accept UTF-8
 	request.Header.Add("Accept-Charset", "UTF-8;q=1, ISO-8859-1;q=0")
-	CheckError(err)
+	Base.CheckErr(err)
 
-	//CheckError(err)
 	var response *http.Response
 	for {
 		response, err = client.Do(request)
@@ -177,7 +169,7 @@ func GetHttpResp(szUrl string) *http.Response {
 func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
 	client := &http.Client{}
 	request, err := http.NewRequest("POST", szUrl, szPost)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	request.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
@@ -196,7 +188,7 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
 			break
 		}
 	}
-	//CheckError(err)
+	//Base.CheckErr(err)
 
 	chSet := GetCharset(resp)
 	// fmt.Printf("got charset %s\n", chSet)
@@ -276,7 +268,7 @@ func GetCompanyQyyjInfos(resp *http.Response) []QyyjSample {
 	r := resp.Body
 	defer r.Close()
 	doc, err := html.Parse(r)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	divList := FindDivNodeByName(doc, "bszn_right_table")
 	for _, div := range divList {
@@ -328,7 +320,7 @@ func GetCompanyQylxInfo(resp *http.Response) CompanyBaseInfo {
 	r := resp.Body
 	defer r.Close()
 	doc, err := html.Parse(r)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	var szTempQylxmc string
 	var bGetQylxmc bool
@@ -400,7 +392,7 @@ func GetCompanyJczl(resp *http.Response) (string, string) {
 	dec := json.NewDecoder(r)
 	var c Cjson
 	err := dec.Decode(&c)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	return c.Qymc, c.Czzb
 }
@@ -420,7 +412,7 @@ func GetCompanyNswh(resp *http.Response) []CompanyNswh {
 	dec := json.NewDecoder(r)
 	var d Djson
 	err := dec.Decode(&d)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	var arrCn []CompanyNswh
 	for _, a := range d.Data {
@@ -452,7 +444,7 @@ func GetCompanyQyzz(resp *http.Response) []CompanyQyzz {
 	dec := json.NewDecoder(r)
 	var d Djson
 	err := dec.Decode(&d)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	var arrCn []CompanyQyzz
 	for _, a := range d.Data {
@@ -476,7 +468,7 @@ func GetCompanyQyzzInfo(resp *http.Response) []CompanyQyzzInfo {
 	dec := json.NewDecoder(r)
 	var d Djson
 	err := dec.Decode(&d)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	return d.Data
 }
@@ -489,7 +481,7 @@ func GetProjectBaseInfo(resp *http.Response) ProjectBaseInfo {
 	dec := json.NewDecoder(r)
 	var t ProjectBaseInfo
 	err := dec.Decode(&t)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	// fmt.Println(t)
 
@@ -508,7 +500,7 @@ func GetProjectQyzz(resp *http.Response) []ProjectZz {
 	dec := json.NewDecoder(r)
 	var d QyyjQyzzJson
 	err := dec.Decode(&d)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	// fmt.Println(d.Data)
 
@@ -526,7 +518,7 @@ func GetProjectSize(resp *http.Response) []ProjectSize {
 	dec := json.NewDecoder(r)
 	var d XmyjHjqkJson
 	err := dec.Decode(&d)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	return d.Data
 }
@@ -542,15 +534,13 @@ func GetProjectPrice(resp *http.Response) []ProjectPrice {
 	dec := json.NewDecoder(r)
 	var d XmyjHjqkJson
 	err := dec.Decode(&d)
-	CheckError(err)
+	Base.CheckErr(err)
 
 	return d.Data
 }
 
 func CreateFileWithNameAddTitle(szFileName string, szTitleLine string) (file *os.File) {
-	//file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_TRUNC|os.O_CREATE, 0777);
-	file, err := os.OpenFile(szFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
-	CheckError(err)
+	file = Base.CreateOrAppendFile(szFileName)
 
 	file.WriteString(szTitleLine)
 

@@ -1,6 +1,8 @@
 package Base
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func CheckErr(e error) bool {
 	if e != nil {

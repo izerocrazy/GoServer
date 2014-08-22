@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Base"
 	"HttpG"
 	"encoding/csv"
 	"fmt"
@@ -13,10 +14,7 @@ func main() {
 	var nBeginId int
 	var nEndId int
 
-	f, err := os.Create("XMYJ.xls")
-	if err != nil {
-		panic(err)
-	}
+	f := Base.CreateOrAppendFile("XMYJ.xls")
 	defer f.Close()
 
 	f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
