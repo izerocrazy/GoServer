@@ -45,6 +45,11 @@ func Multiplexer(rw http.ResponseWriter, request *http.Request) {
 		//提供服务
 		if request.URL.Path == "/add" { // 存入数据
 			// 取出数据，存入文件
+			// 1 url 中的值
+			strMap := request.URL.Query()
+			fmt.Println(strMap)
+			// 2 其他的值，像是 session（密码）
+			// 3 (序列化)转为 xml ，保存
 		}
 	}
 }
