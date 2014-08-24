@@ -2,6 +2,7 @@ package main
 
 import (
 	"Base"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -50,6 +51,11 @@ func Multiplexer(rw http.ResponseWriter, request *http.Request) {
 			fmt.Println(strMap)
 			// 2 其他的值，像是 session（密码）
 			// 3 (序列化)转为 xml ，保存
+			f := Base.CreateOrAppendFile("db.json")
+			defer f.Close()
+			encode := json.NewEncoder(f)
+			err := encode.Encode(strMap)
+			Base.CheckErr(err)
 		}
 	}
 }
