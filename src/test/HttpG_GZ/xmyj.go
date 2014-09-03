@@ -19,7 +19,7 @@ func main() {
 
 	f.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
 	w := csv.NewWriter(f)
-	w.Write([]string{"企业编号", "业绩名称", "中标日期", "中标价", "项目经理", "合同价", "竣工验收时间", "资质名称和等级", "特征", "获奖"})
+	w.Write([]string{"企业编号", "企业名称", "业绩名称", "中标日期", "中标价", "项目经理", "合同价", "竣工验收时间", "资质名称和等级", "特征", "获奖"})
 	w.Flush()
 
 	fmt.Print("温馨提示>> : 如果你希望进行新一轮的信息选取，请在输入前删除上次的信息文件。\r\n")
@@ -42,6 +42,10 @@ func main() {
 
 func DoForOneCompany(nCompanyId int, file *os.File) {
 	fmt.Println(">>>>>>>>>>> 读取公司 ID：", nCompanyId)
+
+	s := "http://www.gzzb.gd.cn/qyww/json"
+	szArguments := fmt.Sprintf("[\"%d\"]", nCompanyId)
+	SzCompanyName, _ := HttpG.GetCompanyJczl(HttpG.PostGzHttpJson(s, "TQyQyjczlBS", szArguments, "findQyjczl"))
 
 	var sampleList []HttpG.QyyjSample
 	nOffset := 0
@@ -70,7 +74,7 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 	for i, a := range sampleList {
 		fmt.Println(">>>>>>>>>>> 读取公司 ID：", nCompanyId, "，其项目：", a.Name)
 		xmInfo := DoForOneQyyj(a.Url)
-		SaveToFile(nCompanyId, a.Name, xmInfo, file)
+		SaveToFile(nCompanyId, SzCompanyName, a.Name, xmInfo, file)
 		if i%30 == 0 {
 			fmt.Println("暂停 1 s")
 			time.Sleep(1 * time.Second)
@@ -105,13 +109,14 @@ func DoForOneQyyj(szUrl string) HttpG.Xmyj {
 	return xmInfo
 }
 
-func SaveToFile(nCompanyId int, szName string, xmInfo HttpG.Xmyj, file *os.File) {
+func SaveToFile(nCompanyId int, szCompanyName string, szName string, xmInfo HttpG.Xmyj, file *os.File) {
 	w := csv.NewWriter(file)
 	// w.Write([]string{"1", "张三", "23"})
 	// Base
 	var data []string
 	szCompanyId := fmt.Sprintf("%d", nCompanyId)
 	data = append(data, szCompanyId)
+	data = append(data, szCompanyName)
 	data = append(data, szName)
 
 	data = append(data, xmInfo.Base.Zbtzsrq)
