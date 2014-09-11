@@ -1,4 +1,4 @@
-package HttpG
+﻿package HttpG
 
 import (
 	"Base"
@@ -167,7 +167,7 @@ func GetHttpResp(szUrl string) *http.Response {
 }
 
 func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
-	client := &http.Client{}
+	//client := &http.Client{}
 	request, err := http.NewRequest("POST", szUrl, szPost)
 	Base.CheckErr(err)
 
@@ -180,7 +180,7 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
 
 	var resp *http.Response
 	for {
-		resp, err = client.Do(request)
+		resp, err = http.DefaultClient.Do(request)
 		if err != nil {
 			fmt.Println("post url err wait 10 second")
 			time.Sleep(10 * time.Second)
