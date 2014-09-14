@@ -132,7 +132,19 @@ type QyyjSample struct {
 	Url  string
 }
 
+var channel chan *http.Response
+
 func GetHttpResp(szUrl string) *http.Response {
+	channel = make(chan *http.Response)
+	var response *http.Response = nil
+	for response == nil {
+		go GetHttpResp2(szUrl)
+		response = <-channel
+	}
+	return response
+}
+
+func GetHttpResp2(szUrl string) { //*http.Response {
 	client := &http.Client{}
 
 	request, err := http.NewRequest("GET", szUrl, nil)
@@ -141,15 +153,23 @@ func GetHttpResp(szUrl string) *http.Response {
 	Base.CheckErr(err)
 
 	var response *http.Response
-	for {
-		response, err = client.Do(request)
-		if err != nil {
-			fmt.Println("Get url err wait 10 Second....")
-			time.Sleep(10 * time.Second)
-		} else {
-			break
-		}
+	response, err = client.Do(request)
+	if err != nil {
+		response = nil
+		fmt.Println("Get url err wait 10 Second....")
+		time.Sleep(10 * time.Second)
+		channel <- response
+		return
 	}
+	// for {
+	// 	response, err = client.Do(request)
+	// 	if err != nil {
+	// 		fmt.Println("Get url err wait 10 Second....")
+	// 		time.Sleep(10 * time.Second)
+	// 	} else {
+	// 		break
+	// 	}
+	// }
 
 	if response.Status != "200 OK" {
 		fmt.Println(response.Status)
@@ -163,10 +183,21 @@ func GetHttpResp(szUrl string) *http.Response {
 		os.Exit(4)
 	}
 
-	return response
+	// return response
+	channel <- response
 }
 
 func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
+	channel = make(chan *http.Response)
+	var response *http.Response = nil
+	for response == nil {
+		go PostHttpResp2(szUrl, szPost)
+		response = <-channel
+	}
+	return response
+}
+
+func PostHttpResp2(szUrl string, szPost *strings.Reader) { //*http.Response {
 	//client := &http.Client{}
 	request, err := http.NewRequest("POST", szUrl, szPost)
 	Base.CheckErr(err)
@@ -179,15 +210,23 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
 	request.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.149 Safari/537.36")
 
 	var resp *http.Response
-	for {
-		resp, err = http.DefaultClient.Do(request)
-		if err != nil {
-			fmt.Println("post url err wait 10 second")
-			time.Sleep(10 * time.Second)
-		} else {
-			break
-		}
+	resp, err = http.DefaultClient.Do(request)
+	if err != nil {
+		resp = nil
+		fmt.Println("post url err wait 10 second")
+		time.Sleep(10 * time.Second)
+		channel <- resp
+		return
 	}
+	// for {
+	// 	resp, err = http.DefaultClient.Do(request)
+	// 	if err != nil {
+	// 		fmt.Println("post url err wait 10 second")
+	// 		time.Sleep(10 * time.Second)
+	// 	} else {
+	// 		break
+	// 	}
+	// }
 	//Base.CheckErr(err)
 
 	chSet := GetCharset(resp)
@@ -197,7 +236,8 @@ func PostHttpResp(szUrl string, szPost *strings.Reader) *http.Response {
 		os.Exit(4)
 	}
 
-	return resp
+	// return resp
+	channel <- resp
 }
 
 func PostGzHttpJson(szUrl string, szService string, szArguments string, szFunc string) *http.Response {
