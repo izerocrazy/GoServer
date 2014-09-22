@@ -320,7 +320,7 @@ func GetCompanyQyyjInfos(resp *http.Response) []QyyjSample {
 
 			tdList := FindNodeByTypeName(tr, "td")
 			m := len(tdList)
-			if m < 2 {
+			if m < 3 {
 				continue
 			}
 

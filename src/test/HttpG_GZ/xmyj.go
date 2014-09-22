@@ -71,7 +71,11 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 		// time.Sleep(2 * time.Second)
 	}
 
+    fmt.Println(sampleList);
 	for i, a := range sampleList {
+		if a.Name == "" {
+            continue;
+        }
 		fmt.Println(">>>>>>>>>>> 读取公司 ID：", nCompanyId, "，其项目：", a.Name)
 		xmInfo := DoForOneQyyj(a.Url)
 		SaveToFile(nCompanyId, SzCompanyName, a.Name, xmInfo, file)
