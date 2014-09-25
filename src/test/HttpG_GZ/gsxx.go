@@ -1,10 +1,12 @@
 package main
 
 import (
+	"Base"
 	"HttpG"
+	"encoding/csv"
 	"fmt"
 	"os"
-	"strings"
+	// "strings"
 	"time"
 )
 
@@ -20,13 +22,25 @@ func main() {
 	fmt.Print("请输入结束企业ID（建议：目前最后一个企业 ID 至少大于20000）：")
 	fmt.Scanf("%d", &nEndId)
 
-	szTitleLine := "企业名称\t注册资本(万元) \t2010纳税\t2011纳税\t2012纳税\t企业类型\t有效期\r\n"
-	file1 := HttpG.CreateFileWithNameAddTitle("1.txt", szTitleLine)
+	// szTitleLine :=
+	// file1 := HttpG.CreateFileWithNameAddTitle("1.txt", szTitleLine)
+	// defer file1.Close()
+
+	file1 := Base.CreateOrAppendFile("1.xls")
 	defer file1.Close()
 
-	szTitleLine = "企业名称\t资质等级\t资质内容\r\n"
-	file2 := HttpG.CreateFileWithNameAddTitle("2.txt", szTitleLine)
+	file1.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+	w := csv.NewWriter(file1)
+	w.Write([]string{"企业名称", "注册资本(万元) ", "2010纳税", "2011纳税", "2012纳税", "企业类型", "有效期"})
+	w.Flush()
+
+	file2 := Base.CreateOrAppendFile("2.xls")
 	defer file2.Close()
+
+	file2.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
+	w2 := csv.NewWriter(file2)
+	w2.Write([]string{"企业名称", "资质等级 ", "资质内容"})
+	w2.Flush()
 
 	for i := nBeginId; i < nEndId+1; i++ {
 		fmt.Println("正在载入 ID：", i)
@@ -68,6 +82,7 @@ func DoForOneCompany(nCompanyId int, file *os.File, file2 *os.File) {
 }
 
 func SaveToFile(nCompanyId int, cb HttpG.CompanyBaseInfo, file *os.File, file2 *os.File) {
+	w := csv.NewWriter(file)
 	s := []string{}
 
 	szCompanyId := fmt.Sprintf("%d", nCompanyId)
@@ -90,34 +105,30 @@ func SaveToFile(nCompanyId int, cb HttpG.CompanyBaseInfo, file *os.File, file2 *
 	s = append(s, szNs2012)
 
 	if len(cb.ArrQylx) > 0 {
+		var NameList string
+		var EndTimeList string
 		for _, cb2 := range cb.ArrQylx {
-			s1 := append(s, cb2.SzName)
-			s1 = append(s1, cb2.SzEndTime)
-
-			szLine := strings.Join(s1, "\t")
-			szLine = szLine + "\r\n"
-			file.WriteString(szLine)
-			//fmt.Println(szLine)
+			NameList = NameList + cb2.SzName + "\r\n"
+			EndTimeList = EndTimeList + cb2.SzEndTime + "\r\n"
 		}
-	} else {
-		szLine := strings.Join(s, "\t")
-		szLine = szLine + "\r\n"
-		file.WriteString(szLine)
-		//fmt.Println(szLine)
+		s = append(s, NameList)
+		s = append(s, EndTimeList)
 	}
 
+	w.Write(s)
+	w.Flush()
+
 	//////////////////////////////
+	w2 := csv.NewWriter(file2)
 	for _, arr := range cb.ArrQyzzInfo {
 		for _, cq := range arr {
 			s2 := []string{}
 			s2 = append(s2, cb.SzCompanyName)
 			s2 = append(s2, HttpG.GetZzdj(cq.Zzdj))
 			s2 = append(s2, cq.ZznrName)
-			szLine := strings.Join(s2, "\t")
-			szLine = szLine + "\r\n"
-			file2.WriteString(szLine)
 
-			//fmt.Println(szLine)
+			w2.Write(s2)
+			w2.Flush()
 		}
 	}
 }
