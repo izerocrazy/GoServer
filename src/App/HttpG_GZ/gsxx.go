@@ -31,7 +31,7 @@ func main() {
 
 	file1.WriteString("\xEF\xBB\xBF") // 写入UTF-8 BOM
 	w := csv.NewWriter(file1)
-	w.Write([]string{"企业名称", "注册资本(万元) ", "2010纳税", "2011纳税", "2012纳税", "企业类型", "有效期"})
+	w.Write([]string{"企业名称", "注册资本(万元) ", "2010纳税", "2011纳税", "2012纳税", "2013纳税", "企业类型", "有效期"})
 	w.Flush()
 
 	file2 := Base.CreateOrAppendFile("2.xls")
@@ -91,6 +91,7 @@ func SaveToFile(nCompanyId int, cb HttpG.CompanyBaseInfo, file *os.File, file2 *
 	szNs2010 := ""
 	szNs2011 := ""
 	szNs2012 := ""
+	szNs2013 := ""
 	for _, szNs := range cb.ArrNswh {
 		if szNs.SzYear == "2010" {
 			szNs2010 = szNs.SzMoney
@@ -98,11 +99,14 @@ func SaveToFile(nCompanyId int, cb HttpG.CompanyBaseInfo, file *os.File, file2 *
 			szNs2011 = szNs.SzMoney
 		} else if szNs.SzYear == "2012" {
 			szNs2012 = szNs.SzMoney
+		} else if szNs.SzYear == "2013" {
+			szNs2013 = szNs.SzMoney
 		}
 	}
 	s = append(s, szNs2010)
 	s = append(s, szNs2011)
 	s = append(s, szNs2012)
+	s = append(s, szNs2013)
 
 	if len(cb.ArrQylx) > 0 {
 		var NameList string

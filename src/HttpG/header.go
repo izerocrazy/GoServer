@@ -456,7 +456,7 @@ func GetCompanyNswh(resp *http.Response) []CompanyNswh {
 
 	var arrCn []CompanyNswh
 	for _, a := range d.Data {
-		if a.Nd == "2010" || a.Nd == "2011" || a.Nd == "2012" {
+		if a.Nd == "2010" || a.Nd == "2011" || a.Nd == "2012" || a.Nd == "2013" {
 			//fmt.Println(a.Nd, a.Nsze)
 			var cn CompanyNswh
 			cn.SzYear = a.Nd
