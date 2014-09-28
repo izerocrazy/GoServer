@@ -85,6 +85,9 @@ func main() {
 	pl.LoadFromFile(szFileName)
 	em.LoadFromFile()
 
+	// fmt.Println(pl)
+	// fmt.Println(em)
+
 	http.HandleFunc("/index", Index)
 	http.HandleFunc("/BeginEvent", testBegin)
 
