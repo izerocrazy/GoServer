@@ -1,9 +1,10 @@
 package Base
 
 import (
+	"encoding/xml"
 	"html/template"
+	"io/ioutil"
 	"os"
-    "io/ioutil"
 )
 
 // 此函数用于得到一个文件的句柄，如果文件存在，游标就在最后，如果文件不存在，那么就创建
@@ -29,9 +30,8 @@ func CreateOrAppendFileWithTemplate(szFileName string, szTemplateFileName string
 }
 
 func SaveStructToXML(szFileName string, p interface{}) {
-    buf,err := xml.Marshal(p)
-    CheckErr(err)
+	buf, err := xml.Marshal(p)
+	CheckErr(err)
 
-    ioutil.WriteFile(szFileName, buf, 0777);
+	ioutil.WriteFile(szFileName, buf, 0777)
 }
-

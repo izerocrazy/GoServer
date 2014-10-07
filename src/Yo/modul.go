@@ -7,13 +7,13 @@ type UserData struct {
 }
 
 type ContactInfo struct {
-    Id        int
+	Id        int
 	Type      int // contact type
 	LstUserId []int
 }
 
 type MsgInfo struct {
-    Id        int
+	Id        int
 	Type      int
 	LstUserId []int
 	Data      string
@@ -36,7 +36,7 @@ type Server struct {
 返回值：u，当 u 为 nil 得时候，表示没有找到 UserData
 */
 func (s *Server) GetUserByName(username string) (u *UserData) {
-	for _, user := range s.UserData {
+	for _, user := range s.LstUser {
 		if user.Name == username {
 			return user
 		}
@@ -64,10 +64,10 @@ func (s *Server) RegistUser(username string) (err string, u *UserData) {
 	}
 
 	user := make(UserData)
-	user.Id = len(s.UserData) + 1
+	user.Id = len(s.LstUser) + 1
 	user.Name = username
 
-	s.UserData = append(s.UserData, user)
+	s.LstUser = append(s.LstUser, user)
 	return "succes", user
 }
 
@@ -90,11 +90,11 @@ err : 错误信息
 "alreadyfriend":两人已经是好友
 */
 func (s *Server) AddFriend(id int, username string) (err string) {
-	if len(s.UserData) <= id {
+	if len(s.LstUser) <= id {
 		return "iduserempty"
 	}
 
-	user1 := s.UserData[id]
+	user1 := s.LstUser[id]
 	if user1 == nil {
 		return "iduserempty"
 	}
@@ -104,37 +104,37 @@ func (s *Server) AddFriend(id int, username string) (err string) {
 		return "nameuserempty"
 	}
 
-    if user1.Id == user2.Id {
-        return "idnameissameone"
-    }
-
-	for _, contactinfo := range s.LstContact{
-        var bHasUser1, bHasUser2 bool
-        bHasUser1 = false;
-        bHasUser2 = false;
-
-        for _, userId := range contactinfo.LstUserId {
-            if bHasUser1 == false and userId == user1.Id {
-                bHasUser1 = true;
-            }
-
-            if bHasUser2 == false and userId == user2.Id {
-                bHasUser2 = true;
-            }
-
-            if bHasUser1 && bHasUser2 {
-                return "alreadyfriend"
-            }
-        }
+	if user1.Id == user2.Id {
+		return "idnameissameone"
 	}
 
-    newcontact = make(ContactInfo)
-    newcontact.Id = len(s.LstContact)
-    newcontact.LstUserId = append(newcontact.LstUserId, user1.Id)
-    newcontact.LstUserId = append(newcontact.LstUserId, user2.Id)
+	for _, contactinfo := range s.LstContact {
+		var bHasUser1, bHasUser2 bool
+		bHasUser1 = false
+		bHasUser2 = false
 
-    s.LstContact = append(s.LstContact, newcontact)
-    return "success"
+		for _, userId := range contactinfo.LstUserId {
+			if bHasUser1 == false && userId == user1.Id {
+				bHasUser1 = true
+			}
+
+			if bHasUser2 == false && userId == user2.Id {
+				bHasUser2 = true
+			}
+
+			if bHasUser1 && bHasUser2 {
+				return "alreadyfriend"
+			}
+		}
+	}
+
+	newcontact = make(ContactInfo)
+	newcontact.Id = len(s.LstContact)
+	newcontact.LstUserId = append(newcontact.LstUserId, user1.Id)
+	newcontact.LstUserId = append(newcontact.LstUserId, user2.Id)
+
+	s.LstContact = append(s.LstContact, newcontact)
+	return "success"
 }
 
 /*
@@ -150,29 +150,29 @@ emptyuser: 传入id没有对应的 user
 
 lstContact:所有的好友
 */
-func (s *Server) GetFriendList(id int)(err string, lstContact []UserData) {
-    user := s.LstUser[id]
-    if user == nil {
-        return "emptyuser", lstContact
-    }
+func (s *Server) GetFriendList(id int) (err string, lstContact []UserData) {
+	user := s.LstUser[id]
+	if user == nil {
+		return "emptyuser", lstContact
+	}
 
-    var LstId []int
-    for i, contactinfo := range s.LstContact {
-        for _, userId := range contactinfo.LstUserId {
-            if userId == user.Id {
-                LstId = append(LstId, i)
-                break
-            }
-        }
-    }
+	var LstId []int
+	for i, contactinfo := range s.LstContact {
+		for _, userId := range contactinfo.LstUserId {
+			if userId == user.Id {
+				LstId = append(LstId, i)
+				break
+			}
+		}
+	}
 
-    for _, index := range LstId {
-        for _, userId := range s.LstContact[index].LstUserId {
-            if userId != user.Id {
-                lstContact = append(lstContact, &s.LstUser[userId])
-            }
-        }
-    }
+	for _, index := range LstId {
+		for _, userId := range s.LstContact[index].LstUserId {
+			if userId != user.Id {
+				lstContact = append(lstContact, &s.LstUser[userId])
+			}
+		}
+	}
 
-    return "success", lstContact
+	return "success", lstContact
 }
