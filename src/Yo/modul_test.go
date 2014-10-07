@@ -33,11 +33,11 @@ func TestAddFriend(t *testing.T) {
 	t.Log("TestAddFriend")
 	var s Server
 	err1, u1 := s.RegistUser("user1")
-	if err != "success" {
+	if err1 != "success" {
 		t.Log("Regist User Error")
 		t.Fail()
 	}
-	err2, u2 := s.RegistUser("user2")
+	err2, _ := s.RegistUser("user2")
 	if err2 != "success" {
 		t.Log("Regist User Error")
 		t.Fail()
@@ -82,7 +82,7 @@ func TestAddFriend(t *testing.T) {
 func TestGetFriendList(t *testing.T) {
 	t.Log("test GetFriendList")
 	var s Server
-	err1, user1 := s.RegistUser("user1")
+	_, user1 := s.RegistUser("user1")
 
 	// 取一个不存在用户的 contact list
 	err, lstContact := s.GetFriendList(-1)
@@ -99,7 +99,7 @@ func TestGetFriendList(t *testing.T) {
 	}
 
 	// 测试列表有一个
-	err2, user2 := s.RegistUser("user2")
+	s.RegistUser("user2")
 	err = s.AddFriend(user1.Id, "user2")
 	if err != "success" {
 		t.Log("Get Friend List Error: Add Friend error: " + err)
@@ -112,7 +112,7 @@ func TestGetFriendList(t *testing.T) {
 	}
 
 	// 测试列表有两个
-	err3, user3 := s.RegistUser("user3")
+	s.RegistUser("user3")
 	err = s.AddFriend(user1.Id, "user3")
 	if err != "success" {
 		t.Log("Get Friend List Error: Add Friend error: " + err)

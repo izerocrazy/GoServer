@@ -63,7 +63,7 @@ func (s *Server) RegistUser(username string) (err string, u *UserData) {
 		return "nameexist", nil
 	}
 
-	user := make(UserData)
+	user := new(UserData)
 	user.Id = len(s.LstUser) + 1
 	user.Name = username
 
@@ -128,7 +128,7 @@ func (s *Server) AddFriend(id int, username string) (err string) {
 		}
 	}
 
-	newcontact = make(ContactInfo)
+	newcontact := new(ContactInfo)
 	newcontact.Id = len(s.LstContact)
 	newcontact.LstUserId = append(newcontact.LstUserId, user1.Id)
 	newcontact.LstUserId = append(newcontact.LstUserId, user2.Id)
@@ -169,7 +169,7 @@ func (s *Server) GetFriendList(id int) (err string, lstContact []UserData) {
 	for _, index := range LstId {
 		for _, userId := range s.LstContact[index].LstUserId {
 			if userId != user.Id {
-				lstContact = append(lstContact, &s.LstUser[userId])
+				lstContact = append(lstContact, *s.LstUser[userId])
 			}
 		}
 	}
