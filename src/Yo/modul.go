@@ -1,5 +1,9 @@
 package yo
 
+import (
+	"fmt"
+)
+
 // 后期考虑配置
 type UserData struct {
 	Id   int    // user id
@@ -64,11 +68,11 @@ func (s *Server) RegistUser(username string) (err string, u *UserData) {
 	}
 
 	user := new(UserData)
-	user.Id = len(s.LstUser) + 1
+	user.Id = len(s.LstUser)
 	user.Name = username
 
 	s.LstUser = append(s.LstUser, user)
-	return "succes", user
+	return "success", user
 }
 
 /*
@@ -90,7 +94,7 @@ err : 错误信息
 "alreadyfriend":两人已经是好友
 */
 func (s *Server) AddFriend(id int, username string) (err string) {
-	if len(s.LstUser) <= id {
+	if id < 0 || len(s.LstUser) < id {
 		return "iduserempty"
 	}
 
@@ -105,6 +109,7 @@ func (s *Server) AddFriend(id int, username string) (err string) {
 	}
 
 	if user1.Id == user2.Id {
+		fmt.Println(user1.Id, user2.Id)
 		return "idnameissameone"
 	}
 
@@ -151,6 +156,10 @@ emptyuser: 传入id没有对应的 user
 lstContact:所有的好友
 */
 func (s *Server) GetFriendList(id int) (err string, lstContact []UserData) {
+	if id < 0 || len(s.LstUser) < id {
+		return "emptyuser", lstContact
+	}
+
 	user := s.LstUser[id]
 	if user == nil {
 		return "emptyuser", lstContact
