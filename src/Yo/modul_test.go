@@ -1,6 +1,7 @@
 package yo
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -111,6 +112,12 @@ func TestGetFriendList(t *testing.T) {
 		t.FailNow()
 	}
 
+	if lstContact[0].Id != 1 || lstContact[0].Name != "user2" {
+		t.Log("Get Friend Error: friend data is error")
+		fmt.Println(lstContact)
+		t.FailNow()
+	}
+
 	// 测试列表有两个
 	s.RegistUser("user3")
 	err = s.AddFriend(user1.Id, "user3")
@@ -127,8 +134,109 @@ func TestGetFriendList(t *testing.T) {
 
 func TestSendYO(t *testing.T) {
 	t.Log("test SendYO")
+	var s Server
+	// 新增两个用户
+	err1, user1 := s.RegistUser("user1")
+	if err1 != "success" {
+		t.Log("Send YO Error: Create user1 error" + err1)
+		t.FailNow()
+	}
+	err2, user2 := s.RegistUser("user2")
+	if err2 != "success" {
+		t.Log("Send YO Error: Create user2 error" + err1)
+		t.FailNow()
+	}
+
+	// 参数检查
+	err := s.SendYO(2, user2.Id)
+	if err != "emptysender" {
+		t.Log("Send YO Error: Empty Sender" + err)
+		t.FailNow()
+	}
+
+	err = s.SendYO(user1.Id, 2)
+	if err != "emptygeter" {
+		t.Log("Send YO Error: Empty Geter" + err)
+		t.FailNow()
+	}
+
+	err = s.SendYO(user1.Id, user1.Id)
+	if err != "sendergetersame" {
+		t.Log("Send YO Error: Same User" + err)
+		t.FailNow()
+	}
+
+	// 不加好友不能够发送 yo
+	err = s.SendYO(user1.Id, user2.Id)
+	if err != "nofriend" {
+		t.Log("Send YO Error: User1 and User2 is no friend" + err)
+		t.FailNow()
+	}
+
+	err = s.AddFriend(user1.Id, "user2")
+	if err != "success" {
+		t.Log("Send YO Error: User1 add User2 fail" + err)
+		t.FailNow()
+	}
+
+	// 加好友后发送 yo 成功
+	err = s.SendYO(user1.Id, user2.Id)
+	if err != "success" {
+		t.Log("Send YO Error: user1 send YO to user2" + err)
+		t.FailNow()
+	}
 }
 
 func TestGetYO(t *testing.T) {
 	t.Log("test GetYO")
+	var s Server
+	// 新增两个用户
+	err1, user1 := s.RegistUser("user1")
+	if err1 != "success" {
+		t.Log("Get YO Error: Create user1 error" + err1)
+		t.FailNow()
+	}
+	err2, user2 := s.RegistUser("user2")
+	if err2 != "success" {
+		t.Log("Get YO Error: Create user2 error" + err1)
+		t.FailNow()
+	}
+
+	// 参数检查
+	err, _ := s.GetYO(2)
+	if err != "emptyuser" {
+		t.Log("Get YO Error: Get Empty User" + err)
+		t.FailNow()
+	}
+
+	// 加为好友，发送 yo 成功
+	err = s.AddFriend(user1.Id, "user2")
+	if err != "success" {
+		t.Log("Get YO Error: User1 add User2 fail" + err)
+		t.FailNow()
+	}
+
+	err = s.SendYO(user1.Id, user2.Id)
+	if err != "success" {
+		t.Log("Get YO Error: user1 send YO to user2" + err)
+		t.FailNow()
+	}
+
+	err = s.SendYO(user1.Id, user2.Id)
+	if err != "success" {
+		t.Log("Get YO Error: user1 send YO to user2" + err)
+		t.FailNow()
+	}
+
+	errlst, lst := s.GetYO(user2.Id)
+	if errlst != "success" && len(lst) != 2 {
+		t.Log("Get YO Error: User2 YO list err" + err)
+		t.FailNow()
+	}
+
+	if lst[0].SenderId != user1.Id || lst[0].GeterId != user2.Id {
+		t.Log("Get YO Error: YO Data Err")
+		fmt.Println(lst[0])
+		t.FailNow()
+	}
 }

@@ -16,11 +16,17 @@ type ContactInfo struct {
 	LstUserId []int
 }
 
+const (
+	EMsgInfo_Unread = iota
+	EMsgInfo_Read
+)
+
 type MsgInfo struct {
-	Id        int
-	Type      int
-	LstUserId []int
-	Data      string
+	Id       int
+	Type     int
+	SenderId int
+	GeterId  int
+	Data     string
 }
 
 type Server struct {
@@ -39,7 +45,7 @@ type Server struct {
 
 返回值：u，当 u 为 nil 得时候，表示没有找到 UserData
 */
-func (s *Server) GetUserByName(username string) (u *UserData) {
+func (s *Server) getUserByName(username string) (u *UserData) {
 	for _, user := range s.LstUser {
 		if user.Name == username {
 			return user
@@ -63,7 +69,7 @@ err : 错误信息
 u : 一个用户实例，创建不成功时，其值为 Null
 */
 func (s *Server) RegistUser(username string) (err string, u *UserData) {
-	if s.GetUserByName(username) != nil {
+	if s.getUserByName(username) != nil {
 		return "nameexist", nil
 	}
 
@@ -73,6 +79,32 @@ func (s *Server) RegistUser(username string) (err string, u *UserData) {
 
 	s.LstUser = append(s.LstUser, user)
 	return "success", user
+}
+
+func (s *Server) isFriend(user1Id int, user2Id int) (bIsFriend bool) {
+	bIsFriend = false
+
+	for _, contactinfo := range s.LstContact {
+		var bHasUser1, bHasUser2 bool
+		bHasUser1 = false
+		bHasUser2 = false
+
+		for _, userId := range contactinfo.LstUserId {
+			if bHasUser1 == false && userId == user1Id {
+				bHasUser1 = true
+			}
+
+			if bHasUser2 == false && userId == user2Id {
+				bHasUser2 = true
+			}
+
+			if bHasUser1 && bHasUser2 {
+				bIsFriend = true
+			}
+		}
+	}
+
+	return bIsFriend
 }
 
 /*
@@ -94,7 +126,7 @@ err : 错误信息
 "alreadyfriend":两人已经是好友
 */
 func (s *Server) AddFriend(id int, username string) (err string) {
-	if id < 0 || len(s.LstUser) < id {
+	if id < 0 || len(s.LstUser) <= id {
 		return "iduserempty"
 	}
 
@@ -103,7 +135,7 @@ func (s *Server) AddFriend(id int, username string) (err string) {
 		return "iduserempty"
 	}
 
-	user2 := s.GetUserByName(username)
+	user2 := s.getUserByName(username)
 	if user2 == nil {
 		return "nameuserempty"
 	}
@@ -113,24 +145,8 @@ func (s *Server) AddFriend(id int, username string) (err string) {
 		return "idnameissameone"
 	}
 
-	for _, contactinfo := range s.LstContact {
-		var bHasUser1, bHasUser2 bool
-		bHasUser1 = false
-		bHasUser2 = false
-
-		for _, userId := range contactinfo.LstUserId {
-			if bHasUser1 == false && userId == user1.Id {
-				bHasUser1 = true
-			}
-
-			if bHasUser2 == false && userId == user2.Id {
-				bHasUser2 = true
-			}
-
-			if bHasUser1 && bHasUser2 {
-				return "alreadyfriend"
-			}
-		}
+	if s.isFriend(user1.Id, user2.Id) == true {
+		return "alreadyfriend"
 	}
 
 	newcontact := new(ContactInfo)
@@ -156,7 +172,7 @@ emptyuser: 传入id没有对应的 user
 lstContact:所有的好友
 */
 func (s *Server) GetFriendList(id int) (err string, lstContact []UserData) {
-	if id < 0 || len(s.LstUser) < id {
+	if id < 0 || len(s.LstUser) <= id {
 		return "emptyuser", lstContact
 	}
 
@@ -184,4 +200,79 @@ func (s *Server) GetFriendList(id int) (err string, lstContact []UserData) {
 	}
 
 	return "success", lstContact
+}
+
+/*
+函数名：向一组好友发送 YO
+
+参数：senderId lstId
+
+senderId 发送者
+geterId 接收者
+
+返回值：err
+
+err:错误信息
+success: 取出成功
+emptysender: 传入id没有对应的 user
+emptygeter: 用户列表为空
+sendergetersame: 发送者和接收者是同一个人
+nofriend: 两者不是好友关系
+
+*/
+func (s *Server) SendYO(senderId int, geterId int) (err string) {
+	if senderId < 0 || senderId >= len(s.LstUser) {
+		return "emptysender"
+	}
+
+	if geterId < 0 || geterId >= len(s.LstUser) {
+		return "emptygeter"
+	}
+
+	if senderId == geterId {
+		return "sendergetersame"
+	}
+
+	if s.isFriend(senderId, geterId) == false {
+		return "nofriend"
+	}
+
+	m := new(MsgInfo)
+	m.Id = len(s.LstMsg)
+	m.Type = EMsgInfo_Unread
+	m.SenderId = senderId
+	m.GeterId = geterId
+
+	s.LstMsg = append(s.LstMsg, m)
+
+	return "success"
+}
+
+/*
+函数名：取得自己的 YO
+
+参数：geterId
+
+geterId 接收者
+
+返回值：err
+
+err:错误信息
+success: 取出成功
+emptyuser: 用户为空
+
+*/
+func (s *Server) GetYO(geterId int) (err string, lstYO []MsgInfo) {
+	if geterId < 0 || geterId >= len(s.LstUser) {
+		return "emptyuser", lstYO
+	}
+
+	for _, msg := range s.LstMsg {
+		if msg.Type == EMsgInfo_Unread && msg.GeterId == geterId {
+			lstYO = append(lstYO, *msg)
+			msg.Type = EMsgInfo_Read
+		}
+	}
+
+	return "success", lstYO
 }
