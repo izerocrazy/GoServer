@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"yo"
 )
 
@@ -19,6 +20,22 @@ func testFun(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
 }
 
+type IError struct {
+	RetCode   int    `json:"retcode"`
+	Msg       string `json:"msg"`
+	ErrorCode string `json:"errorcode"`
+}
+
+func makeError(err string) (reg interface{}) {
+	reg = IError{
+		RetCode:   200,
+		Msg:       "error",
+		ErrorCode: err,
+	}
+
+	return reg
+}
+
 ///////////////////////////////////////////////////////
 /* RegUse */
 // 使用方法：客户端请求网址 /user/reg ，务必带上 username 参数
@@ -29,23 +46,34 @@ type RegUserData struct {
 
 // 思考怎么实现数据上的继承
 type IRegUser struct {
-	Retcode  int         `json:"retconde"`
+	Retcode  int         `json:"retcode"`
 	Msg      string      `json:"msg"`
 	Datetime int         `json:"datetime"`
 	Data     RegUserData `json:"data"`
 }
 
 func RegUser(w http.ResponseWriter, r *http.Request) {
-	/* szUserName := r.URL.Query()["username"][0] */
-	/* fmt.Fprintf(w, "hello, %s", szUserName) */
+	szUserName := r.URL.Query()["username"][0]
+	// fmt.Fprintf(w, "hello, %s", szUserName)
 
-	reg := IRegUser{
-		Retcode:  200,
-		Msg:      "ok",
-		Datetime: 10,
-		Data:     RegUserData{Userid: 100},
+	err, user := s.RegistUser(szUserName)
+	var reg interface{}
+	if err == "success" {
+		// 设定 cookie
+		// cookiename := "username_" + szUserName
+		// cookieid := "userid+" + user.Id
+		cookie := http.Cookie{Name: "userid", Value: fmt.Sprintf("%d", user.Id), Path: "/"}
+		http.SetCookie(w, &cookie)
+
+		reg = IRegUser{
+			Retcode:  200,
+			Msg:      "ok",
+			Datetime: 10,
+			Data:     RegUserData{Userid: user.Id},
+		}
+	} else {
+		reg = makeError(err)
 	}
-
 	encode := json.NewEncoder(w)
 	encode.Encode(reg)
 }
@@ -61,7 +89,7 @@ type AddFriendData struct {
 
 // 思考怎么实现数据上的继承
 type IAddFriend struct {
-	Retcode  int           `json:"retconde"`
+	Retcode  int           `json:"retcode"`
 	Msg      string        `json:"msg"`
 	Datetime int           `json:"datetime"`
 	Data     AddFriendData `json:"data"`
@@ -69,15 +97,27 @@ type IAddFriend struct {
 
 func AddFriend(w http.ResponseWriter, r *http.Request) {
 	szUserName := r.URL.Query()["friendname"][0]
-	/* fmt.Fprintf(w, "hello, %s", szUserName) */
+	// fmt.Fprintf(w, "hello, %s", szUserName)
+	// userId, errId := r.Cookie("userid")
+	szUserId, errId := r.Cookie("userid")
+	userId, _ := strconv.Atoi(szUserId.Value)
+	var reg interface{}
+	if errId != nil {
+		reg = makeError("cookieempty")
+	} else {
+		err := s.AddFriend(userId, szUserName)
+		if err == "success" {
+			reg = IAddFriend{
+				Retcode:  200,
+				Msg:      "ok",
+				Datetime: 10,
+				Data:     AddFriendData{Id: 100, Name: szUserName},
+			}
+		} else {
+			reg = makeError(err)
+		}
 
-	reg := IAddFriend{
-		Retcode:  200,
-		Msg:      "ok",
-		Datetime: 10,
-		Data:     AddFriendData{Id: 100, Name: szUserName},
 	}
-
 	encode := json.NewEncoder(w)
 	encode.Encode(reg)
 }
@@ -98,21 +138,42 @@ type GetFriendListData struct {
 
 // 思考怎么实现数据上的继承
 type IGetFriendList struct {
-	Retcode  int               `json:"retconde"`
+	Retcode  int               `json:"retcode"`
 	Msg      string            `json:"msg"`
 	Datetime int               `json:"datetime"`
 	Data     GetFriendListData `json:"data"`
 }
 
 func GetFriendList(w http.ResponseWriter, r *http.Request) {
-	/* szUserName := r.URL.Query()["friendname"][0] */
 	/* fmt.Fprintf(w, "hello, %s", szUserName) */
+	// userId, errId := r.Cookie("userid")
+	szUserId, errId := r.Cookie("userid")
+	userId, _ := strconv.Atoi(szUserId.Value)
+	var reg interface{}
+	if errId != nil {
+		reg = makeError("cookieempty")
+	} else {
+		err, lstUser := s.GetFriendList(userId)
+		if err == "success" {
+			var lstSendData GetFriendListData
+			lstSendData.Count = len(lstUser)
 
-	reg := IGetFriendList{
-		Retcode:  200,
-		Msg:      "ok",
-		Datetime: 10,
-		Data:     GetFriendListData{Count: 1, Friend: []User{{Name: "lz", Id: 1}}},
+			for _, value := range lstUser {
+				var u User
+				u.Name = value.Name
+				u.Id = value.Id
+				lstSendData.Friend = append(lstSendData.Friend, u)
+			}
+
+			reg = IGetFriendList{
+				Retcode:  200,
+				Msg:      "ok",
+				Datetime: 10,
+				Data:     lstSendData,
+			}
+		} else {
+			reg = makeError(err)
+		}
 	}
 
 	encode := json.NewEncoder(w)
@@ -121,25 +182,38 @@ func GetFriendList(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////
 /* SendYO */
-// 使用方法：客户端请求网址 /yo/sendyo ，务必带上 friendname 和 username 参数
-// 使用例子：http://localhost:8000/yo/sendyo?friendname=1
+// 使用方法：客户端请求网址 /yo/sendyo ，务必带上 friendid
+// 使用例子：http://localhost:8000/yo/sendyo?friendid=1
 // 思考怎么实现数据上的继承
 type ISendYO struct {
-	Retcode  int    `json:"retconde"`
+	Retcode  int    `json:"retcode"`
 	Msg      string `json:"msg"`
 	Datetime int    `json:"datetime"`
 }
 
 func SendYO(w http.ResponseWriter, r *http.Request) {
-	/* szUserName := r.URL.Query()["friendname"][0] */
+	szGeterId := r.URL.Query()["friendid"][0]
+	geterId, _ := strconv.Atoi(szGeterId)
+
 	/* fmt.Fprintf(w, "hello, %s", szUserName) */
-
-	reg := ISendYO{
-		Retcode:  200,
-		Msg:      "ok",
-		Datetime: 10,
+	// userId, errId := r.Cookie("userid")
+	szUserId, errId := r.Cookie("userid")
+	userId, _ := strconv.Atoi(szUserId.Value)
+	var reg interface{}
+	if errId != nil {
+		reg = makeError("cookieempty")
+	} else {
+		err := s.SendYO(userId, geterId)
+		if err == "success" {
+			reg = ISendYO{
+				Retcode:  200,
+				Msg:      "ok",
+				Datetime: 10,
+			}
+		} else {
+			reg = makeError(err)
+		}
 	}
-
 	encode := json.NewEncoder(w)
 	encode.Encode(reg)
 }
@@ -161,26 +235,49 @@ type GetYOData struct {
 
 // 思考怎么实现数据上的继承
 type IGetYO struct {
-	Retcode  int       `json:"retconde"`
+	Retcode  int       `json:"retcode"`
 	Msg      string    `json:"msg"`
 	Datetime int       `json:"datetime"`
 	Data     GetYOData `json:"data"`
 }
 
 func GetYO(w http.ResponseWriter, r *http.Request) {
-	/* szUserName := r.URL.Query()["friendname"][0] */
 	/* fmt.Fprintf(w, "hello, %s", szUserName) */
-
-	reg := IGetYO{
-		Retcode:  200,
-		Msg:      "ok",
-		Datetime: 10,
-		Data:     GetYOData{Count: 1, Msgs: []YOMsg{{From: "lz", Msg: "1", Senddate: 2}}},
+	szUserId, errId := r.Cookie("userid")
+	userId, _ := strconv.Atoi(szUserId.Value)
+	var reg interface{}
+	if errId != nil {
+		reg = makeError("cookieempty")
+	} else {
+		err, lstYO := s.GetYO(userId)
+		if err != "success" {
+			var lstData GetYOData
+			lstData.Count = len(lstYO)
+			for _, value := range lstYO {
+				var y YOMsg
+				err, y.From = s.GetUserName(value.SenderId)
+				if err == "success" {
+					lstData.Msgs = append(lstData.Msgs, y)
+					reg = IGetYO{
+						Retcode:  200,
+						Msg:      "ok",
+						Datetime: 10,
+						Data:     lstData,
+					}
+				} else {
+					reg = makeError(err)
+				}
+			}
+		} else {
+			reg = makeError(err)
+		}
 	}
 
 	encode := json.NewEncoder(w)
 	encode.Encode(reg)
 }
+
+var s yo.Server
 
 func main() {
 	HtmlServer := http.FileServer(http.Dir("."))
@@ -195,6 +292,6 @@ func main() {
 
 	// 缺少一个默认的 404
 
-	err := http.ListenAndServe(":8000", nil)
+	err := http.ListenAndServe(":8080", nil)
 	Base.CheckErr(err)
 }

@@ -39,6 +39,24 @@ type Server struct {
 }
 
 /*
+函数名：根据用户 Id 获得用户名
+
+参数：id
+
+返回值：err name
+
+"success" 取值成功
+"emptyid" 用户为空
+*/
+func (s *Server) GetUserName(id int) (err string, name string) {
+	if id < 0 || id >= len(s.LstUser) {
+		return "emptyid", name
+	}
+
+	return "success", s.LstUser[id].Name
+}
+
+/*
 函数名：根据用户名字获得用户
 
 参数：注册用户名
