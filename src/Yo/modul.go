@@ -6,8 +6,10 @@ import (
 
 // 后期考虑配置
 type UserData struct {
-	Id   int    // user id
-	Name string // user name
+	Id         int    // user id
+	Name       string // user name
+	FriendList []int  // 好友列表
+	MsgList    []int  // 消息列表
 }
 
 type ContactInfo struct {
@@ -173,6 +175,10 @@ func (s *Server) AddFriend(id int, username string) (err string) {
 	newcontact.LstUserId = append(newcontact.LstUserId, user2.Id)
 
 	s.LstContact = append(s.LstContact, newcontact)
+
+	// 两个玩家都需要给自己添加好友
+	user1.FriendList = append(user1.FriendList, newcontact.Id)
+	user2.FriendList = append(user2.FriendList, newcontact.Id)
 	return "success"
 }
 
@@ -199,17 +205,7 @@ func (s *Server) GetFriendList(id int) (err string, lstContact []UserData) {
 		return "emptyuser", lstContact
 	}
 
-	var LstId []int
-	for i, contactinfo := range s.LstContact {
-		for _, userId := range contactinfo.LstUserId {
-			if userId == user.Id {
-				LstId = append(LstId, i)
-				break
-			}
-		}
-	}
-
-	for _, index := range LstId {
+	for _, index := range user.FriendList {
 		for _, userId := range s.LstContact[index].LstUserId {
 			if userId != user.Id {
 				lstContact = append(lstContact, *s.LstUser[userId])
@@ -263,6 +259,10 @@ func (s *Server) SendYO(senderId int, geterId int) (err string) {
 
 	s.LstMsg = append(s.LstMsg, m)
 
+	// geter 用户列表中存入此消息
+	user := s.LstUser[geterId]
+	user.MsgList = append(user.MsgList, m.Id)
+
 	return "success"
 }
 
@@ -285,8 +285,10 @@ func (s *Server) GetYO(geterId int) (err string, lstYO []MsgInfo) {
 		return "emptyuser", lstYO
 	}
 
-	for _, msg := range s.LstMsg {
-		if msg.Type == EMsgInfo_Unread && msg.GeterId == geterId {
+	user := s.LstUser[geterId]
+	for _, msgId := range user.MsgList {
+		msg := s.LstMsg[msgId]
+		if msg.Type == EMsgInfo_Unread {
 			lstYO = append(lstYO, *msg)
 			msg.Type = EMsgInfo_Read
 		}
