@@ -65,7 +65,7 @@ func (s *Server) GetUserName(id int) (err string, name string) {
 
 返回值：u，当 u 为 nil 得时候，表示没有找到 UserData
 */
-func (s *Server) getUserByName(username string) (u *UserData) {
+func (s *Server) GetUserByName(username string) (u *UserData) {
 	for _, user := range s.LstUser {
 		if user.Name == username {
 			return user
@@ -89,7 +89,7 @@ err : 错误信息
 u : 一个用户实例，创建不成功时，其值为 Null
 */
 func (s *Server) RegistUser(username string) (err string, u *UserData) {
-	if s.getUserByName(username) != nil {
+	if s.GetUserByName(username) != nil {
 		return "nameexist", nil
 	}
 
@@ -155,7 +155,7 @@ func (s *Server) AddFriend(id int, username string) (err string) {
 		return "iduserempty"
 	}
 
-	user2 := s.getUserByName(username)
+	user2 := s.GetUserByName(username)
 	if user2 == nil {
 		return "nameuserempty"
 	}
