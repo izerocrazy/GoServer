@@ -131,7 +131,7 @@ func AddFriend(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////
 /* GetFriendList */
-// 使用方法：客户端请求网址 /friend/list，务必带上 username 参数
+// 使用方法：客户端请求网址 /friend/list，务必带上 userid 参数
 // 使用例子：http://localhost:8000/friend/list?userid=1
 // 返回 Json:
 // {"retcode":200,"msg":"ok","datetime":10,"data":{"count":1,"friend":[{"name":"2","id":0}]}}
@@ -233,7 +233,7 @@ func SendYO(w http.ResponseWriter, r *http.Request) {
 
 ///////////////////////////////////////////////////////
 /* GetYO */
-// 使用方法：客户端请求网址 /yo/getyo，务必带上 username 参数
+// 使用方法：客户端请求网址 /yo/getyo，务必带上 userid 参数
 // 使用例子：http://localhost:8000/yo/getyo?userid=1
 // {"retcode":200,"msg":"ok","datetime":10,"data":{"count":1,"msgs":[{"from":"1","msg":"","senddate":0}]}}
 type YOMsg struct {
@@ -274,15 +274,16 @@ func GetYO(w http.ResponseWriter, r *http.Request) {
 				err, y.From = s.GetUserName(value.SenderId)
 				if err == "success" {
 					lstData.Msgs = append(lstData.Msgs, y)
-					reg = IGetYO{
-						Retcode:  200,
-						Msg:      "ok",
-						Datetime: 10,
-						Data:     lstData,
-					}
-				} else {
-					reg = makeError(err)
-				}
+				} /*else {
+					// reg = makeError(err)
+					// break
+				}*/
+			}
+			reg = IGetYO{
+				Retcode:  200,
+				Msg:      "ok",
+				Datetime: 10,
+				Data:     lstData,
 			}
 		} else {
 			reg = makeError(err)

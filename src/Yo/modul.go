@@ -228,8 +228,8 @@ geterId 接收者
 
 err:错误信息
 success: 取出成功
-emptysender: 传入id没有对应的 user
-emptygeter: 用户列表为空
+emptysender: 发送者为空
+emptygeter: 接收者为空
 sendergetersame: 发送者和接收者是同一个人
 nofriend: 两者不是好友关系
 
