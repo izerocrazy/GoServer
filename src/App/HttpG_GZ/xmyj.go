@@ -53,7 +53,7 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 		szHtmlUrl := fmt.Sprintf("http://www.gzzb.gd.cn/cms/wz/view/sccx/QyyjServlet?qyyj_qybh=%d&qyyj_qymc=&qyyj_xmbh=&qyyj_xmmc=&siteId=1&channelId=29&pager.offset=%d", nCompanyId, nOffset)
 
 		bIsEnd := true
-		retList := HttpG.GetCompanyQyyjInfos(HttpG.GetHttpResp(szHtmlUrl))
+		retList := HttpG.GetCompanyQyyjInfos(HttpG.GetHttpResp(szHtmlUrl), nCompanyId)
 		for n, sample := range retList {
 			sampleList = append(sampleList, sample)
 

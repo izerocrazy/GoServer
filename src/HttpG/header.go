@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"strconv"
 	"time"
 )
 
@@ -295,14 +296,14 @@ func FindNodeByTypeName(node *html.Node, szTypeName string) []*html.Node {
 func GetNodeText(node *html.Node) (text string) {
 	for child := node.FirstChild; child != nil; child = child.NextSibling {
 		if child.Type == html.TextNode {
-			return child.Data
+			return html.UnescapeString(strings.Replace(child.Data, "\u00a0", "",-1))
 		}
 	}
 
 	return ""
 }
 
-func GetCompanyQyyjInfos(resp *http.Response) []QyyjSample {
+func GetCompanyQyyjInfos(resp *http.Response, nCompanyId int) []QyyjSample {
 	var retList []QyyjSample
 
 	r := resp.Body
@@ -321,6 +322,14 @@ func GetCompanyQyyjInfos(resp *http.Response) []QyyjSample {
 			tdList := FindNodeByTypeName(tr, "td")
 			m := len(tdList)
 			if m < 3 {
+				continue
+			}
+			
+			// 验证是否是对应的 Id 号
+			tbChildId := GetNodeText(tdList[3])
+			// fmt.Println(strconv.Atoi(tbChildId))
+			nChildId, _ := strconv.Atoi(tbChildId)
+			if nChildId != nCompanyId {
 				continue
 			}
 
