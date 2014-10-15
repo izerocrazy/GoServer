@@ -5,6 +5,21 @@ import (
 	"testing"
 )
 
+func TestMap(t *testing.T) {
+	var r ReflectMap
+	err := r.Init()
+	if err != "success" {
+		t.Log("init err", err)
+		t.FailNow()
+	}
+
+	err = r.Init()
+	if err != "complaxinit" {
+		t.Log("init err", err)
+		t.FailNow()
+	}
+}
+
 func TestAdd(t *testing.T) {
 	var r ReflectMap
 	r.Init()

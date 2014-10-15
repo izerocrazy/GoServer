@@ -8,8 +8,22 @@ type ReflectMap struct {
 	Table map[string]reflect.Type
 }
 
-func (r *ReflectMap) Init() {
-	r.Table = make(map[string]reflect.Type)
+/*
+函数名：初始化 Reflect Map
+
+返回值：error 错误码
+
+success
+
+complaxinit 重复初始化
+*/
+func (r *ReflectMap) Init() string {
+	if r.Table == nil {
+		r.Table = make(map[string]reflect.Type)
+		return "success"
+	}
+
+	return "complaxinit"
 }
 
 /*
