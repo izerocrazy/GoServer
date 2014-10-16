@@ -27,7 +27,8 @@ func TestAddHandle(t *testing.T) {
 // 错误的情况有：
 // 0、未初始化
 // 1、未绑定接口服务
-// 1、接口已经使用
+// 2、接口已经使用
+// 3、已经启用
 func TestStart(t *testing.T) {
 	var h HttpServer
 	err := h.Start(":8080", nil)

@@ -1,13 +1,13 @@
 package yo
 
 import (
+	"httprouter"
 	"net/http"
-	"reflectmap"
 )
 
 type HttpServer struct {
 	Server *Server
-	Router *ReflectMap
+	Router *HttpRouter
 }
 
 /*
