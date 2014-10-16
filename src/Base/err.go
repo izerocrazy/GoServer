@@ -22,3 +22,9 @@ func CheckErrExit(e error) bool {
 
 	return true
 }
+
+func PrintErr(szErr string) {
+	fmt.Println("=======>>> Error Begin <<<=======")
+	fmt.Println(szErr)
+	fmt.Println("=======>>> Error End <<<=======")
+}

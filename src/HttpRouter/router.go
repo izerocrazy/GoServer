@@ -1,9 +1,10 @@
 package httprouter
 
 import (
-	"fmt"
+	"base"
 	"net/http"
 	"reflectmap"
+	"restcontrol"
 )
 
 type HttpRouter struct {
@@ -42,7 +43,7 @@ uninit 未初始化
 
 isexist 这个字符串已经有了对应的控制器
 */
-func (h *HttpRouter) AddControl(szPath string, control interface{}) string {
+func (h *HttpRouter) AddControl(szPath string, control restcontrol.RESTControl) string {
 	var err string
 	if h.Map == nil {
 		err = "uninit"
@@ -57,17 +58,17 @@ func (h *HttpRouter) AddControl(szPath string, control interface{}) string {
 函数名：实现 golang http 库中的 Handle 接口，完成路由器
 // 错误有：
 // 对象错误：1、map 未初始化
-// 参数错误：1、ResponseWriter 的错误；3、Request 的错误
+// 参数错误：2、ResponseWriter 的错误；3、Request 的错误
 */
 func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h.Map == nil {
-		fmt.Println("HttpRouter ServeHTTP Error: HttpRouter.ReflectMap is un Init")
+		Base.PrintErr("HttpRouter ServeHTTP Error: HttpRouter.ReflectMap is un Init")
 	}
 
 	// 从 map 中取出一个对象
 	err, _ := h.Map.New(r.URL.Path)
 	if err != "success" {
-		fmt.Println("HttpRouter ServeHTTP Error: Map New a control err", err)
+		Base.PrintErr("HttpRouter ServeHTTP Error: Map New a control err" + err)
 	}
 
 	// 需要调用对应 control 的函数

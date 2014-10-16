@@ -1,6 +1,7 @@
 package httprouter
 
 import (
+	"net/http"
 	"testing"
 )
 
@@ -22,12 +23,30 @@ func TestInit(t *testing.T) {
 	}
 }
 
+type TestControl struct {
+}
+
+func (t *TestControl) Init(w *http.ResponseWriter, r *http.Request) {
+}
+
+func (t *TestControl) Get() {
+}
+
+func (t *TestControl) Put() {
+}
+
+func (t *TestControl) Post() {
+}
+
+func (t *TestControl) Delete() {
+}
+
 // 对象错误：1、map 未初始化
 // 参数错误：1、map 中已有此路径
 func TestAddControl(t *testing.T) {
 	var h HttpRouter
 	szHandle := "/"
-	handler := 1 // 暂用 int 代替
+	handler := new(TestControl)
 
 	err := h.AddControl(szHandle, handler)
 	if err != "uninit" {
