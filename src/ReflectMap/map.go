@@ -58,13 +58,33 @@ success
 
 regempty 这个字符串已经有了对应的 reflect.type
 */
-func (r *ReflectMap) New(szRegName string) (err string, i interface{}) {
+func (r *ReflectMap) New(szRegName string) (err string, v reflect.Value) {
 	t := r.Table[szRegName]
 	if t != nil {
-		i = reflect.New(t).Interface()
+		v = reflect.New(t)
 		err = "success"
 	} else {
 		err = "regempty"
+	}
+
+	return err, v
+}
+
+/*
+函数名：传入 string，生成一个类型对应的指针
+
+参数：szRegName 注册名称
+
+返回值：error 错误码
+
+success
+
+regempty 这个字符串已经有了对应的 reflect.type
+*/
+func (r *ReflectMap) NewInterface(szRegName string) (err string, i interface{}) {
+	err, v := r.New(szRegName)
+	if err == "success" {
+		i = v.Interface()
 	}
 
 	return err, i
