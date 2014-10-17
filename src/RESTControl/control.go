@@ -7,11 +7,11 @@ import (
 type RESTControl interface {
 	Init(w *http.ResponseWriter, r *http.Request)
 
-	Get()
+	Get(w *http.ResponseWriter, r *http.Request)
 
-	Put()
+	Put(w *http.ResponseWriter, r *http.Request)
 
-	Post()
+	Post(w *http.ResponseWriter, r *http.Request)
 
-	Delete()
+	Delete(w *http.ResponseWriter, r *http.Request)
 }

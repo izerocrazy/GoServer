@@ -28,3 +28,9 @@ func PrintErr(szErr string) {
 	fmt.Println(szErr)
 	fmt.Println("=======>>> Error End <<<=======")
 }
+
+func PrintErrExit(szErr string) {
+	PrintErr(szErr)
+
+	os.Exit(0)
+}

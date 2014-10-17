@@ -3,6 +3,7 @@ package httprouter
 import (
 	"base"
 	"net/http"
+	"reflect"
 	"reflectmap"
 	"restcontrol"
 )
@@ -65,11 +66,26 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Base.PrintErr("HttpRouter ServeHTTP Error: HttpRouter.ReflectMap is un Init")
 	}
 
-	// 从 map 中取出一个对象
-	err, _ := h.Map.New(r.URL.Path)
+	// 从 map 中取出一个对象:New
+	err, control := h.Map.New(r.URL.Path)
 	if err != "success" {
 		Base.PrintErr("HttpRouter ServeHTTP Error: Map New a control err: " + err)
 	}
 
 	// 需要调用对应 control 的函数
+	// Init
+	init := control.MethodByName("Init")
+	in := make([]reflect.Value, 2)
+	in[0] = reflect.ValueOf(&w)
+	in[1] = reflect.ValueOf(r)
+	init.Call(in)
+
+	// Get and Post
+	if r.Method == "Get" {
+		method := control.MethodByName("Get")
+		method.Call(in)
+	} else if r.Method == "Post" {
+		method := control.MethodByName("Post")
+		method.Call(in)
+	}
 }

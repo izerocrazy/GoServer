@@ -19,8 +19,6 @@ type HttpServer struct {
 
 success
 
-uninit 未初始化
-
 complaxinit 重复初始化
 */
 func (h *HttpServer) Init() string {
@@ -63,6 +61,8 @@ func (h *HttpServer) AddControl(szPart string, control restcontrol.RESTControl) 
 
 success
 
+uninit 未初始化
+
 httperr golang http 服务内部错误
 */
 func (h *HttpServer) Start(szPort string) string {
@@ -70,7 +70,7 @@ func (h *HttpServer) Start(szPort string) string {
 		return "uninit"
 	}
 
-	err := http.ListenAndServe(":8000", h.Router)
+	err := http.ListenAndServe(szPort, h.Router)
 	if err == nil {
 		return "success"
 	} else {
