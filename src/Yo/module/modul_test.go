@@ -1,4 +1,4 @@
-package yo
+package module
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 
 func TestRegistUser(t *testing.T) {
 	t.Log("test RegistUser")
-	var s Server
+	var s ModuleServer
 	// 第一次肯定成功
 	err, u := s.RegistUser("name1")
 	if err != "success" {
@@ -32,7 +32,7 @@ func TestRegistUser(t *testing.T) {
 
 func TestAddFriend(t *testing.T) {
 	t.Log("TestAddFriend")
-	var s Server
+	var s ModuleServer
 	err1, u1 := s.RegistUser("user1")
 	if err1 != "success" {
 		t.Log("Regist User Error")
@@ -82,7 +82,7 @@ func TestAddFriend(t *testing.T) {
 
 func TestGetFriendList(t *testing.T) {
 	t.Log("test GetFriendList")
-	var s Server
+	var s ModuleServer
 	_, user1 := s.RegistUser("user1")
 
 	// 取一个不存在用户的 contact list
@@ -134,7 +134,7 @@ func TestGetFriendList(t *testing.T) {
 
 func TestSendYO(t *testing.T) {
 	t.Log("test SendYO")
-	var s Server
+	var s ModuleServer
 	// 新增两个用户
 	err1, user1 := s.RegistUser("user1")
 	if err1 != "success" {
@@ -189,7 +189,7 @@ func TestSendYO(t *testing.T) {
 
 func TestGetYO(t *testing.T) {
 	t.Log("test GetYO")
-	var s Server
+	var s ModuleServer
 	// 新增两个用户
 	err1, user1 := s.RegistUser("user1")
 	if err1 != "success" {

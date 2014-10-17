@@ -1,4 +1,4 @@
-package yo
+package module
 
 // 后期考虑配置
 type UserData struct {

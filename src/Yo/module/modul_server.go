@@ -1,10 +1,10 @@
-package yo
+package module
 
 import (
 	"fmt"
 )
 
-type Server struct {
+type ModuleServer struct {
 	// 一组用户列表
 	LstUser []*UserData
 	// 一组用户关系列表
@@ -23,7 +23,7 @@ type Server struct {
 "success" 取值成功
 "emptyid" 用户为空
 */
-func (s *Server) GetUserName(id int) (err string, name string) {
+func (s *ModuleServer) GetUserName(id int) (err string, name string) {
 	if id < 0 || id >= len(s.LstUser) {
 		return "emptyid", name
 	}
@@ -38,7 +38,7 @@ func (s *Server) GetUserName(id int) (err string, name string) {
 
 返回值：u，当 u 为 nil 得时候，表示没有找到 UserData
 */
-func (s *Server) GetUserByName(username string) (u *UserData) {
+func (s *ModuleServer) GetUserByName(username string) (u *UserData) {
 	for _, user := range s.LstUser {
 		if user.Name == username {
 			return user
@@ -61,7 +61,7 @@ err : 错误信息
 
 u : 一个用户实例，创建不成功时，其值为 Null
 */
-func (s *Server) RegistUser(username string) (err string, u *UserData) {
+func (s *ModuleServer) RegistUser(username string) (err string, u *UserData) {
 	if s.GetUserByName(username) != nil {
 		return "nameexist", nil
 	}
@@ -74,7 +74,7 @@ func (s *Server) RegistUser(username string) (err string, u *UserData) {
 	return "success", user
 }
 
-func (s *Server) isFriend(user1Id int, user2Id int) (bIsFriend bool) {
+func (s *ModuleServer) isFriend(user1Id int, user2Id int) (bIsFriend bool) {
 	bIsFriend = false
 
 	for _, contactinfo := range s.LstContact {
@@ -118,7 +118,7 @@ err : 错误信息
 "nameuserempty":被请求者为空
 "alreadyfriend":两人已经是好友
 */
-func (s *Server) AddFriend(id int, username string) (err string) {
+func (s *ModuleServer) AddFriend(id int, username string) (err string) {
 	if id < 0 || len(s.LstUser) <= id {
 		return "iduserempty"
 	}
@@ -168,7 +168,7 @@ emptyuser: 传入id没有对应的 user
 
 lstContact:所有的好友
 */
-func (s *Server) GetFriendList(id int) (err string, lstContact []UserData) {
+func (s *ModuleServer) GetFriendList(id int) (err string, lstContact []UserData) {
 	if id < 0 || len(s.LstUser) <= id {
 		return "emptyuser", lstContact
 	}
@@ -207,7 +207,7 @@ sendergetersame: 发送者和接收者是同一个人
 nofriend: 两者不是好友关系
 
 */
-func (s *Server) SendYO(senderId int, geterId int) (err string) {
+func (s *ModuleServer) SendYO(senderId int, geterId int) (err string) {
 	if senderId < 0 || senderId >= len(s.LstUser) {
 		return "emptysender"
 	}
@@ -253,7 +253,7 @@ success: 取出成功
 emptyuser: 用户为空
 
 */
-func (s *Server) GetYO(geterId int) (err string, lstYO []MsgInfo) {
+func (s *ModuleServer) GetYO(geterId int) (err string, lstYO []MsgInfo) {
 	if geterId < 0 || geterId >= len(s.LstUser) {
 		return "emptyuser", lstYO
 	}

@@ -68,7 +68,7 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 从 map 中取出一个对象
 	err, _ := h.Map.New(r.URL.Path)
 	if err != "success" {
-		Base.PrintErr("HttpRouter ServeHTTP Error: Map New a control err" + err)
+		Base.PrintErr("HttpRouter ServeHTTP Error: Map New a control err: " + err)
 	}
 
 	// 需要调用对应 control 的函数

@@ -1,9 +1,9 @@
 package yo
 
 import (
-	"reflectmap"
+	"testing"
 )
 
-func TestAddRouter() {
+func TestAddRouter(t *testing.T) {
 
 }
