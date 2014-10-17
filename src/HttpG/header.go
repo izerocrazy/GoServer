@@ -12,6 +12,7 @@ import (
 	"strings"
 	"strconv"
 	"time"
+	"io/ioutil"
 )
 
 // because do not make ,waste my time
@@ -19,18 +20,18 @@ var c chan int = make(chan int)
 
 func ShowReader(resp *http.Response) {
 	r := resp.Body
-	defer resp.Body.Close()
+	//defer resp.Body.Close()
 
-	var buf [512]byte
+	var buf [1024]byte
 	reader := r
 	//fmt.Println("got body")
 	for {
 		n, err := reader.Read(buf[0:])
+		fmt.Println(string(buf[0:n]))
 		if err != nil {
 			break
 		}
 
-		fmt.Println(string(buf[0:n]))
 		//cd, err := iconv.Open("gbk", "utf-8")
 		//HttpG.Base.CheckErr(err)
 		//defer cd.Close()
@@ -276,6 +277,7 @@ func FindDivNodeByName(node *html.Node, szName string) []*html.Node {
 }
 
 func FindNodeByTypeName(node *html.Node, szTypeName string) []*html.Node {
+	//fmt.Println("find node by type name", szTypeName, "this node's data is", node.Data)
 	var retList []*html.Node
 
 	if (node.Type == html.DocumentNode || node.Type == html.ElementNode) && node.Data == szTypeName {
@@ -308,7 +310,9 @@ func GetCompanyQyyjInfos(resp *http.Response, nCompanyId int) []QyyjSample {
 
 	r := resp.Body
 	defer r.Close()
-	doc, err := html.Parse(r)
+	szAll, err := ioutil.ReadAll(r)
+	
+	doc, err := html.Parse(strings.NewReader(strings.Replace(string(szAll),  "&nbsp;", "",-1)))
 	Base.CheckErr(err)
 
 	divList := FindDivNodeByName(doc, "bszn_right_table")
@@ -321,8 +325,13 @@ func GetCompanyQyyjInfos(resp *http.Response, nCompanyId int) []QyyjSample {
 
 			tdList := FindNodeByTypeName(tr, "td")
 			m := len(tdList)
-			if m < 3 {
+			if m == 1 {	// 是为空
 				continue
+			} else{
+				if m < 3 {	// Parse 可能为空（由于字符异常引起）
+					html.Render(os.Stdout, div)
+					Base.PrintErrExit("end")
+				}
 			}
 			
 			// 验证是否是对应的 Id 号
@@ -334,10 +343,10 @@ func GetCompanyQyyjInfos(resp *http.Response, nCompanyId int) []QyyjSample {
 			}
 
 			var qyyjSample QyyjSample
-			/*tbChild := td.FirstChild   //Table Index
-			  fmt.Println(tbChild.Data)
-			  tbChild = tbChild.NextSibling  //Id: YJ201103170297
-			  fmt.Println(tbChild.Data)*/
+			//tbChild := td.FirstChild   //Table Index
+			//fmt.Println(tbChild.Data)
+			//tbChild = tbChild.NextSibling  //Id: YJ201103170297
+			//fmt.Println(tbChild.Data)
 			tbChild := tdList[2] //a and name
 
 			for tempChild := tbChild.FirstChild; tempChild != nil; tempChild = tempChild.NextSibling {

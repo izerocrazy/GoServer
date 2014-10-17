@@ -71,7 +71,7 @@ func DoForOneCompany(nCompanyId int, file *os.File) {
 		// time.Sleep(2 * time.Second)
 	}
 
-    fmt.Println(sampleList);
+    //fmt.Println(sampleList);
 	for i, a := range sampleList {
 		if a.Name == "" {
             continue;
