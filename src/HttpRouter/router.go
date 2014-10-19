@@ -64,12 +64,14 @@ func (h *HttpRouter) AddControl(szPath string, control restcontrol.RESTControl) 
 func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h.Map == nil {
 		Base.PrintErr("HttpRouter ServeHTTP Error: HttpRouter.ReflectMap is un Init")
+		return
 	}
 
 	// 从 map 中取出一个对象:New
 	err, control := h.Map.New(r.URL.Path)
 	if err != "success" {
-		Base.PrintErr("HttpRouter ServeHTTP Error: Map New a control err: " + err)
+		Base.PrintErr("HttpRouter ServeHTTP Error: Router Map New a control err: " + err + "the path is" + r.URL.Path)
+		return
 	}
 
 	// 需要调用对应 control 的函数
@@ -78,6 +80,7 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	in := make([]reflect.Value, 2)
 	in[0] = reflect.ValueOf(&w)
 	in[1] = reflect.ValueOf(r)
+	Base.Fmtprintln(control)
 	init.Call(in)
 
 	// Get and Post

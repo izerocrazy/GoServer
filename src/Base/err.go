@@ -23,6 +23,12 @@ func CheckErrExit(e error) bool {
 	return true
 }
 
+func PrintLog(szErr string) {
+	fmt.Println("=======>>> Log Begin <<<=======")
+	fmt.Println(szErr)
+	fmt.Println("=======>>> Log End <<<=======")
+}
+
 func PrintErr(szErr string) {
 	fmt.Println("=======>>> Error Begin <<<=======")
 	fmt.Println(szErr)
@@ -33,4 +39,8 @@ func PrintErrExit(szErr string) {
 	PrintErr(szErr)
 
 	os.Exit(0)
+}
+
+func Fmtprintln(i interface{}) {
+	fmt.Println(i)
 }

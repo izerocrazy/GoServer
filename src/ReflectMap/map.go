@@ -42,8 +42,8 @@ func (r *ReflectMap) Add(szRegName string, i interface{}) string {
 		return "isexist"
 	}
 
-	rt := reflect.ValueOf(i)
-	r.Table[szRegName] = rt.Type()
+	rt := reflect.Indirect(reflect.ValueOf(i)).Type()
+	r.Table[szRegName] = rt
 	return "success"
 }
 

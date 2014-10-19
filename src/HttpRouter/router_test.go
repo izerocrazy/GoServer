@@ -29,16 +29,16 @@ type TestControl struct {
 func (t *TestControl) Init(w *http.ResponseWriter, r *http.Request) {
 }
 
-func (t *TestControl) Get() {
+func (t *TestControl) Get(w *http.ResponseWriter, r *http.Request) {
 }
 
-func (t *TestControl) Put() {
+func (t *TestControl) Put(w *http.ResponseWriter, r *http.Request) {
 }
 
-func (t *TestControl) Post() {
+func (t *TestControl) Post(w *http.ResponseWriter, r *http.Request) {
 }
 
-func (t *TestControl) Delete() {
+func (t *TestControl) Delete(w *http.ResponseWriter, r *http.Request) {
 }
 
 // 对象错误：1、map 未初始化
