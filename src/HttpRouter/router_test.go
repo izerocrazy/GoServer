@@ -73,6 +73,84 @@ func TestAddControl(t *testing.T) {
 	}
 }
 
+func TestResolveURLToRESTData(t *testing.T) {
+	var h HttpRouter
+	err, szPath, tbParam := h.ResolveURLToRESTData("")
+	if err != "needbeign/" || szPath != "" || tbParam != nil {
+		t.Log("Resolve URL Err 1")
+		t.FailNow()
+	}
+
+	err, szPath, tbParam = h.ResolveURLToRESTData("A")
+	if err != "needbeign/" || szPath != "" || tbParam != nil {
+		t.Log("Resolve URL Err 1.5")
+		t.FailNow()
+	}
+
+	// /
+	err, szPath, tbParam = h.ResolveURLToRESTData("/")
+	if err != "success" || szPath != "/" || tbParam != nil {
+		t.Log("Resolve URL Err 1.55")
+		t.FailNow()
+	}
+
+	// /A
+	err, szPath, tbParam = h.ResolveURLToRESTData("/A")
+	if err != "success" || szPath != "/A" || tbParam != nil {
+		t.Log("Resolve URL Err 2", err, szPath, tbParam)
+		t.FailNow()
+	}
+
+	// /A:n
+	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000")
+	if err != "success" || szPath != "/A" || len(tbParam) != 1 || tbParam["A"] != "1000" {
+		t.Log("Resolve URL Err 3")
+		t.FailNow()
+	}
+
+	// /A:n:
+	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000:")
+	if err != "errexpr" {
+		t.Log("Resolve URL Err 3.1")
+		t.FailNow()
+	}
+
+	// /A:
+	err, szPath, tbParam = h.ResolveURLToRESTData("/A:")
+	if err != "errexpr" {
+		t.Log("Resolve URL Err 3.2")
+		// t.FailNow()
+	}
+
+	// /:n
+	err, szPath, tbParam = h.ResolveURLToRESTData("/:n")
+	if err != "errexpr" {
+		t.Log("Resolve URL Err 3.3")
+		// t.FailNow()
+	}
+
+	// /:
+	err, szPath, tbParam = h.ResolveURLToRESTData("/:")
+	if err != "errexpr" {
+		t.Log("Resolve URL Err 3.4")
+		t.FailNow()
+	}
+
+	// /A:n/B
+	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000/B")
+	if err != "success" || szPath != "/A/B" || len(tbParam) != 1 || tbParam["A"] != "1000" {
+		t.Log("Resolve URL Err 4")
+		t.FailNow()
+	}
+
+	// /A:n/B:m
+	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000/B:2000")
+	if err != "success" || szPath != "/A/B" || len(tbParam) != 2 || tbParam["A"] != "1000" || tbParam["B"] != "2000" {
+		t.Log("Resolve URL Err 5")
+		t.FailNow()
+	}
+}
+
 // 因为原生的 DefaultServeMux 对外只有这一个接口，所以是不是也能做到？
 // func TestServeHTTP(t *testing.T) {
 // 	var h HttpRouter

@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"reflectmap"
 	"restcontrol"
+	"strings"
 )
 
 type HttpRouter struct {
@@ -55,6 +56,47 @@ func (h *HttpRouter) AddControl(szPath string, control restcontrol.RESTControl) 
 	return err
 }
 
+func (h *HttpRouter) ResolveURLToRESTData(szURL string) (err string, szPath string, tbParam map[string]string) {
+	szPath = ""
+	tbParam = nil
+
+	parts := strings.Split(szURL, "/")
+	// 第一个必须是 ""
+	if len(szURL) < 1 || szURL[0] != '/' || parts[0] != "" {
+		return "needbeign/", szPath, tbParam
+	}
+
+	if len(szURL) == 1 {
+		szPath = "/"
+		err = "success"
+		return err, szPath, tbParam
+	}
+
+	tbParam = make(map[string]string)
+	for _, part := range parts {
+		if part != "" {
+			if strings.Contains(part, ":") {
+				tbExpr := strings.Split(part, ":")
+				if len(tbExpr) == 2 && tbExpr[0] != "" && tbExpr[1] != "" {
+					szPath = szPath + "/" + tbExpr[0]
+					tbParam[tbExpr[0]] = tbExpr[1]
+				} else {
+					// fmt.Println(part, len(tbExpr), tbExpr[0])
+					return "errexpr", "", nil
+				}
+			} else {
+				szPath = szPath + "/" + part
+			}
+		}
+	}
+
+	if len(tbParam) == 0 {
+		tbParam = nil
+	}
+
+	return "success", szPath, tbParam
+}
+
 /*
 函数名：实现 golang http 库中的 Handle 接口，完成路由器
 // 错误有：
@@ -77,10 +119,10 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 需要调用对应 control 的函数
 	// Init
 	init := control.MethodByName("Init")
+	Base.Fmtprintln(control)
 	in := make([]reflect.Value, 2)
 	in[0] = reflect.ValueOf(&w)
 	in[1] = reflect.ValueOf(r)
-	Base.Fmtprintln(control)
 	init.Call(in)
 
 	// Get and Post
@@ -89,6 +131,12 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		method.Call(in)
 	} else if r.Method == "Post" {
 		method := control.MethodByName("Post")
+		method.Call(in)
+	} else if r.Method == "put" {
+		method := control.MethodByName("Put")
+		method.Call(in)
+	} else if r.Method == "Delete" {
+		method := control.MethodByName("Delete")
 		method.Call(in)
 	}
 }
