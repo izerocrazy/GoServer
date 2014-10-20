@@ -110,7 +110,13 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 从 map 中取出一个对象:New
-	err, control := h.Map.New(r.URL.Path)
+	errPath, szPath, tbParam := h.ResolveURLToRESTData(r.URL.Path)
+	if errPath != "success" {
+		Base.PrintErr("HttpRouter ServeHTTP Error: Router Map New a control err: " + errPath + "the path is" + r.URL.Path)
+		return
+	}
+
+	err, control := h.Map.New(szPath)
 	if err != "success" {
 		Base.PrintErr("HttpRouter ServeHTTP Error: Router Map New a control err: " + err + "the path is" + r.URL.Path)
 		return
@@ -119,12 +125,16 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 需要调用对应 control 的函数
 	// Init
 	init := control.MethodByName("Init")
-	Base.Fmtprintln(control)
+	// Base.Fmtprintln(control)
+	in2 := make([]reflect.Value, 3)
+	in2[0] = reflect.ValueOf(&w)
+	in2[1] = reflect.ValueOf(r)
+	in2[2] = reflect.ValueOf(tbParam)
+	init.Call(in2)
+
 	in := make([]reflect.Value, 2)
 	in[0] = reflect.ValueOf(&w)
 	in[1] = reflect.ValueOf(r)
-	init.Call(in)
-
 	// Get and Post
 	if r.Method == "Get" {
 		method := control.MethodByName("Get")

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"base"
 	"yo"
 	"yo/control"
 )
@@ -24,5 +25,8 @@ func main() {
 	yo.Init()
 	yo.AddControl("/user", &control.UserControl{})
 	yo.AddControl("/", &control.UserControl{})
-	yo.StartServer()
+	szCode := yo.StartServer()
+	if szCode != "success" {
+		Base.PrintErrExit(szCode)
+	}
 }

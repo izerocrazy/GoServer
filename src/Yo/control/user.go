@@ -8,7 +8,7 @@ import (
 type UserControl struct {
 }
 
-func (uc *UserControl) Init(w *http.ResponseWriter, r *http.Request) {
+func (uc *UserControl) Init(w *http.ResponseWriter, r *http.Request, tbParam map[string]string) {
 	Base.PrintLog("Init")
 }
 
