@@ -26,7 +26,7 @@ func TestInit(t *testing.T) {
 type TestControl struct {
 }
 
-func (t *TestControl) Init(w *http.ResponseWriter, r *http.Request) {
+func (t *TestControl) Init(w *http.ResponseWriter, r *http.Request, tbParam map[string]string) {
 }
 
 func (t *TestControl) Get(w *http.ResponseWriter, r *http.Request) {
@@ -45,7 +45,13 @@ func (t *TestControl) Delete(w *http.ResponseWriter, r *http.Request) {
 // 参数错误：1、map 中已有此路径
 func TestAddControl(t *testing.T) {
 	var h HttpRouter
-	szHandle := "/"
+	szUrl := "/"
+	errUrl, szHandle, _ := h.ResolveURLToRESTData(szUrl)
+	if errUrl != "success" {
+		t.Log("AddControl Error:", errUrl)
+		t.FailNow()
+	}
+
 	handler := new(TestControl)
 
 	err := h.AddControl(szHandle, handler)
@@ -89,22 +95,22 @@ func TestResolveURLToRESTData(t *testing.T) {
 
 	// /
 	err, szPath, tbParam = h.ResolveURLToRESTData("/")
-	if err != "success" || szPath != "/" || tbParam != nil {
-		t.Log("Resolve URL Err 1.55")
+	if err != "success" || szPath != "/" || len(tbParam) != 1 || tbParam[ViewTypeName] != "json" {
+		t.Log("Resolve URL Err 1.55", err, szPath, len(tbParam), tbParam[ViewTypeName])
 		t.FailNow()
 	}
 
 	// /A
 	err, szPath, tbParam = h.ResolveURLToRESTData("/A")
-	if err != "success" || szPath != "/A" || tbParam != nil {
+	if err != "success" || szPath != "/A" || len(tbParam) != 1 {
 		t.Log("Resolve URL Err 2", err, szPath, tbParam)
 		t.FailNow()
 	}
 
 	// /A:n
 	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000")
-	if err != "success" || szPath != "/A" || len(tbParam) != 1 || tbParam["A"] != "1000" {
-		t.Log("Resolve URL Err 3")
+	if err != "success" || szPath != "/A" || len(tbParam) != 2 || tbParam["A"] != "1000" {
+		t.Log("Resolve URL Err 3", err, szPath, tbParam)
 		t.FailNow()
 	}
 
@@ -138,14 +144,25 @@ func TestResolveURLToRESTData(t *testing.T) {
 
 	// /A:n/B
 	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000/B")
-	if err != "success" || szPath != "/A/B" || len(tbParam) != 1 || tbParam["A"] != "1000" {
+	if err != "success" || szPath != "/A/B" || len(tbParam) != 2 || tbParam["A"] != "1000" {
 		t.Log("Resolve URL Err 4")
 		t.FailNow()
 	}
 
 	// /A:n/B:m
 	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000/B:2000")
-	if err != "success" || szPath != "/A/B" || len(tbParam) != 2 || tbParam["A"] != "1000" || tbParam["B"] != "2000" {
+	if err != "success" || szPath != "/A/B" || len(tbParam) != 3 || tbParam["A"] != "1000" || tbParam["B"] != "2000" {
+		t.Log("Resolve URL Err 5")
+		t.FailNow()
+	}
+	if tbParam[ViewTypeName] != "json" {
+		t.Log("Resolve View Type Err")
+		t.FailNow()
+	}
+
+	// /A:n/B:m.xml
+	err, szPath, tbParam = h.ResolveURLToRESTData("/A:1000/B:2000.xml")
+	if err != "success" || szPath != "/A/B" || len(tbParam) != 3 || tbParam["A"] != "1000" || tbParam["B"] != "2000" || tbParam[ViewTypeName] != "xml" {
 		t.Log("Resolve URL Err 5")
 		t.FailNow()
 	}

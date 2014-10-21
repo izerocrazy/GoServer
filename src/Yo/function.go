@@ -2,6 +2,7 @@ package yo
 
 import (
 	"restcontrol"
+	"yo/module"
 )
 
 var s *HttpServer
@@ -60,4 +61,21 @@ func StartServer() string {
 	}
 
 	return s.Start(":8080")
+}
+
+/*
+函数名：得到服务
+
+返回值：error 错误码
+
+success
+
+uninit 未初始化
+*/
+func GetServer() (err string, svr *module.ModuleServer) {
+	if s == nil {
+		return "uninit", nil
+	}
+
+	return "success", s.Server
 }

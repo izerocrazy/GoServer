@@ -58,7 +58,8 @@ func RegUser(w http.ResponseWriter, r *http.Request) {
 	szUserName := r.URL.Query()["username"][0]
 	// fmt.Fprintf(w, "hello, %s", szUserName)
 
-	err, user := s.RegistUser(szUserName)
+	svr := yo.GetServer()
+	err, user := svr.RegistUser(szUserName)
 	var reg interface{}
 	if err == "success" {
 		// 设定 cookie

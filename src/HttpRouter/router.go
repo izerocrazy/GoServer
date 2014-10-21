@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const ViewTypeName = "_view_type"
+
 type HttpRouter struct {
 	Map *reflectmap.ReflectMap
 }
@@ -66,26 +68,42 @@ func (h *HttpRouter) ResolveURLToRESTData(szURL string) (err string, szPath stri
 		return "needbeign/", szPath, tbParam
 	}
 
-	if len(szURL) == 1 {
+	tbParam = make(map[string]string)
+	if len(szURL) == 1 && szURL[0] == '/' {
 		szPath = "/"
 		err = "success"
+		tbParam[ViewTypeName] = "json"
 		return err, szPath, tbParam
 	}
 
-	tbParam = make(map[string]string)
-	for _, part := range parts {
+	for i, part := range parts {
 		if part != "" {
-			if strings.Contains(part, ":") {
-				tbExpr := strings.Split(part, ":")
-				if len(tbExpr) == 2 && tbExpr[0] != "" && tbExpr[1] != "" {
-					szPath = szPath + "/" + tbExpr[0]
-					tbParam[tbExpr[0]] = tbExpr[1]
+			szPartValue := part
+			if i == len(parts)-1 {
+				szViewType, szMain := getViewType(part)
+				if szViewType == "" {
+					tbParam[ViewTypeName] = "json"
 				} else {
-					// fmt.Println(part, len(tbExpr), tbExpr[0])
+					tbParam[ViewTypeName] = szViewType
+				}
+				szPartValue = szMain
+			}
+
+			// Base.PrintLog(szPartValue)
+			if strings.Contains(szPartValue, ":") {
+				tbExpr := strings.Split(szPartValue, ":")
+				if len(tbExpr) != 2 || tbExpr[0] == "" || tbExpr[1] == "" {
 					return "errexpr", "", nil
 				}
+
+				if tbExpr[0] == ViewTypeName {
+					return "errexpr", "", nil
+				}
+
+				szPath = szPath + "/" + tbExpr[0]
+				tbParam[tbExpr[0]] = tbExpr[1]
 			} else {
-				szPath = szPath + "/" + part
+				szPath = szPath + "/" + szPartValue
 			}
 		}
 	}
@@ -95,6 +113,20 @@ func (h *HttpRouter) ResolveURLToRESTData(szURL string) (err string, szPath stri
 	}
 
 	return "success", szPath, tbParam
+}
+
+func getViewType(szString string) (szType string, szMain string) {
+	szType = ""
+	szMain = szString
+	if strings.Contains(szString, ".") {
+		tbExpr := strings.Split(szString, ".")
+		if len(tbExpr) == 2 && tbExpr[0] != "" && tbExpr[1] != "" {
+			szMain = tbExpr[0]
+			szType = tbExpr[1]
+		}
+	}
+
+	return szType, szMain
 }
 
 /*
