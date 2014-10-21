@@ -3,6 +3,7 @@ package yo
 import (
 	"restcontrol"
 	"yo/module"
+	"yo/view"
 )
 
 var s *HttpServer
@@ -72,10 +73,27 @@ success
 
 uninit 未初始化
 */
-func GetServer() (err string, svr *module.ModuleServer) {
+func GetModuleServer() (err string, svr *module.ModuleServer) {
 	if s == nil {
 		return "uninit", nil
 	}
 
-	return "success", s.Server
+	return "success", s.MServer
+}
+
+/*
+函数名：得到view
+
+返回值：error 错误码
+
+success
+
+uninit 未初始化
+*/
+func GetViewManager() (err string, vm *view.ViewManager) {
+	if s == nil {
+		return "uninit", nil
+	}
+
+	return "success", s.ViewManager
 }

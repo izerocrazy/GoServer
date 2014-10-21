@@ -23,7 +23,20 @@ func TestMap(t *testing.T) {
 func TestAdd(t *testing.T) {
 	var r ReflectMap
 	var x int
-	err := r.Add("int", x)
+
+	err := r.Add("", x)
+	if err != "emptystring" {
+		t.Log("Add Err", err)
+		t.FailNow()
+	}
+
+	err = r.Add("int", nil)
+	if err != "nilinterface" {
+		t.Log("Add Err", err)
+		t.FailNow()
+	}
+
+	err = r.Add("int", x)
 	if err != "uninit" {
 		t.Log("Add Err", err)
 		t.FailNow()
@@ -78,7 +91,13 @@ func TestNew(t *testing.T) {
 		t.FailNow()
 	}
 
-	err2, control := r.New("int")
+	err2, control := r.New("")
+	if err2 != "emptystring" {
+		t.Log("New Int Err", err)
+		t.FailNow()
+	}
+
+	err2, control = r.New("int")
 	if err2 != "success" {
 		t.Log("New Int err, ", err)
 		t.FailNow()

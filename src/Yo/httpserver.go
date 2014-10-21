@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"restcontrol"
 	"yo/module"
+	"yo/view"
 )
 
 type HttpServer struct {
-	Server *module.ModuleServer
-	Router *httprouter.HttpRouter
+	MServer     *module.ModuleServer
+	Router      *httprouter.HttpRouter
+	ViewManager *view.ViewManager
 }
 
 /*
@@ -20,19 +22,26 @@ type HttpServer struct {
 success
 
 complaxinit 重复初始化
+
+其余参考 HttpRouter.Init() 以及 ViewManager.Init()
 */
 func (h *HttpServer) Init() string {
-	if h.Server != nil {
+	if h.ViewManager != nil || h.MServer != nil || h.Router != nil {
 		return "complaxinit"
 	}
 
-	if h.Router != nil {
-		return "complaxinit"
-	}
-
-	h.Server = new(module.ModuleServer)
+	h.MServer = new(module.ModuleServer)
 	h.Router = new(httprouter.HttpRouter)
-	return h.Router.Init()
+	h.ViewManager = new(view.ViewManager)
+	err := h.Router.Init()
+	if err != "success" {
+		return err
+	}
+
+	err = h.ViewManager.Init()
+	if err != "success" {
+		return err
+	}
 }
 
 /*
@@ -44,14 +53,33 @@ success
 
 uninit 未初始化
 
-isexist 重复绑定
+其余参考 HttpRouter.AddControl()
 */
 func (h *HttpServer) AddControl(szPart string, control restcontrol.RESTControl) string {
-	if h.Server == nil || h.Router == nil {
+	if h.MServer == nil || h.Router == nil || h.ViewManager == nil {
 		return "uninit"
 	}
 
 	return h.Router.AddControl(szPart, control)
+}
+
+/*
+函数名：增加一个 view render
+
+返回值：error 错误码
+
+success
+
+uninit 未初始化
+
+其余参考 ViewMananger.AddRenderMapWithType
+*/
+func (h *HttpServer) addViewWithType(szName string, szType string, view view.Render) string {
+	if h.MServer == nil || h.Router == nil || h.ViewManager == nil {
+		return "uninit"
+	}
+
+	return h.ViewManager.AddRenderMapWithType(szName, szType, view)
 }
 
 /*
@@ -66,7 +94,7 @@ uninit 未初始化
 httperr golang http 服务内部错误
 */
 func (h *HttpServer) Start(szPort string) string {
-	if h.Router == nil || h.Server == nil {
+	if h.Router == nil || h.MServer == nil {
 		return "uninit"
 	}
 

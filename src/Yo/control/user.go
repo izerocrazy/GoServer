@@ -39,11 +39,17 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 	var err string
 	var user *module.UserData
 	var ok bool
-	// 改成 Module Server
-	errSvr, svr := yo.GetServer()
-	if errSvr != "success" {
-		err = "serverfail"
+
+	err, svr := yo.GetModuleServer()
+	if err != "success" {
+		err = "moduleserverfail"
 		goto SEND
+	}
+
+	err, vm := yo.GetViewManager()
+	if err != "success" {
+		err = "viewmanagerfail"
+		goto SENd
 	}
 
 	szUserName, ok = uc.tbParam["user"]
@@ -61,8 +67,9 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 	err, user = svr.RegistUser(szUserName)
 SEND:
 	var rr view.RegUserResult
-	// rr = view.GetRegUserResult(szViewType)
+	// rr := view.GetRegUserResult(szViewType)
 	rr.Render(err, user, w)
+	// vm.Render(err, user, w)
 }
 
 // 修改一个用户信息

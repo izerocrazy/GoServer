@@ -32,6 +32,7 @@ func TestAddRenderMap(t *testing.T) {
 	var vm ViewManager
 
 	var i TestRender
+
 	err := vm.AddRenderMap("x_json", &i)
 	if err != "uninit" {
 		t.Log("Test View Mananger Add Render Map Err", err)
@@ -49,9 +50,39 @@ func TestAddRenderMap(t *testing.T) {
 		t.Log("Test View Mananger Add Render Map Err", err)
 		t.FailNow()
 	}
+}
 
-	err = vm.AddRenderMap("x_json", &i)
-	if err != "isexist" {
+func TestAddRenderMapWithType(t *testing.T) {
+	var vm ViewManager
+
+	var i TestRender
+
+	err := vm.AddRenderMapWithType("x", "json", &i)
+	if err != "uninit" {
+		t.Log("Test View Mananger Add Render Map Err", err)
+		t.FailNow()
+	}
+
+	err = vm.Init()
+	if err != "success" {
+		t.Log("Test View Mananger Add Render Map Err", err)
+		t.FailNow()
+	}
+
+	err = vm.AddRenderMapWithType("x", "json", &i)
+	if err != "success" {
+		t.Log("Test View Mananger Add Render Map Err", err)
+		t.FailNow()
+	}
+
+	err = vm.AddRenderMapWithType("", "json", &i)
+	if err != "emptystring" {
+		t.Log("Test View Mananger Add Render Map Err", err)
+		t.FailNow()
+	}
+
+	err = vm.AddRenderMapWithType("x", "json1", &i)
+	if err != "errortype" {
 		t.Log("Test View Mananger Add Render Map Err", err)
 		t.FailNow()
 	}
@@ -77,12 +108,6 @@ func TestGetRender(t *testing.T) {
 		t.FailNow()
 	}
 
-	err, _ = vm.GetRender("x_json")
-	if err != "regempty" {
-		t.Log("Test View Mananger Get Render Map Err", err)
-		t.FailNow()
-	}
-
 	err = vm.AddRenderMap("x_json", &i)
 	if err != "success" {
 		t.Log("Test View Mananger Get Render Map Err", err)
@@ -92,6 +117,47 @@ func TestGetRender(t *testing.T) {
 	errGet, i2 := vm.GetRender("x_json")
 	if errGet != "success" && i2.Kind().String() != "Struct" {
 		t.Log("Test View Mananger Get Render Map Err", err)
+		t.FailNow()
+	}
+}
+
+// 错误码
+// success
+// emptystring 名字为空
+// errortype 类型错误
+// 此接口预留给以后做 fatory 相关的内容
+func TestGetRenderByType(t *testing.T) {
+	var vm ViewManager
+
+	var i TestRender
+
+	err := vm.Init()
+	if err != "success" {
+		t.Log("Test View Mananger Get Render By Type Err", err)
+		t.FailNow()
+	}
+
+	err = vm.AddRenderMap("x.json", &i)
+	if err != "success" {
+		t.Log("Test View Mananger Get Render Map By Type Err", err)
+		t.FailNow()
+	}
+
+	err, _ = vm.GetRenderByType("", "json")
+	if err != "emptystring" {
+		t.Log("Test View Manager Get Render By Type Err", err)
+		t.FailNow()
+	}
+
+	err, _ = vm.GetRenderByType("x", "json1")
+	if err != "errortype" {
+		t.Log("Test View Manager Get Render By Type Err", err)
+		t.FailNow()
+	}
+
+	errGet, i2 := vm.GetRenderByType("x", "json")
+	if errGet != "success" && i2.Kind().String() != "Struct" {
+		t.Log("Test View Mananger Get Render Map By Type Err", err)
 		t.FailNow()
 	}
 }

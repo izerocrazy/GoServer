@@ -36,11 +36,23 @@ func (r *ReflectMap) Init() string {
 
 success
 
+emptystring 名字为空
+
+nilinterface 传入的接口为空
+
 isexist 这个字符串已经有了对应的 reflect.type
 
 uninit 未初始化
 */
 func (r *ReflectMap) Add(szRegName string, i interface{}) string {
+	if szRegName == "" {
+		return "emptystring"
+	}
+
+	if i == nil {
+		return "nilinterface"
+	}
+
 	if r.Table == nil {
 		return "uninit"
 	}
@@ -63,9 +75,15 @@ func (r *ReflectMap) Add(szRegName string, i interface{}) string {
 
 success
 
+emptystring 名字为空
+
 regempty 这个字符串没有了对应的 reflect.type
 */
 func (r *ReflectMap) New(szRegName string) (err string, v reflect.Value) {
+	if szRegName == "" {
+		return "emptystring", v
+	}
+
 	if r.Table == nil {
 		return "uninit", v
 	}

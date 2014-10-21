@@ -23,6 +23,8 @@ type HttpRouter struct {
 success
 
 complaxinit 重复初始化
+
+其余参考 reflectmap.init()
 */
 func (h *HttpRouter) Init() string {
 	var err string
@@ -45,7 +47,7 @@ success
 
 uninit 未初始化
 
-isexist 这个字符串已经有了对应的控制器
+其余参考 reflectmap.Add()
 */
 func (h *HttpRouter) AddControl(szPath string, control restcontrol.RESTControl) string {
 	var err string

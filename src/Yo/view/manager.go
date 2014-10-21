@@ -12,20 +12,82 @@ type ViewManager struct {
 // 错误码
 // success
 // complaxinit 重复初始化
-func (vm *ViewManager) Init() string {
+// 其余参见 reflectmap.Init 以及 regsterView
+func (vm *ViewManager) Init() (err string) {
 	if vm.RenderMap == nil {
 		vm.RenderMap = new(reflectmap.ReflectMap)
-		return vm.RenderMap.Init()
+		err = vm.RenderMap.Init()
+		if err != "success" {
+			goto ERROR
+		}
+
+		err = vm.regsterView()
+		if err != "success" {
+			goto ERROR
+		}
+	} else {
+		err = "complaxinit"
+		goto ERROR
 	}
 
-	return "complaxinit"
+	err = "success"
+ERROR:
+	return err
+}
+
+// 错误码
+// success
+// uninit 未初始化
+// 其余参见 reflectmap.Init 以及 AddRenderMapWithType
+func (vm *ViewManager) regsterView() string {
+	if vm.RenderMap == nil {
+		return "uninit"
+	}
+
+	var rr RegUserResult
+	err := vm.AddRenderMapWithType("reguser", "json", &rr)
+	if err != "success" {
+		goto ERROR
+	}
+
+	err = "success"
+ERROR:
+	return err
 }
 
 // 错误码
 // success
 // uninit
-// isexist 这个字符串已经有了对应的 reflect.type
+// 其余参见 reflectmap.Add()
 func (vm *ViewManager) AddRenderMap(szName string, r Render) string {
+	if vm.RenderMap == nil {
+		return "uninit"
+	}
+
+	return vm.RenderMap.Add(szName, r)
+}
+
+func checkType(szType string) bool {
+	if szType != "json" && szType != "xml" && szType != "html" {
+		return false
+	}
+
+	return true
+}
+
+// 错误码
+// success
+// uninit
+// 其余参见 AddRenderMap
+func (vm *ViewManager) AddRenderMapWithType(szName string, szType string, r Render) string {
+	if szName == "" {
+		return "emptystring"
+	}
+
+	if checkType(szType) == false {
+		return "errortype"
+	}
+
 	if vm.RenderMap == nil {
 		return "uninit"
 	}
@@ -35,11 +97,35 @@ func (vm *ViewManager) AddRenderMap(szName string, r Render) string {
 
 // 错误码
 // success
-// regempty 这个字符串没有了对应的 reflect.type
 // uninit
+// 其余参见 reflectmap.Add()
 func (vm *ViewManager) GetRender(szName string) (err string, v reflect.Value) {
 	if vm.RenderMap == nil {
 		return "uninit", v
 	}
 	return vm.RenderMap.New(szName)
+}
+
+// 错误码
+// success
+// emptystring 名字为空
+// errortype 类型错误
+// 其余参加 GetRender
+// 此接口预留给以后做 fatory 相关的内容
+func (vm *ViewManager) GetRenderByType(szName string, szType string) (err string, v reflect.Value) {
+	if vm.RenderMap == nil {
+		return "uninit", v
+	}
+
+	if szName == "" {
+		return "emptystring", v
+	}
+
+	if checkType(szType) == false {
+		return "errortype", v
+	}
+
+	szAllName := szName + "." + szType
+
+	return vm.GetRender(szAllName)
 }
