@@ -3,7 +3,6 @@ package view
 import (
 	"net/http"
 	"testing"
-	"yo/module"
 )
 
 func TestInit(t *testing.T) {
@@ -24,7 +23,7 @@ func TestInit(t *testing.T) {
 
 type TestRender struct{}
 
-func (tr *TestRender) Render(err string, user *module.UserData, w *http.ResponseWriter) {
+func (tr *TestRender) Render(user interface{}, w *http.ResponseWriter) {
 
 }
 
