@@ -22,10 +22,20 @@ func TestMap(t *testing.T) {
 
 func TestAdd(t *testing.T) {
 	var r ReflectMap
-	r.Init()
-
 	var x int
 	err := r.Add("int", x)
+	if err != "uninit" {
+		t.Log("Add Err", err)
+		t.FailNow()
+	}
+
+	err = r.Init()
+	if err != "success" {
+		t.Log("Add Err", err)
+		t.FailNow()
+	}
+
+	err = r.Add("int", x)
 	if err != "success" {
 		t.Log("add int err, ", err)
 		t.FailNow()
@@ -49,10 +59,20 @@ func (f *ForTest) Init(x int) int {
 
 func TestNew(t *testing.T) {
 	var r ReflectMap
-	r.Init()
-
 	var x ForTest
 	err := r.Add("int", x)
+	if err != "uninit" {
+		t.Log("Add Err", err)
+		t.FailNow()
+	}
+
+	err = r.Init()
+	if err != "success" {
+		t.Log("add int err, ", err)
+		t.FailNow()
+	}
+
+	err = r.Add("int", x)
 	if err != "success" {
 		t.Log("add int err, ", err)
 		t.FailNow()
@@ -82,6 +102,7 @@ func TestNew(t *testing.T) {
 		t.FailNow()
 	}
 }
+
 func TestNewInterface(t *testing.T) {
 	var r ReflectMap
 	r.Init()

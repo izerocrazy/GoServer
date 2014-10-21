@@ -22,7 +22,7 @@ type IRegUser struct {
 type RegUserResult struct {
 }
 
-func (rr *RegUserResult) rander(err string, user *module.UserData) (reg interface{}) {
+func (rr *RegUserResult) render(err string, user *module.UserData) (reg interface{}) {
 	if err == "success" {
 		// 设定 cookie
 		// cookiename := "username_" + szUserName
@@ -43,8 +43,8 @@ func (rr *RegUserResult) rander(err string, user *module.UserData) (reg interfac
 	return reg
 }
 
-func (rr *RegUserResult) Rander(err string, user *module.UserData, w *http.ResponseWriter) {
-	reg := rr.rander(err, user)
+func (rr *RegUserResult) Render(err string, user *module.UserData, w *http.ResponseWriter) {
+	reg := rr.render(err, user)
 	encode := json.NewEncoder(*w)
 	encode.Encode(reg)
 }

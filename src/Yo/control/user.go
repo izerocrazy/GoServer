@@ -25,7 +25,7 @@ func (uc *UserControl) Get(w *http.ResponseWriter, r *http.Request) {
 }
 
 /*
-返回的错误值有:
+输出的错误值有:
 
 missusername
 
@@ -62,7 +62,7 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 SEND:
 	var rr view.RegUserResult
 	// rr = view.GetRegUserResult(szViewType)
-	rr.Rander(err, user, w)
+	rr.Render(err, user, w)
 }
 
 // 修改一个用户信息

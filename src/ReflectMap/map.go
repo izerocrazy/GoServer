@@ -16,6 +16,7 @@ type ReflectMap struct {
 success
 
 complaxinit 重复初始化
+
 */
 func (r *ReflectMap) Init() string {
 	if r.Table == nil {
@@ -36,8 +37,14 @@ func (r *ReflectMap) Init() string {
 success
 
 isexist 这个字符串已经有了对应的 reflect.type
+
+uninit 未初始化
 */
 func (r *ReflectMap) Add(szRegName string, i interface{}) string {
+	if r.Table == nil {
+		return "uninit"
+	}
+
 	if r.Table[szRegName] != nil {
 		return "isexist"
 	}
@@ -56,9 +63,13 @@ func (r *ReflectMap) Add(szRegName string, i interface{}) string {
 
 success
 
-regempty 这个字符串已经有了对应的 reflect.type
+regempty 这个字符串没有了对应的 reflect.type
 */
 func (r *ReflectMap) New(szRegName string) (err string, v reflect.Value) {
+	if r.Table == nil {
+		return "uninit", v
+	}
+
 	t := r.Table[szRegName]
 	if t != nil {
 		v = reflect.New(t)
@@ -79,7 +90,7 @@ func (r *ReflectMap) New(szRegName string) (err string, v reflect.Value) {
 
 success
 
-regempty 这个字符串已经有了对应的 reflect.type
+regempty 这个字符串没有了对应的 reflect.type
 */
 func (r *ReflectMap) NewInterface(szRegName string) (err string, i interface{}) {
 	err, v := r.New(szRegName)
