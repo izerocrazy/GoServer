@@ -170,17 +170,19 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	in[0] = reflect.ValueOf(&w)
 	in[1] = reflect.ValueOf(r)
 	// Get and Post
-	if r.Method == "Get" {
+	if r.Method == "GET" {
 		method := control.MethodByName("Get")
 		method.Call(in)
-	} else if r.Method == "Post" {
+	} else if r.Method == "POST" {
 		method := control.MethodByName("Post")
 		method.Call(in)
-	} else if r.Method == "put" {
+	} else if r.Method == "PUT" {
 		method := control.MethodByName("Put")
 		method.Call(in)
-	} else if r.Method == "Delete" {
+	} else if r.Method == "DELETE" {
 		method := control.MethodByName("Delete")
 		method.Call(in)
+	} else {
+		Base.PrintErr("Http Router ServeHTTP Error: Router Map Get A Error Method" + r.Method)
 	}
 }

@@ -10,18 +10,7 @@ import (
 )
 
 type UserControl struct {
-	tbParam map[string]string
-}
-
-func (uc *UserControl) Init(w *http.ResponseWriter, r *http.Request, tbParam map[string]string) {
-	Base.PrintLog("Init")
-
-	uc.tbParam = tbParam
-}
-
-// 得到一个用户的信息
-func (uc *UserControl) Get(w *http.ResponseWriter, r *http.Request) {
-	Base.PrintLog("Get")
+	BaseControl
 }
 
 /*
@@ -79,14 +68,4 @@ SEND:
 			Base.PrintErr("can not find view type :error.json")
 		}
 	}
-}
-
-// 修改一个用户信息
-func (uc *UserControl) Put(w *http.ResponseWriter, r *http.Request) {
-	Base.PrintLog("Put")
-}
-
-// 删除
-func (uc *UserControl) Delete(w *http.ResponseWriter, r *http.Request) {
-	Base.PrintLog("Delete")
 }

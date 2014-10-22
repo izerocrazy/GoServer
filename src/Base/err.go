@@ -42,5 +42,7 @@ func PrintErrExit(szErr string) {
 }
 
 func Fmtprintln(i interface{}) {
+	fmt.Println("==========>>> Println Beign <<<======")
 	fmt.Println(i)
+	fmt.Println("==========>>> Println End <<<======")
 }
