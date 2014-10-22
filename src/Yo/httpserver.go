@@ -42,6 +42,8 @@ func (h *HttpServer) Init() string {
 	if err != "success" {
 		return err
 	}
+
+	return "success"
 }
 
 /*

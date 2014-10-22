@@ -1,6 +1,7 @@
 package view
 
 import (
+	"net/http"
 	"reflect"
 	"reflectmap"
 )
@@ -45,7 +46,13 @@ func (vm *ViewManager) regsterView() string {
 	}
 
 	var rr RegUserResult
+	var re ErrResult
 	err := vm.AddRenderMapWithType("reguser", "json", &rr)
+	if err != "success" {
+		goto ERROR
+	}
+
+	err = vm.AddRenderMapWithType("error", "json", &re)
 	if err != "success" {
 		goto ERROR
 	}
@@ -128,4 +135,18 @@ func (vm *ViewManager) GetRenderByType(szName string, szType string) (err string
 	szAllName := szName + "." + szType
 
 	return vm.GetRender(szAllName)
+}
+
+// 错误码参考 GetRenderByType
+func (vm *ViewManager) DoRender(szName string, szType string, i interface{}, w *http.ResponseWriter) (err string) {
+	err, r := vm.GetRenderByType(szName, szType)
+	if err == "success" {
+		render := r.MethodByName("Render")
+		tbParam := make([]reflect.Value, 2)
+		tbParam[0] = reflect.ValueOf(i)
+		tbParam[1] = reflect.ValueOf(w)
+		render.Call(tbParam)
+	}
+
+	return err
 }

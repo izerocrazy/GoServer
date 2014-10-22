@@ -36,9 +36,11 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 	Base.PrintLog("Post")
 
 	var szUserName string
+	var szViewType string
 	var err string
 	var user *module.UserData
 	var ok bool
+	var vm *view.ViewManager
 
 	err, svr := yo.GetModuleServer()
 	if err != "success" {
@@ -46,10 +48,10 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
-	err, vm := yo.GetViewManager()
+	err, vm = yo.GetViewManager()
 	if err != "success" {
 		err = "viewmanagerfail"
-		goto SENd
+		goto SEND
 	}
 
 	szUserName, ok = uc.tbParam["user"]
@@ -58,7 +60,7 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
-	_, ok = uc.tbParam[httprouter.ViewTypeName]
+	szViewType, ok = uc.tbParam[httprouter.ViewTypeName]
 	if ok == false {
 		err = "missviewtype"
 		goto SEND
@@ -66,10 +68,17 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 
 	err, user = svr.RegistUser(szUserName)
 SEND:
-	var rr view.RegUserResult
-	// rr := view.GetRegUserResult(szViewType)
-	rr.Render(err, user, w)
-	// vm.Render(err, user, w)
+	if err == "success" {
+		err = vm.DoRender("reguser", szViewType, user, w)
+		if err != "success" {
+			goto SEND
+		}
+	} else {
+		err = vm.DoRender("error", szViewType, err, w)
+		if err != "success" {
+			Base.PrintErr("can not find view type :error.json")
+		}
+	}
 }
 
 // 修改一个用户信息
