@@ -11,7 +11,6 @@ type RegUserData struct {
 	Username string `json:"username"`
 }
 
-// 思考怎么实现数据上的继承
 type IRegUser struct {
 	Retcode  int         `json:"retcode"`
 	Msg      string      `json:"msg"`

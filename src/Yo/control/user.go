@@ -26,12 +26,19 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 
 	var szUserName string
 	var szViewType string
+	var ok bool
 	var err string
 	var user *module.UserData
-	var ok bool
 	var vm *view.ViewManager
+	var svr *module.ModuleServer
 
-	err, svr := yo.GetModuleServer()
+	szViewType, ok = uc.tbParam[httprouter.ViewTypeName]
+	if ok == false {
+		err = "missviewtype"
+		goto SEND
+	}
+
+	err, svr = yo.GetModuleServer()
 	if err != "success" {
 		err = "moduleserverfail"
 		goto SEND
@@ -46,12 +53,6 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 	szUserName, ok = uc.tbParam["user"]
 	if ok == false {
 		err = "missusername"
-		goto SEND
-	}
-
-	szViewType, ok = uc.tbParam[httprouter.ViewTypeName]
-	if ok == false {
-		err = "missviewtype"
 		goto SEND
 	}
 

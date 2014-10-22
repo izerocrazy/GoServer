@@ -25,6 +25,7 @@ func main() {
 	yo.Init()
 	yo.AddControl("/user", &control.UserControl{})
 	yo.AddControl("/", &control.UserControl{})
+	yo.AddControl("/friend", &control.FriendControl{})
 	szCode := yo.StartServer()
 	if szCode != "success" {
 		Base.PrintErrExit(szCode)

@@ -47,12 +47,25 @@ func (vm *ViewManager) regsterView() string {
 
 	var rr RegUserResult
 	var re ErrResult
+	var af AddFriendResult
+	var fr FriendListResult
+
 	err := vm.AddRenderMapWithType("reguser", "json", &rr)
 	if err != "success" {
 		goto ERROR
 	}
 
 	err = vm.AddRenderMapWithType("error", "json", &re)
+	if err != "success" {
+		goto ERROR
+	}
+
+	err = vm.AddRenderMapWithType("addfriend", "json", &af)
+	if err != "success" {
+		goto ERROR
+	}
+
+	err = vm.AddRenderMapWithType("friendlist", "json", &fr)
 	if err != "success" {
 		goto ERROR
 	}
@@ -99,7 +112,9 @@ func (vm *ViewManager) AddRenderMapWithType(szName string, szType string, r Rend
 		return "uninit"
 	}
 
-	return vm.RenderMap.Add(szName, r)
+	szAllName := szName + "." + szType
+
+	return vm.RenderMap.Add(szAllName, r)
 }
 
 // 错误码
