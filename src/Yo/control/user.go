@@ -4,6 +4,7 @@ import (
 	"base"
 	"net/http"
 	"yo/module"
+	"yo/view"
 )
 
 type UserControl struct {
@@ -25,6 +26,7 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 	var ok bool
 	var err string
 	var user *module.UserData
+	var data view.RegUserData
 
 	szUserName, ok = uc.tbParam["user"]
 	if ok == false {
@@ -33,9 +35,10 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 	}
 
 	err, user = uc.svr.RegistUser(szUserName)
+	data = view.RegUserData{Userid: user.Id, Username: user.Name}
 SEND:
 	if err == "success" {
-		err = uc.vm.DoRender("reguser", uc.szViewType, user, w)
+		err = uc.vm.DoRender("reguser", uc.szViewType, &data, w)
 		if err != "success" {
 			goto SEND
 		}

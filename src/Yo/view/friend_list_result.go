@@ -3,7 +3,6 @@ package view
 import (
 	"encoding/json"
 	"net/http"
-	"yo/module"
 )
 
 type User struct {
@@ -28,16 +27,7 @@ type FriendListResult struct {
 }
 
 func (fr *FriendListResult) Render(i interface{}, w *http.ResponseWriter) {
-	var lstSendData GetFriendListData
-	lstUser := *(i.(*[]module.UserData))
-	lstSendData.Count = len(lstUser)
-
-	for _, value := range lstUser {
-		var u User
-		u.Name = value.Name
-		u.Id = value.Id
-		lstSendData.Friend = append(lstSendData.Friend, u)
-	}
+	lstSendData := *(i.(*GetFriendListData))
 
 	reg := IGetFriendList{
 		Retcode:  200,

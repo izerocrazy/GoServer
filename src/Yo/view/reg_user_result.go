@@ -28,20 +28,18 @@ func (rr *RegUserResult) render(user *module.UserData) (reg interface{}) {
 	// cookie := http.Cookie{Name: "userid", Value: fmt.Sprintf("%d", user.Id), Path: "/"}
 	// http.SetCookie(w, &cookie)
 
-	reg = IRegUser{
-		Retcode:  200,
-		Msg:      "ok",
-		Datetime: 10,
-		Data:     RegUserData{Userid: user.Id, Username: user.Name},
-	}
-
 	return reg
 }
 
-func (rr *RegUserResult) Render(user interface{}, w *http.ResponseWriter) {
+func (rr *RegUserResult) Render(i interface{}, w *http.ResponseWriter) {
 	// 这里不处理强制转换失败了，因为如果出现错误，也需要重新编译
-	data := user.(*module.UserData)
-	reg := rr.render(data)
+	data := *(i.(*RegUserData))
+	reg := IRegUser{
+		Retcode:  200,
+		Msg:      "ok",
+		Datetime: 10,
+		Data:     data,
+	}
 	encode := json.NewEncoder(*w)
 	encode.Encode(reg)
 }

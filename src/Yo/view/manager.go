@@ -49,6 +49,8 @@ func (vm *ViewManager) regsterView() string {
 	var re ErrResult
 	var af AddFriendResult
 	var fr FriendListResult
+	var gy GetYoResult
+	var sy SendYoResult
 
 	err := vm.AddRenderMapWithType("reguser", "json", &rr)
 	if err != "success" {
@@ -66,6 +68,16 @@ func (vm *ViewManager) regsterView() string {
 	}
 
 	err = vm.AddRenderMapWithType("friendlist", "json", &fr)
+	if err != "success" {
+		goto ERROR
+	}
+
+	err = vm.AddRenderMapWithType("getyo", "json", &gy)
+	if err != "success" {
+		goto ERROR
+	}
+
+	err = vm.AddRenderMapWithType("sendyo", "json", &sy)
 	if err != "success" {
 		goto ERROR
 	}

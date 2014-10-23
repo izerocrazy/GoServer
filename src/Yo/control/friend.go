@@ -18,6 +18,7 @@ func (fc *FriendControl) Get(w *http.ResponseWriter, r *http.Request) {
 	var userId int
 	var ok bool
 	var lstUser []module.UserData
+	var lstSendData view.GetFriendListData
 	var errEr error
 
 	szUserId, ok = fc.tbParam["usersessionid"]
@@ -37,9 +38,17 @@ func (fc *FriendControl) Get(w *http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
+	lstSendData.Count = len(lstUser)
+	for _, value := range lstUser {
+		var u view.User
+		u.Name = value.Name
+		u.Id = value.Id
+		lstSendData.Friend = append(lstSendData.Friend, u)
+	}
+
 SEND:
 	if err == "success" {
-		err = fc.vm.DoRender("friendlist", fc.szViewType, &lstUser, w)
+		err = fc.vm.DoRender("friendlist", fc.szViewType, &lstSendData, w)
 		if err != "success" {
 			goto SEND
 		}
