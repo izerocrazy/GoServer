@@ -225,7 +225,7 @@ pip-log.txt
 *.plist
 
 src/HttpG/XMYJ.numbers/Metadata/DocumentIdentifier
-src/github.com/go-sql-driver/mysql/
+
 *.jpg
 
 *.a
