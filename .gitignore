@@ -227,3 +227,5 @@ pip-log.txt
 src/HttpG/XMYJ.numbers/Metadata/DocumentIdentifier
 
 *.jpg
+
+*.a
