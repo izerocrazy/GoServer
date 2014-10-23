@@ -5,7 +5,7 @@ import (
 )
 
 type RESTControl interface {
-	Init(w *http.ResponseWriter, r *http.Request, tbParam map[string]string)
+	Init(w *http.ResponseWriter, r *http.Request, tbParam map[string]string) (err string)
 
 	Get(w *http.ResponseWriter, r *http.Request)
 

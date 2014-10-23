@@ -164,7 +164,11 @@ func (h *HttpRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	in2[0] = reflect.ValueOf(&w)
 	in2[1] = reflect.ValueOf(r)
 	in2[2] = reflect.ValueOf(tbParam)
-	init.Call(in2)
+	out := init.Call(in2)
+	if len(out) != 1 && out[0].String() != "success" {
+		Base.PrintErr("HttpRouter ServeHTTP Error: Init one Control Err" + "the path is " + r.URL.Path)
+		return
+	}
 
 	in := make([]reflect.Value, 2)
 	in[0] = reflect.ValueOf(&w)

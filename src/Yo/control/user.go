@@ -2,11 +2,8 @@ package control
 
 import (
 	"base"
-	"httprouter"
 	"net/http"
-	"yo"
 	"yo/module"
-	"yo/view"
 )
 
 type UserControl struct {
@@ -25,30 +22,9 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 	Base.PrintLog("Post")
 
 	var szUserName string
-	var szViewType string
 	var ok bool
 	var err string
 	var user *module.UserData
-	var vm *view.ViewManager
-	var svr *module.ModuleServer
-
-	szViewType, ok = uc.tbParam[httprouter.ViewTypeName]
-	if ok == false {
-		err = "missviewtype"
-		goto SEND
-	}
-
-	err, svr = yo.GetModuleServer()
-	if err != "success" {
-		err = "moduleserverfail"
-		goto SEND
-	}
-
-	err, vm = yo.GetViewManager()
-	if err != "success" {
-		err = "viewmanagerfail"
-		goto SEND
-	}
 
 	szUserName, ok = uc.tbParam["user"]
 	if ok == false {
@@ -56,15 +32,15 @@ func (uc *UserControl) Post(w *http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
-	err, user = svr.RegistUser(szUserName)
+	err, user = uc.svr.RegistUser(szUserName)
 SEND:
 	if err == "success" {
-		err = vm.DoRender("reguser", szViewType, user, w)
+		err = uc.vm.DoRender("reguser", uc.szViewType, user, w)
 		if err != "success" {
 			goto SEND
 		}
 	} else {
-		err = vm.DoRender("error", szViewType, err, w)
+		err = uc.vm.DoRender("error", uc.szViewType, err, w)
 		if err != "success" {
 			Base.PrintErr("can not find view type :error.json")
 		}
