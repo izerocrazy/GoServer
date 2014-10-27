@@ -24,7 +24,7 @@ func CheckErrExit(e error) bool {
 }
 
 func PrintLog(szErr string) {
-	fmt.Println("=======>>> Log Begin <<<=======")
+	fmt.Println("=======>>> Log Begin <<<======")
 	fmt.Println(szErr)
 	fmt.Println("=======>>> Log End <<<=======")
 }

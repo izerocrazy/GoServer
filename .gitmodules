@@ -1,3 +1,6 @@
 [submodule "src/github.com/go-sql-driver/mysql"]
 	path = src/github.com/go-sql-driver/mysql
 	url = git://github.com/go-sql-driver/mysql
+[submodule "src/base"]
+	path = src/base
+	url = https://github.com/izerocrazy/go_base.git
