@@ -4,14 +4,11 @@ import (
 	"httprouter"
 	"net/http"
 	"restcontrol"
-	"yo/module"
 	"yo/view"
 )
 
 type HttpServer struct {
-	MServer     *module.ModuleServer
-	Router      *httprouter.HttpRouter
-	ViewManager *view.ViewManager
+	Router *httprouter.HttpRouter
 }
 
 /*
@@ -26,19 +23,12 @@ complaxinit 重复初始化
 其余参考 HttpRouter.Init() 以及 ViewManager.Init()
 */
 func (h *HttpServer) Init() string {
-	if h.ViewManager != nil || h.MServer != nil || h.Router != nil {
+	if h.Router != nil {
 		return "complaxinit"
 	}
 
-	h.MServer = new(module.ModuleServer)
 	h.Router = new(httprouter.HttpRouter)
-	h.ViewManager = new(view.ViewManager)
 	err := h.Router.Init()
-	if err != "success" {
-		return err
-	}
-
-	err = h.ViewManager.Init()
 	if err != "success" {
 		return err
 	}
@@ -58,7 +48,7 @@ uninit 未初始化
 其余参考 HttpRouter.AddControl()
 */
 func (h *HttpServer) AddControl(szPart string, control restcontrol.RESTControl) string {
-	if h.MServer == nil || h.Router == nil || h.ViewManager == nil {
+	if h.Router == nil {
 		return "uninit"
 	}
 
@@ -77,11 +67,16 @@ uninit 未初始化
 其余参考 ViewMananger.AddRenderMapWithType
 */
 func (h *HttpServer) addViewWithType(szName string, szType string, view view.Render) string {
-	if h.MServer == nil || h.Router == nil || h.ViewManager == nil {
+	if h.Router == nil {
 		return "uninit"
 	}
 
-	return h.ViewManager.AddRenderMapWithType(szName, szType, view)
+	err, vm := GetViewManager()
+	if vm == nil || err != "success" {
+		return err
+	}
+
+	return vm.AddRenderMapWithType(szName, szType, view)
 }
 
 /*
@@ -96,7 +91,7 @@ uninit 未初始化
 httperr golang http 服务内部错误
 */
 func (h *HttpServer) Start(szPort string) string {
-	if h.Router == nil || h.MServer == nil {
+	if h.Router == nil {
 		return "uninit"
 	}
 

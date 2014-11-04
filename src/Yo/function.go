@@ -7,6 +7,8 @@ import (
 )
 
 var s *HttpServer
+var ms *module.ModuleServer
+var vm *view.ViewManager
 
 /*
 函数名：初始化
@@ -15,15 +17,34 @@ var s *HttpServer
 
 success
 
+httpservererror
+
+viewmanagererror
+
 complaxinit 重复初始化
 */
 func Init() string {
 	if s == nil {
 		s = new(HttpServer)
-		return s.Init()
+		err := s.Init()
+		if err != "success" {
+			return "httpservererror"
+		}
 	}
 
-	return "complaxinit"
+	if ms == nil {
+		ms = new(module.ModuleServer)
+	}
+
+	if vm == nil {
+		vm = new(view.ViewManager)
+		err := vm.Init()
+		if err != "success" {
+			return "viewmanagererror"
+		}
+	}
+
+	return "success"
 }
 
 /*
@@ -74,11 +95,11 @@ success
 uninit 未初始化
 */
 func GetModuleServer() (err string, svr *module.ModuleServer) {
-	if s == nil {
+	if s == nil || ms == nil {
 		return "uninit", nil
 	}
 
-	return "success", s.MServer
+	return "success", ms
 }
 
 /*
@@ -91,9 +112,9 @@ success
 uninit 未初始化
 */
 func GetViewManager() (err string, vm *view.ViewManager) {
-	if s == nil {
+	if s == nil || vm == nil {
 		return "uninit", nil
 	}
 
-	return "success", s.ViewManager
+	return "success", vm
 }

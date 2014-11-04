@@ -3,6 +3,7 @@ package yo
 import (
 	"net/http"
 	"testing"
+	"yo/module"
 )
 
 func TestInit(t *testing.T) {
@@ -23,7 +24,8 @@ func TestInit(t *testing.T) {
 type TestControl struct {
 }
 
-func (t *TestControl) Init(w *http.ResponseWriter, r *http.Request, tbParam map[string]string) {
+func (t *TestControl) Init(w *http.ResponseWriter, r *http.Request, tbParam map[string]string) string {
+	return "success"
 }
 
 func (t *TestControl) Get(w *http.ResponseWriter, r *http.Request) {
