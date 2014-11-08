@@ -9,8 +9,3 @@
 
 ### yo + App/yo_server
 一个山寨 yo app 应用的服务端，采用 MVC 结构，其 C 中对每一个对象都必须实现 RESTControl 接口
-
-### Todo
-未完成的一套管理系统
-
-
