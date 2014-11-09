@@ -9,3 +9,16 @@
 
 ### yo + App/yo_server
 一个山寨 yo app 应用的服务端，采用 MVC 结构，其 C 中对每一个对象都必须实现 RESTControl 接口
+
+---------------
+### 编译流程
+Step 1:输入指令，包含有两个子项目代码：
+
+git clone https://github.com/izerocrazy/GoServer.git
+
+git submodule update --init --recursive
+
+Step 2:cd 至文件夹 src/App/yo_server/ 下，执行指令：
+go build yo_server.go
+
+Step 3:运行当前目录下生成的程序 yo_server，默认地址为，http://localhost:8080
