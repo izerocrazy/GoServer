@@ -12,13 +12,13 @@
 
 ---------------
 ### 编译流程
-Step 1:输入指令，包含有两个子项目代码：
+** Step 1 **:输入指令，包含有两个子项目代码：
 
-git clone https://github.com/izerocrazy/GoServer.git
+    git clone https://github.com/izerocrazy/GoServer.git
+    git submodule update --init --recursive
 
-git submodule update --init --recursive
+** Step 2 ** :cd 至文件夹 src/App/yo_server/ 下，执行指令：
 
-Step 2:cd 至文件夹 src/App/yo_server/ 下，执行指令：
-go build yo_server.go
+    go build yo_server.go
 
-Step 3:运行当前目录下生成的程序 yo_server，默认地址为，http://localhost:8080
+** Step 3 **:运行当前目录下生成的程序 yo_server，默认地址为，http://localhost:8080
