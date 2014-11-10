@@ -42,7 +42,7 @@ func TestAddColumn(t *testing.T) {
 
 	err = modul.AddColumn("test3", E_COLUMN_GROUP_MIN+1)
 	if err != "wronggrouptype" {
-		t.Log("modul add columu", err)
+		t.Log("modul add column", err)
 		t.FailNow()
 	}
 }
@@ -228,5 +228,143 @@ success
 emptytablename
 */
 func TestGenerateSelectSql(t *testing.T) {
+	var modul Modul
+	err, szSql := modul.GenerateSelectSql()
+	if err != "emptytablename" {
+		t.Log("modul GenerateSelectSql", err)
+		t.FailNow()
+	}
 
+	// test for AddTableName
+	err = modul.AddTableName("test")
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddTableName", err)
+		t.FailNow()
+	}
+	err, szSql = modul.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+
+	err = modul.AddTableName("test1")
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddTableName", err)
+		t.FailNow()
+	}
+	err, szSql = modul.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test, test1" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+
+	// test for AddColumn
+	var modul2 Modul
+	modul2.AddTableName("test") // 这里就不做判断了
+	err = modul2.AddColumn("column1", E_COLUMN_GROUP_SINGLE)
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddColumn", err)
+		t.FailNow()
+	}
+	err, szSql = modul2.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT column1 FROM test" {
+		t.Log("modul GenerateSelectSql", err)
+		t.FailNow()
+	}
+	err = modul2.AddColumn("column2", E_COLUMN_GROUP_SINGLE)
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddColumn", err)
+		t.FailNow()
+	}
+	err, szSql = modul2.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT column1, column2 FROM test" {
+		t.Log("modul GenerateSelectSql", err)
+		t.FailNow()
+	}
+
+	// test for AddWhere
+	var modul3 Modul
+	modul3.AddTableName("test")
+	err = modul3.AddWhere(E_WHERE_CONDITION_AND, "column1", "value1", E_WHERE_CONDITION_EQUAL)
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddWhere", err)
+		t.FailNow()
+	}
+	err, szSql = modul3.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test WHERE (column1 = \"value1\")" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+	err = modul3.AddWhere(E_WHERE_CONDITION_OR, "column2", 1, E_WHERE_CONDITION_NEQ)
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddWhere", err)
+		t.FailNow()
+	}
+	err, szSql = modul3.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test WHERE (column1 = \"value1\") OR (column2 != 1)" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+
+	// test for AddGroup
+	var modul4 Modul
+	modul4.AddTableName("test")
+	err = modul4.AddGroup("group")
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddGroup", err)
+		t.FailNow()
+	}
+	err, szSql = modul4.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test GROUP BY group" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+	err = modul4.AddGroup("group2")
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddGroup", err)
+		t.FailNow()
+	}
+	err, szSql = modul4.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test GROUP BY group, group2" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+
+	// test for AddOrder
+	var modul5 Modul
+	modul5.AddTableName("test")
+	err = modul5.AddOrder("order", E_ORDER_SORT_ASC)
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddOrder", err)
+		t.FailNow()
+	}
+	err, szSql = modul5.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test ORDER BY order ASC" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+	err = modul5.AddOrder("order2", E_ORDER_SORT_ASC)
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddOrder", err)
+		t.FailNow()
+	}
+	err, szSql = modul5.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test ORDER BY order2, order ASC" { // order 是反序
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
+
+	// test for AddLimit
+	var modul6 Modul
+	modul6.AddTableName("test")
+	err = modul6.AddLimit(0, 5)
+	if err != "success" {
+		t.Log("modul GenerateSelectSql AddLimit", err)
+		t.FailNow()
+	}
+	err, szSql = modul6.GenerateSelectSql()
+	if err != "success" || szSql != "SELECT * FROM test LIMIT 0, 5" {
+		t.Log("modul GenerateSelectSql", err, szSql)
+		t.FailNow()
+	}
 }

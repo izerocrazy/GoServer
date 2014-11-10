@@ -151,9 +151,9 @@ func (m *Modul) AddWhere(nConditionType int, szColumnName string, ColumnValue in
 		m.where = szWhere
 	} else {
 		if nConditionType == E_WHERE_CONDITION_OR {
-			m.where = fmt.Sprintf("%v or %v", m.where, szWhere)
+			m.where = fmt.Sprintf("%v OR %v", m.where, szWhere)
 		} else if nConditionType == E_WHERE_CONDITION_AND {
-			m.where = fmt.Sprintf("%v and %v", m.where, szWhere)
+			m.where = fmt.Sprintf("%v AND %v", m.where, szWhere)
 		}
 	}
 
