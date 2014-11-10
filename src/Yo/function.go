@@ -1,6 +1,7 @@
 package yo
 
 import (
+	"base"
 	"restcontrol"
 	"yo/module"
 	"yo/view"
@@ -111,10 +112,11 @@ success
 
 uninit 未初始化
 */
-func GetViewManager() (err string, vm *view.ViewManager) {
+func GetViewManager() (err string, vm2 *view.ViewManager) {
 	if s == nil || vm == nil {
 		return "uninit", nil
 	}
 
-	return "success", vm
+	vm2 = vm
+	return "success", vm2
 }
