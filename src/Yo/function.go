@@ -1,7 +1,7 @@
 package yo
 
 import (
-	"base"
+	_ "base"
 	"restcontrol"
 	"yo/module"
 	"yo/view"
