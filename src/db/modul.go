@@ -31,8 +31,9 @@ const (
 )
 
 type Modul struct {
-	columnlist    string
-	tablenamelist string
+	columnlist      string
+	columnvaluelist string
+	tablenamelist   string
 	// join          string
 	where     string
 	grouplist string
@@ -81,6 +82,21 @@ func (m *Modul) AddColumn(szNew string, nGroupType int) string {
 	} else {
 		m.columnlist = fmt.Sprintf("%v, %v", m.columnlist, szNewColumn)
 	}
+	return "success"
+}
+
+/*
+增加一个 Column 名，和 Column 的值
+
+返回值
+
+success
+
+repeatname
+
+wrongvaluetype
+*/
+func (m *Modul) AddColumnValue(szColumnName string, ColumnValue interface{}) string {
 	return "success"
 }
 
@@ -273,7 +289,7 @@ func (m *Modul) AddLimit(nOffset int, nRowNum int) string {
 }
 
 /*
-输出 sql 语句
+输出 select sql 语句
 
 返回值
 success
@@ -315,4 +331,16 @@ func (m *Modul) GenerateSelectSql() (err string, szSql string) {
 	}
 
 	return "success", a
+}
+
+/*
+输出 insert sql 语句
+
+返回值
+success
+
+emptytablename
+*/
+func (m *Modul) GenerateInsertSql() (err string, szSql string) {
+
 }
