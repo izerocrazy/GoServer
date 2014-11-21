@@ -368,3 +368,109 @@ func TestGenerateSelectSql(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+/*
+增加一个 Column 名，和 Column 的值
+
+返回值
+
+success
+
+repeatname
+
+wrongvaluetype
+*/
+func TestAddColumnValue(t *testing.T) {
+	var modul Modul
+	err := modul.AddColumnValue("test", 0.3)
+	if err != "wrongvaluetype" {
+		t.Log("modul AddColumnValue", err)
+		t.FailNow()
+	}
+
+	err = modul.AddColumnValue("test", 1)
+	if err != "success" {
+		t.Log("modul AddColumnValue", err)
+		t.FailNow()
+	}
+
+	err = modul.AddColumnValue("test", 1)
+	if err != "repeatname" {
+		t.Log("modul AddColumnValue", err)
+		t.FailNow()
+	}
+
+	err = modul.AddColumnValue("test2", 2)
+	if err != "success" {
+		t.Log("modul AddColumnValue", err)
+		t.FailNow()
+	}
+}
+
+/*
+输出 insert sql 语句
+
+返回值
+success
+
+emptytablename
+
+multtablename
+
+emptyinsertvalue
+*/
+func TestGenerateInsertSql(t *testing.T) {
+	var modul Modul
+	err, sql := modul.GenerateInsertSql()
+	if err != "emptytablename" {
+		t.Log("modul GenerateInsertSql", err)
+		t.FailNow()
+	}
+
+	err = modul.AddTableName("testtable")
+	if err != "success" {
+		t.Log("modul GenerateInsertSql AddTableName", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateInsertSql()
+	if err != "emptyinsertvalue" {
+		t.Log("modul GenerateInsertSql", err)
+		t.FailNow()
+	}
+
+	err = modul.AddColumnValue("test1", 1)
+	if err != "success" {
+		t.Log("modul GenerateInsertSql AddColumnValue", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateInsertSql()
+	if err != "success" || sql != "INSERT testtable (test1) VALUES (1)" {
+		t.Log("modul GenerateInsertSql", err)
+	}
+
+	err = modul.AddColumnValue("test2", "test2")
+	if err != "success" {
+		t.Log("modul GenerateInsertSql AddColumnValue", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateInsertSql()
+	if err != "success" || sql != "INSERT testtable (test1, test2) VALUES (1, \"test2\")" {
+		t.Log("modul GenerateInsertSql", err, sql)
+		t.FailNow()
+	}
+
+	err = modul.AddTableName("testtable2")
+	if err != "success" {
+		t.Log("modul GenerateInsertSql AddTableName", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateInsertSql()
+	if err != "multtablename" {
+		t.Log("modul GenerateInsertSql", err)
+		t.FailNow()
+	}
+}

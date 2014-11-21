@@ -2,6 +2,7 @@
 // join
 // seleclt 时 column 不指定 distinct
 // have
+// todo : 此中代码有优化，0、它同时处理 select insert update，使用上容易出错；1、columnlist 存为数组，需要时再组；2、抽离一些通用的流程
 package db
 
 import (
@@ -31,9 +32,10 @@ const (
 )
 
 type Modul struct {
-	columnlist      string
-	columnvaluelist string
-	tablenamelist   string
+	columnlist         string
+	columnvaluelist    string // for insert
+	colnmnnewvaluelist string // for update
+	tablenamelist      string
 	// join          string
 	where     string
 	grouplist string
@@ -96,7 +98,44 @@ repeatname
 
 wrongvaluetype
 */
+//first check value and column both right
 func (m *Modul) AddColumnValue(szColumnName string, ColumnValue interface{}) string {
+	// check for value type
+	err := "wrongvaluetype"
+	switch ColumnValue.(type) {
+	case int:
+	case string:
+	default:
+		return err
+	}
+
+	// check for column name: repeatname
+	err = "repeatname"
+	if strings.Contains(m.columnlist, szColumnName) == true {
+		return err
+	}
+
+	// add
+	if m.columnlist == "" {
+		m.columnlist = szColumnName
+	} else {
+		m.columnlist = fmt.Sprintf("%v, %v", m.columnlist, szColumnName)
+	}
+
+	szValue := ""
+	switch ColumnValue.(type) {
+	case int:
+		szValue = fmt.Sprintf("%d", ColumnValue.(int))
+	case string:
+		szValue = fmt.Sprintf("\"%v\"", ColumnValue.(string))
+	}
+
+	if m.columnvaluelist == "" {
+		m.columnvaluelist = szValue
+	} else {
+		m.columnvaluelist = fmt.Sprintf("%v, %v", m.columnvaluelist, szValue)
+	}
+
 	return "success"
 }
 
@@ -340,7 +379,30 @@ func (m *Modul) GenerateSelectSql() (err string, szSql string) {
 success
 
 emptytablename
+
+multtablename
+
+emptyinsertvalue
+
+wronginsertvalue : [[!!! no achieve !!!]]the count of columnlist is not equit the count of columnvaluelist
 */
 func (m *Modul) GenerateInsertSql() (err string, szSql string) {
+	szSql = ""
+	err = "emptytablename"
+	if m.tablenamelist == "" {
+		return err, szSql
+	}
 
+	err = "multtablename"
+	if strings.Contains(m.tablenamelist, ",") == true {
+		return err, szSql
+	}
+
+	err = "emptyinsertvalue"
+	if m.columnlist == "" || m.columnvaluelist == "" {
+		return err, szSql
+	}
+
+	szSql = fmt.Sprintf("INSERT %v (%v) VALUES (%v)", m.tablenamelist, m.columnlist, m.columnvaluelist)
+	return "success", szSql
 }
