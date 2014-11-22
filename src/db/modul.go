@@ -44,6 +44,16 @@ type Modul struct {
 	limit     string
 }
 
+func (m *Modul) GetColumn() []string {
+	ret := strings.Split(m.columnlist, ", ")
+	return ret
+}
+
+func (m *Modul) GetTableName() []string {
+	ret := strings.Split(m.tablenamelist, ", ")
+	return ret
+}
+
 /*
 增加一列
 
