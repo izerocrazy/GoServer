@@ -474,3 +474,109 @@ func TestGenerateInsertSql(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+/*
+增加一个 Column 名，和 Column 的值
+
+返回值
+
+success
+
+repeatname
+
+wrongvaluetype
+*/
+func TestAddNewColumnValue(t *testing.T) {
+	var modul Modul
+	err := modul.AddNewColumnValue("test", 0.3)
+	if err != "wrongvaluetype" {
+		t.Log("modul AddNewColumnValue", err)
+		t.FailNow()
+	}
+
+	err = modul.AddNewColumnValue("test", 1)
+	if err != "success" {
+		t.Log("modul AddNewColumnValue", err)
+		t.FailNow()
+	}
+
+	err = modul.AddNewColumnValue("test", 1)
+	if err != "repeatname" {
+		t.Log("modul AddNewColumnValue", err)
+		t.FailNow()
+	}
+
+	err = modul.AddNewColumnValue("test2", 2)
+	if err != "success" {
+		t.Log("modul AddNewColumnValue", err)
+		t.FailNow()
+	}
+}
+
+/*
+输出 update sql 语句
+
+返回值
+success
+
+emptytablename
+
+multtablename
+
+emptyupdatevalue
+*/
+func TestGenerateUpdateSql(t *testing.T) {
+	var modul Modul
+	err, sql := modul.GenerateUpdateSql()
+	if err != "emptytablename" {
+		t.Log("modul GenerateUpdateSql", err)
+		t.FailNow()
+	}
+
+	err = modul.AddTableName("testtable")
+	if err != "success" {
+		t.Log("modul GenerateUpdateSql AddTableName", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateUpdateSql()
+	if err != "emptyupdatevalue" {
+		t.Log("modul GenerateUpdateSql", err)
+		t.FailNow()
+	}
+
+	err = modul.AddNewColumnValue("test1", 1)
+	if err != "success" {
+		t.Log("modul GenerateUpdateSql AddNewColumnValue", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateUpdateSql()
+	if err != "success" || sql != "UPDATE testtable SET (test1 = 1)" {
+		t.Log("modul GenerateUpdateSql", err, sql)
+	}
+
+	err = modul.AddNewColumnValue("test2", "test2")
+	if err != "success" {
+		t.Log("modul GenerateUpdateSql AddNewColumnValue", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateUpdateSql()
+	if err != "success" || sql != "UPDATE testtable SET (test1 = 1, test2 = \"test2\")" {
+		t.Log("modul GenerateUpdateSql", err, sql)
+		t.FailNow()
+	}
+
+	err = modul.AddTableName("testtable2")
+	if err != "success" {
+		t.Log("modul GenerateUpdateSql AddTableName", err)
+		t.FailNow()
+	}
+
+	err, sql = modul.GenerateUpdateSql()
+	if err != "multtablename" {
+		t.Log("modul GenerateUpdateSql", err)
+		t.FailNow()
+	}
+}

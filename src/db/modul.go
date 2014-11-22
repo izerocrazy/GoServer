@@ -34,7 +34,7 @@ const (
 type Modul struct {
 	columnlist         string
 	columnvaluelist    string // for insert
-	colnmnnewvaluelist string // for update
+	columnnewvaluelist string // for update
 	tablenamelist      string
 	// join          string
 	where     string
@@ -134,6 +134,57 @@ func (m *Modul) AddColumnValue(szColumnName string, ColumnValue interface{}) str
 		m.columnvaluelist = szValue
 	} else {
 		m.columnvaluelist = fmt.Sprintf("%v, %v", m.columnvaluelist, szValue)
+	}
+
+	return "success"
+}
+
+/*
+增加一个 Column 名，和 Column 的值
+
+返回值
+
+success
+
+repeatname
+
+wrongvaluetype
+*/
+func (m *Modul) AddNewColumnValue(szColumnName string, ColumnValue interface{}) string {
+	// check for value type
+	err := "wrongvaluetype"
+	switch ColumnValue.(type) {
+	case int:
+	case string:
+	default:
+		return err
+	}
+
+	// check for column name: repeatname
+	err = "repeatname"
+	if strings.Contains(m.columnlist, szColumnName) == true {
+		return err
+	}
+
+	// add
+	if m.columnlist == "" {
+		m.columnlist = szColumnName
+	} else {
+		m.columnlist = fmt.Sprintf("%v, %v", m.columnlist, szColumnName)
+	}
+
+	szValue := ""
+	switch ColumnValue.(type) {
+	case int:
+		szValue = fmt.Sprintf("%d", ColumnValue.(int))
+	case string:
+		szValue = fmt.Sprintf("\"%v\"", ColumnValue.(string))
+	}
+
+	if m.columnnewvaluelist == "" {
+		m.columnnewvaluelist = fmt.Sprintf("%v = %v", szColumnName, szValue)
+	} else {
+		m.columnnewvaluelist = fmt.Sprintf("%v, %v = %v", m.columnnewvaluelist, szColumnName, szValue)
 	}
 
 	return "success"
@@ -347,29 +398,14 @@ func (m *Modul) GenerateSelectSql() (err string, szSql string) {
 		return err, ""
 	}
 
-	a := fmt.Sprintf("SELECT %v FROM %v", m.columnlist, m.tablenamelist)
+	szSql = fmt.Sprintf("SELECT %v FROM %v", m.columnlist, m.tablenamelist)
 
-	// if m.join != "" {
-	// 	a = fmt.Sprintf("%v %v", a, m.join)
-	// }
-
-	if m.where != "" {
-		a = fmt.Sprintf("%v WHERE %v", a, m.where)
+	err, szSql = m.addWhereSql(szSql)
+	if err != "success" {
+		return err, ""
 	}
 
-	if m.grouplist != "" {
-		a = fmt.Sprintf("%v GROUP BY %v", a, m.grouplist)
-	}
-
-	if m.orderlist != "" {
-		a = fmt.Sprintf("%v ORDER BY %v", a, m.orderlist)
-	}
-
-	if m.limit != "" {
-		a = fmt.Sprintf("%v LIMIT %v", a, m.limit)
-	}
-
-	return "success", a
+	return "success", szSql
 }
 
 /*
@@ -404,5 +440,67 @@ func (m *Modul) GenerateInsertSql() (err string, szSql string) {
 	}
 
 	szSql = fmt.Sprintf("INSERT %v (%v) VALUES (%v)", m.tablenamelist, m.columnlist, m.columnvaluelist)
+	return "success", szSql
+}
+
+/*
+输出 update sql 语句
+
+返回值
+success
+
+emptytablename
+
+multtablename
+
+emptyupdatevalue
+*/
+func (m *Modul) GenerateUpdateSql() (err string, szSql string) {
+	szSql = ""
+
+	err = "emptytablename"
+	if m.tablenamelist == "" {
+		return err, ""
+	}
+
+	err = "multtablename"
+	if strings.Contains(m.tablenamelist, ",") == true {
+		return err, szSql
+	}
+
+	err = "emptyupdatevalue"
+	if m.columnlist == "" || m.columnnewvaluelist == "" {
+		return err, ""
+	}
+
+	szSql = fmt.Sprintf("UPDATE %v SET (%v)", m.tablenamelist, m.columnnewvaluelist)
+
+	err, szSql = m.addWhereSql(szSql)
+	if err != "success" {
+		return err, ""
+	}
+
+	return "success", szSql
+}
+
+func (m *Modul) addWhereSql(szOldSql string) (err string, szSql string) {
+	szSql = szOldSql
+
+	if m.where != "" {
+		szSql = fmt.Sprintf("%v WHERE %v", szSql, m.where)
+	}
+
+	if m.grouplist != "" {
+		szSql = fmt.Sprintf("%v GROUP BY %v", szSql, m.grouplist)
+	}
+
+	if m.orderlist != "" {
+		szSql = fmt.Sprintf("%v ORDER BY %v", szSql, m.orderlist)
+	}
+
+	if m.limit != "" {
+		szSql = fmt.Sprintf("%v LIMIT %v", szSql, m.limit)
+	}
+
 	return "success", szSql
 }
