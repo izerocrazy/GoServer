@@ -1,8 +1,6 @@
 package db
 
 import (
-	"database/sql"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"testing"
 )
@@ -16,17 +14,71 @@ userpwderror
 
 connecterror
 
+databaseerror
+
 dbsqlerror
 
 db, err := sql.Open("mysql", "root:king+5688@tcp(192.168.1.11:3306)/test?charset=utf8")
 */
-func TestInit() {
+func TestInit(t *testing.T) {
 	var client DBClient
 	ip := "192.168.1.11"
-	username := "root"
+	username := ""
 	userpwd := "king+5688"
+	nPort := 0
+	szDataBase := "test"
 
-	client.Init(username, userpwd, ip, 0)
+	err := client.Init(username, userpwd, ip, nPort, szDataBase)
+	if err != "userpwderror" {
+		t.Log("DBClient Init", err)
+		t.FailNow()
+	}
+
+	username = "root"
+	userpwd = ""
+	err = client.Init(username, userpwd, ip, nPort, szDataBase)
+	if err != "userpwderror" {
+		t.Log("DBClient Init", err)
+		t.FailNow()
+	}
+
+	userpwd = "king+5688"
+	ip = ""
+	err = client.Init(username, userpwd, ip, nPort, szDataBase)
+	if err != "connecterror" {
+		t.Log("DBClient Init", err)
+		t.FailNow()
+	}
+
+	ip = "192.168.1.11"
+	nPort = -1
+	err = client.Init(username, userpwd, ip, nPort, szDataBase)
+	if err != "connecterror" {
+		t.Log("DBClient Init", err)
+		t.FailNow()
+	}
+
+	nPort = 0
+	szDataBase = ""
+	err = client.Init(username, userpwd, ip, nPort, szDataBase)
+	if err != "databaseerror" {
+		t.Log("DBClient Init", err)
+		t.FailNow()
+	}
+
+	szDataBase = "noexist"
+	err = client.Init(username, userpwd, ip, nPort, szDataBase)
+	if err != "dbsqlerror" {
+		t.Log("DBClient Init", err)
+		t.FailNow()
+	}
+
+	szDataBase = "test"
+	err = client.Init(username, userpwd, ip, nPort, szDataBase)
+	if err != "success" {
+		t.Log("DBClient Init", err)
+		t.FailNow()
+	}
 }
 
 /*
@@ -34,17 +86,44 @@ func TestInit() {
 
 success
 
-sqlerror
+noconnect
+
+szsqlwrong
+
+dbsqlerror
 */
-func TestDoSql() {
+func TestDoSql(t *testing.T) {
 	var client DBClient
+	// check for noconnect
+	err, _ := client.DoSql("select * from user")
+	if err != "noconnect" {
+		t.Log("DBClient DoSql", err)
+		t.FailNow()
+	}
+
+	// check for szsqlwrong
 	ip := "192.168.1.11"
 	username := "root"
 	userpwd := "king+5688"
+	szDataBase := "test"
 
-	client.Init(username, userpwd, ip, 0)
+	err = client.Init(username, userpwd, ip, 0, szDataBase)
+	if err != "success" {
+		t.Log("DBClient DoSql Init", err)
+		t.FailNow()
+	}
 
-	client.DoSql("select * from user")
+	err, _ = client.DoSql("")
+	if err != "szsqlwrong" {
+		t.Log("DBClient DoSql", err)
+		t.FailNow()
+	}
+
+	err, _ = client.DoSql("select * from user")
+	if err != "success" {
+		t.Log("DBClient DoSql", err)
+		t.FailNow()
+	}
 }
 
 /*
@@ -55,7 +134,7 @@ success
 
 sqlerror
 */
-func TestIfNotExitCreate() {
+func TestIfNotExitCreate(t *testing.T) {
 
 }
 

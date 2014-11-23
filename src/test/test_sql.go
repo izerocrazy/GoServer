@@ -9,6 +9,7 @@ import (
 
 func main() {
 	db, err := sql.Open("mysql", "root:king+5688@tcp(192.168.1.11:3306)/test?charset=utf8")
+	defer db.Close()
 	checkErr(err)
 
 	//插入数据
@@ -62,8 +63,6 @@ func main() {
 	checkErr(err)
 
 	fmt.Println(affect)
-
-	db.Close()
 
 }
 
