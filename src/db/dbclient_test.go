@@ -22,10 +22,10 @@ db, err := sql.Open("mysql", "root:king+5688@tcp(192.168.1.11:3306)/test?charset
 */
 func TestInit(t *testing.T) {
 	var client DBClient
-	ip := "192.168.1.11"
+	ip := "127.0.0.1"
 	username := ""
-	userpwd := "king+5688"
-	nPort := 0
+	userpwd := "ydp_!SP9bgth"
+	nPort := 3306
 	szDataBase := "test"
 
 	err := client.Init(username, userpwd, ip, nPort, szDataBase)
@@ -42,7 +42,7 @@ func TestInit(t *testing.T) {
 		t.FailNow()
 	}
 
-	userpwd = "king+5688"
+	userpwd = "ydp_!SP9bgth"
 	ip = ""
 	err = client.Init(username, userpwd, ip, nPort, szDataBase)
 	if err != "connecterror" {
@@ -50,7 +50,7 @@ func TestInit(t *testing.T) {
 		t.FailNow()
 	}
 
-	ip = "192.168.1.11"
+	ip = "127.0.0.1"
 	nPort = -1
 	err = client.Init(username, userpwd, ip, nPort, szDataBase)
 	if err != "connecterror" {
@@ -134,9 +134,10 @@ success
 
 sqlerror
 */
-func TestIfNotExitCreate(t *testing.T) {
 
-}
+/*func TestIfNotExitCreate(t *testing.T) {
+
+}*/
 
 /*
 执行一个 Modul，可以自动添加表和列名
@@ -145,6 +146,7 @@ success
 
 sqlerror
 */
-func TestDoModul() {
 
-}
+/*func TestDoModul() {
+
+}*/

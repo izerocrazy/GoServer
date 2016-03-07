@@ -119,7 +119,7 @@ tablenameerror
 
 dbsqlerror
 */
-func (clinet *DBClient) ifNotExistCreateTable(szTableName string) string {
+func (client *DBClient) ifNotExistCreateTable(szTableName string) string {
 	err := "tablenameerror"
 	if szTableName == "" {
 		return err
@@ -127,7 +127,7 @@ func (clinet *DBClient) ifNotExistCreateTable(szTableName string) string {
 
 	err = "noconnect"
 	// check for dbclient
-	if clinet.szConnectStr == "" {
+	if client.szConnectStr == "" {
 		return err
 	}
 
@@ -141,14 +141,15 @@ func (clinet *DBClient) ifNotExistCreateTable(szTableName string) string {
 	// check datebase table name
 	szSql := fmt.Sprintf("SELECT `TABLE_NAME` FROM information_schema.`TABLE_NAME` WHERE TABLE_SCHEMA =\"%v\"", szTableName)
 	rows, err3 := db.Query(szSql)
-	if err3 == sql.ErrNoRows {
+	if err3 == sql.ErrNoRows || rows == nil {
 		// if don't have table, then create
 		// db.Query
+		return "empty"
 	}
 
 	return "success"
 }
 
-func (clinet *DBClient) ifNotExistCreateColumn(szTableName string, szColumn string) string {
-
+func (client *DBClient) ifNotExistCreateColumn(szTableName string, szColumn string) string {
+	return "success"
 }
